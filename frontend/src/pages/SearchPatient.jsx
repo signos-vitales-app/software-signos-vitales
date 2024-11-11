@@ -6,7 +6,7 @@ import { QrReader } from 'react-qr-reader'; // Importamos el lector de QR
 const SearchPatient = () => {
     const [patients, setPatients] = useState([]);
     const [searchId, setSearchId] = useState(""); // Para almacenar el ID escaneado
-    const [selectedPatientId, setSelectedPatientId] = useState(null);
+    const [selectedIdPaciente, setSelectedIdPaciente] = useState(null);
     const [isScanning, setIsScanning] = useState(false); // Controlar si el escáner está activo
     const [errorMessage, setErrorMessage] = useState(""); // Para mostrar el mensaje de error
     const [scanCompleted, setScanCompleted] = useState(false); // Controlar si el escaneo está completado
@@ -21,23 +21,23 @@ const SearchPatient = () => {
         setPatients(response.data);
     };
 
-    const handleStatusToggle = async (patientId, currentStatus) => {
+    const handleStatusToggle = async (idPaciente, currentStatus) => {
         const newStatus = currentStatus === "activo" ? "inactivo" : "activo";
-        await updatePatientStatus(patientId, newStatus);
+        await updatePatientStatus(idPaciente, newStatus);
         loadPatients();
     };
 
     const filteredPatients = patients.filter(patient =>
-        patient.identification_number.includes(searchId)
+        patient.numero_identificacion.includes(searchId)
     );
 
     const handleSelectPatient = (id) => {
-        setSelectedPatientId(id);
+        setSelectedIdPaciente(id);
     };
 
     const handleRegisterData = () => {
-        if (selectedPatientId) {
-            navigate(`/patient/${selectedPatientId}/records`);//cambio de lusvin
+        if (selectedIdPaciente) {
+            navigate(`/patient/${selectedIdPaciente}/records`);//cambio de lusvin
         }
     };
 
@@ -134,8 +134,8 @@ const SearchPatient = () => {
                 <tbody>
                     {filteredPatients.map((patient) => (
                         <tr key={patient.id} className="border-b">
-                            <td className="p-4">{patient.first_name} {patient.last_name}</td>
-                            <td className="p-4">{patient.identification_number}</td>
+                            <td className="p-4">{patient.primer_nombre} {patient.primer_apellido}</td>
+                            <td className="p-4">{patient.numero_identificacion}</td>
                             <td className="p-4">
                                 <button
                                     onClick={() => handleStatusToggle(patient.id, patient.status)}
@@ -158,10 +158,10 @@ const SearchPatient = () => {
                                 <button
                                     onClick={() => handleSelectPatient(patient.id)}
                                     className={`px-4 py-1 rounded ${
-                                        selectedPatientId === patient.id ? "bg-blue-500 text-white" : "bg-gray-300"
+                                        selectedIdPaciente === patient.id ? "bg-blue-500 text-white" : "bg-gray-300"
                                     }`}
                                 >
-                                    {selectedPatientId === patient.id ? "Seleccionado" : "Seleccionar"}
+                                    {selectedIdPaciente === patient.id ? "Seleccionado" : "Seleccionar"}
                                 </button>
                             </td>
                         </tr>
@@ -171,9 +171,9 @@ const SearchPatient = () => {
 
             <button
                 onClick={handleRegisterData}
-                disabled={!selectedPatientId}
+                disabled={!selectedIdPaciente}
                 className={`mt-6 px-4 py-2 ${
-                    selectedPatientId ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-300 cursor-not-allowed"
+                    selectedIdPaciente ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-300 cursor-not-allowed"
                 } text-white font-bold rounded`}
             >
                 Registrar Datos

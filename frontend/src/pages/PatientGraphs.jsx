@@ -6,20 +6,20 @@ import { Line } from "react-chartjs-2";
 import { Chart as ChartJS } from "chart.js/auto";
 
 const PatientGraphs = () => {
-    const { patientId } = useParams();
+    const { idPacientee } = useParams();
     const [records, setRecords] = useState([]);
 
     useEffect(() => {
         const loadPatientRecords = async () => {
             try {
-                const response = await fetchPatientRecords(patientId);
+                const response = await fetchPatientRecords(idPaciente);
                 setRecords(response.data.records);
             } catch (error) {
                 console.error("Error fetching patient records", error);
             }
         };
         loadPatientRecords();
-    }, [patientId]);
+    }, [idPaciente]);
 
     const generateChartData = (label, dataKey) => {
         return {
@@ -42,32 +42,32 @@ const PatientGraphs = () => {
 
             <div className="w-full max-w-4xl mb-8 bg-white p-6 rounded shadow-lg">
                 <h2 className="text-xl font-semibold mb-4">Pulso</h2>
-                <Line data={generateChartData("Pulso (lpm)", "pulse")} />
+                <Line data={generateChartData("Pulso (lpm)", "pulso")} />
             </div>
 
             <div className="w-full max-w-4xl mb-8 bg-white p-6 rounded shadow-lg">
                 <h2 className="text-xl font-semibold mb-4">Temperatura</h2>
-                <Line data={generateChartData("Temperatura (°C)", "temperature")} />
+                <Line data={generateChartData("Temperatura (°C)", "temperatura")} />
             </div>
 
             <div className="w-full max-w-4xl mb-8 bg-white p-6 rounded shadow-lg">
                 <h2 className="text-xl font-semibold mb-4">Frecuencia Respiratoria</h2>
-                <Line data={generateChartData("Frecuencia Respiratoria (RPM)", "respiratory_rate")} />
+                <Line data={generateChartData("Frecuencia Respiratoria (RPM)", "frecuencia_respiratoria")} />
             </div>
 
             <div className="w-full max-w-4xl mb-8 bg-white p-6 rounded shadow-lg">
                 <h2 className="text-xl font-semibold mb-4">TAS (mmHg)</h2>
-                <Line data={generateChartData("TAS (mmHg)", "systolic_pressure")} />
+                <Line data={generateChartData("TAS (mmHg)", "presion_sistolica")} />
             </div>
 
             <div className="w-full max-w-4xl mb-8 bg-white p-6 rounded shadow-lg">
                 <h2 className="text-xl font-semibold mb-4">TAD (mmHg)</h2>
-                <Line data={generateChartData("TAD (mmHg)", "diastolic_pressure")} />
+                <Line data={generateChartData("TAD (mmHg)", "presion_diastolica")} />
             </div>
 
             <div className="w-full max-w-4xl mb-8 bg-white p-6 rounded shadow-lg">
                 <h2 className="text-xl font-semibold mb-4">SatO2 (%)</h2>
-                <Line data={generateChartData("SatO2 (%)", "oxygen_saturation")} />
+                <Line data={generateChartData("SatO2 (%)", "saturacion_oxigeno")} />
             </div>
         </div>
     );

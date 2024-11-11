@@ -3,6 +3,6 @@ const { getPatientRecords, createPatientRecord } = require('../controllers/patie
 const router = express.Router();
 
 router.post('/', createPatientRecord); // Ruta para crear un registro de paciente
-router.get('/:patientId',getPatientRecords); // Ruta para obtener registros de un paciente específico
+router.get('/:idPaciente',getPatientRecords); // Ruta para obtener registros de un paciente específico
 
 module.exports = router;

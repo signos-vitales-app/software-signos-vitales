@@ -5,37 +5,37 @@ const offlineDataPath = path.join(__dirname, 'offline_data.json'); // Archivo lo
 
 exports.createPatientRecord = async (req, res) => {
     const {
-        patient_id, record_date, record_time, systolic_pressure, diastolic_pressure, mean_arterial_pressure,
-        pulse, temperature, respiratory_rate, oxygen_saturation, adult_weight, pediatric_weight, height, observations
+        id_paciente, record_date, record_time, presion_sistolica, presion_diastolica, presion_media,
+        pulso, temperatura, frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones
     } = req.body;
 
     // Verifica si los valores de entradas son reales, es decir que verifica si ese dato es posible o no, ya que pueden haber errores en el ingreso de la informaicon 
-    if (height > 250) {
+    if (talla > 250) {
         return res.status(400).json({ message: "La altura excede el valor máximo realista" });
     }
-    if (pulse > 200 || pulse < 55) {
+    if (pulso > 200 || pulso < 55) {
         return res.status(400).json({ message: "Valor de pulso fuera de rango" });
     }
-    if (respiratory_rate > 70 || respiratory_rate < 10) {
+    if (frecuencia_respiratoria > 70 || frecuencia_respiratoria < 10) {
         return res.status(400).json({ message: "Frecuencia respiratoria demasiado alta o baja" });
     }
-    if (oxygen_saturation > 100) {
+    if (saturacion_oxigeno > 100) {
         return res.status(400).json({ message: "La saturación de oxígeno no puede superar el 100%" });
     }
-    if (systolic_pressure > 190 || systolic_pressure < 50) {
+    if (presion_sistolica > 190 || presion_sistolica < 50) {
         return res.status(400).json({ message: "La presion arterial sistolica es demasiado alta o baja" });
     }
-    if (diastolic_pressure > 130 || diastolic_pressure < 40) {
+    if (presion_diastolica > 130 || presion_diastolica < 40) {
         return res.status(400).json({ message: "La presion arterial diastolica demasiado alta o baja" });
     }
-    if (temperature > 55 || temperature < 15) {
+    if (temperatura > 55 || temperatura < 15) {
         return res.status(400).json({ message: "La temperatura demasiado alta o baja" });
     }
     try {
         // Insertar el nuevo registro en la base de datos del paciente
         await db.query(
-            "INSERT INTO patient_records (patient_id, record_date, record_time, systolic_pressure, diastolic_pressure, mean_arterial_pressure, pulse, temperature, respiratory_rate, oxygen_saturation, adult_weight, pediatric_weight, height, observations) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            [patient_id, record_date, record_time, systolic_pressure, diastolic_pressure, mean_arterial_pressure, pulse, temperature, respiratory_rate, oxygen_saturation, adult_weight, pediatric_weight, height, observations]
+            "INSERT INTO registros_paciente (id_paciente, record_date, record_time, presion_sistolica, presion_diastolica, presion_media, pulso, temperatura, frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [id_paciente, record_date, record_time, presion_sistolica, presion_diastolica, presion_media, pulso, temperatura, frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones]
         );
 
         res.status(201).json({ message: "Registro del paciente creado exitosamente y temperatura actualizada" });
@@ -43,8 +43,8 @@ exports.createPatientRecord = async (req, res) => {
         console.error("Error al crear el registro del paciente:", error);
         // Guardar los datos localmente si falla la conexión a la base de datos
         const offlineRecord = {
-            patient_id, record_date, record_time, systolic_pressure, diastolic_pressure, mean_arterial_pressure,
-            pulse, temperature, respiratory_rate, oxygen_saturation, adult_weight, pediatric_weight, height, observations
+            id_paciente, record_date, record_time, presion_sistolica, presion_diastolica, presion_media,
+            pulso, temperatura, frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones
         };
 
         saveOfflineRecord(offlineRecord);
@@ -70,11 +70,11 @@ function syncOfflineData() {
         offlineData.forEach(async (record, index) => {
             try {
                 await db.query(
-                    "INSERT INTO patient_records (patient_id, record_date, record_time, systolic_pressure, diastolic_pressure, mean_arterial_pressure, pulse, temperature, respiratory_rate, oxygen_saturation, adult_weight, pediatric_weight, height, observations) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO registros_paciente (id_paciente, record_date, record_time, presion_sistolica, presion_diastolica, presion_media, pulso, temperatura, frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     [
-                        record.patient_id, record.record_date, record.record_time, record.systolic_pressure, record.diastolic_pressure,
-                        record.mean_arterial_pressure, record.pulse, record.temperature, record.respiratory_rate, record.oxygen_saturation,
-                        record.adult_weight, record.pediatric_weight, record.height, record.observations
+                        record.id_paciente, record.record_date, record.record_time, record.presion_sistolica, record.presion_diastolica,
+                        record.presion_media, record.pulso, record.temperatura, record.frecuencia_respiratoria, record.saturacion_oxigeno,
+                        record.peso_adulto, record.peso_pediatrico, record.talla, record.observaciones
                     ]
                 );
 
@@ -94,14 +94,14 @@ setInterval(syncOfflineData, 5 * 60 * 1000);
 
 
 exports.getPatientRecords = async (req, res) => {
-    const { patientId } = req.params;
+    const { idPaciente } = req.params;
 
     try {
         // Obtener información del paciente
-        const [patient] = await db.query("SELECT * FROM patients WHERE id = ?", [patientId]);
+        const [patient] = await db.query("SELECT * FROM patients WHERE id = ?", [idPaciente]);
 
         // Obtener registros del paciente
-        const [records] = await db.query("SELECT * FROM patient_records WHERE patient_id = ?", [patientId]);
+        const [records] = await db.query("SELECT * FROM registros_paciente WHERE id_paciente = ?", [idPaciente]);
 
         res.json({ patient: patient[0], records });
     } catch (error) {

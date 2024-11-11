@@ -3,44 +3,44 @@ import { useNavigate, useParams } from "react-router-dom";
 import { createPatientRecord } from "../services/patientService";
 
 const PatientRecordForm = () => {
-    const { patientId } = useParams();
+    const { idPaciente } = useParams();
     const navigate = useNavigate();
 
     const [recordDate, setRecordDate] = useState("");
     const [recordTime, setRecordTime] = useState("");
-    const [systolicPressure, setSystolicPressure] = useState("");
-    const [diastolicPressure, setDiastolicPressure] = useState("");
-    const [meanArterialPressure, setMeanArterialPressure] = useState("");
-    const [pulse, setPulse] = useState("");
-    const [temperature, setTemperature] = useState("");
-    const [respiratoryRate, setRespiratoryRate] = useState("");
-    const [oxygenSaturation, setOxygenSaturation] = useState("");
-    const [adultWeight, setAdultWeight] = useState("");
-    const [pediatricWeight, setPediatricWeight] = useState("");
-    const [height, setHeight] = useState("");
-    const [observations, setObservations] = useState("");
+    const [presionSistolica, setPresionSistolica] = useState("");
+    const [presionDiastolica, setPresionDiastolica] = useState("");
+    const [presionMedia, setPresionMedia] = useState("");
+    const [pulso, setPulso] = useState("");
+    const [temperatura, setTemperatura] = useState("");
+    const [frecuenciaRespiratoria, setFrecuenciaRespiratoria] = useState("");
+    const [saturacionOxigeno, setSaturacionOxigeno] = useState("");
+    const [pesoAdulto, setPesoAdulto] = useState("");
+    const [pesoPediatrico, setPesoPediatrico] = useState("");
+    const [talla, setTalla] = useState("");
+    const [observaciones, setObservations] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             await createPatientRecord({
-                patient_id: patientId,
+                id_paciente: idPaciente,
                 record_date: recordDate,
                 record_time: recordTime,
-                systolic_pressure: systolicPressure,
-                diastolic_pressure: diastolicPressure,
-                mean_arterial_pressure: meanArterialPressure,
-                pulse,
-                temperature,
-                respiratory_rate: respiratoryRate,
-                oxygen_saturation: oxygenSaturation,
-                adult_weight: adultWeight,
-                pediatric_weight: pediatricWeight,
-                height,
-                observations
+                presion_sistolica: presionSistolica,
+                presion_diastolica: presionDiastolica,
+                presion_media: presionMedia,
+                pulso,
+                temperatura,
+                frecuencia_respiratoria: frecuenciaRespiratoria,
+                saturacion_oxigeno: saturacionOxigeno,
+                peso_adulto: pesoAdulto,
+                peso_pediatrico: pesoPediatrico,
+                talla,
+                observaciones
             });
             alert("Registro de paciente guardado exitosamente!");
-            navigate(`/patient/${patientId}`);
+            navigate(`/patient/${idPaciente}`);
         } catch (error) {
             console.error("Error al crear el registro del paciente", error);
             alert("No se pudo crear el registro del paciente.");

@@ -10,12 +10,12 @@ export const fetchPatients = async () => {
     return await axios.get(`${API_URL}/patients`);
 };
 
-export const fetchPatientInfo = async (patientId) => {
-    return await axios.get(`${API_URL}/patients/${patientId}`);
+export const fetchPatientInfo = async (idPaciente) => {
+    return await axios.get(`${API_URL}/patients/${idPaciente}`);
 };
 
-export const updatePatientStatus = async (patientId, status) => {
-    return await axios.patch(`${API_URL}/patients/${patientId}`, { status });
+export const updatePatientStatus = async (idPaciente, status) => {
+    return await axios.patch(`${API_URL}/patients/${idPaciente}`, { status });
 };
 
 // Función para crear un registro de historial médico
@@ -24,6 +24,6 @@ export const createPatientRecord = async (recordData) => {
 };
 
 // Función para obtener el historial de un paciente específico
-export const fetchPatientRecords = async (patientId) => {
-    return await axios.get(`${API_URL}/patient-records/${patientId}`);
+export const fetchPatientRecords = async (idPaciente) => {
+    return await axios.get(`${API_URL}/patient-records/${idPaciente}`);
 };

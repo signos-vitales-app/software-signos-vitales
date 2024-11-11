@@ -6,12 +6,12 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const PatientRegister = () => {
     const navigate = useNavigate();
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [identificationNumber, setIdentificationNumber] = useState("");
-    const [birthDate, setBirthDate] = useState("");
-    const [documentType, setDocumentType] = useState("cédula de ciudadanía");
-    const [location, setLocation] = useState("");
+    const [primerNombre, setprimerNombre] = useState("");
+    const [primerApellido, setprimerApellido] = useState("");
+    const [numeroIdentificacion, setnumeroIdentificacion] = useState("");
+    const [fechaNacimiento, setFechaNacimiento] = useState("");
+    const [tipoIdentificacion, settipoIdentificacion] = useState("cédula de ciudadanía");
+    const [ubicacion, setubicacion] = useState("");
     const [status, setStatus] = useState("activo");
 
     const calculateAge = (date) => {
@@ -27,17 +27,17 @@ const PatientRegister = () => {
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        const age = calculateAge(birthDate);
+        const age = calculateAge(fechaNacimiento);
         const isPediatric = age < 14;
 
         try {
             await registerPatient({
-                first_name: firstName,
-                last_name: lastName,
-                identification_number: identificationNumber,
-                birth_date: birthDate,
-                document_type: documentType,
-                location,
+                primer_nombre: primerNombre,
+                primer_apellido: primerApellido,
+                numero_identificacion: numeroIdentificacion,
+                fecha_nacimiento: fechaNacimiento,
+                tipo_identificacion: tipoIdentificacion,
+                ubicacion,
                 status,
                 is_pediatric: isPediatric // Información de clasificación pediátrica
             });
@@ -56,20 +56,20 @@ const PatientRegister = () => {
                 <input
                     type="text"
                     placeholder="Nombres"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+                    value={primerNombre}
+                    onChange={(e) => setprimerNombre(e.target.value)}
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 />
                 <input
                     type="text"
                     placeholder="Apellidos"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
+                    value={primerApellido}
+                    onChange={(e) => setprimerApellido(e.target.value)}
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 />
                 <select
-                    value={documentType}
-                    onChange={(e) => setDocumentType(e.target.value)}
+                    value={tipoIdentificacion}
+                    onChange={(e) => settipoIdentificacion(e.target.value)}
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 >
                     <option value="cédula de ciudadanía">Cédula de Ciudadanía</option>
@@ -78,8 +78,8 @@ const PatientRegister = () => {
                 <input
                     type="text"
                     placeholder="Numero de identificación"
-                    value={identificationNumber}
-                    onChange={(e) => setIdentificationNumber(e.target.value)}
+                    value={numeroIdentificacion}
+                    onChange={(e) => setnumeroIdentificacion(e.target.value)}
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 />
                 <h1> Fecha de nacimiento </h1>
@@ -87,8 +87,8 @@ const PatientRegister = () => {
                     type="date"
                     
                     placeholder="Fecha de nacimiento"
-                    value={birthDate}
-                    onChange={(e) => setBirthDate(e.target.value)}
+                    value={fechaNacimiento}
+                    onChange={(e) => setFechaNacimiento(e.target.value)}
                     required
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 />
@@ -96,8 +96,8 @@ const PatientRegister = () => {
                 <input
                     type="text"
                     placeholder="Ubicación (habitacion)"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
+                    value={ubicacion}
+                    onChange={(e) => setubicacion(e.target.value)}
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 />
                 <select

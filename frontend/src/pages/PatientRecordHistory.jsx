@@ -9,16 +9,16 @@ import VitalSignsChart from "./VitalSignsChart";
 import "jspdf-autotable"; // Importar el complemento para la tabla
 
 const PatientRecordHistory = () => {
-    const { patientId } = useParams();
+    const { idPaciente } = useParams();
     const navigate = useNavigate();
     const [records, setRecords] = useState([]);
     const [filteredRecords, setFilteredRecords] = useState([]);
     const [patientInfo, setPatientInfo] = useState({});
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
-    const [selectedVariables, setSelectedVariables] = useState(["pulse", "temperature", "respiratory_rate", "systolic_pressure", "diastolic_pressure", "oxygen_saturation"]);
+    const [selectedVariables, setSelectedVariables] = useState(["pulso", "temperatura", "frecuencia_respiratoria", "presion_sistolica", "presion_diastolica", "saturacion_oxigeno"]);
     const [isPediatric, setIsPediatric] = useState(false);
-    const [birthDate, setBirthDate] = useState("");
+    const [fechaNacimiento, setFechaNacimiento] = useState("");
 
 
     const tableRef = useRef(null); // Referencia para la tabla
@@ -30,7 +30,7 @@ const PatientRecordHistory = () => {
 
     const loadPatientRecords = async () => {
         try {
-            const response = await fetchPatientRecords(patientId);
+            const response = await fetchPatientRecords(idPaciente);
             let records = response.data.records;
 
             // Ordenar los registros por fecha y hora
@@ -61,14 +61,14 @@ const PatientRecordHistory = () => {
             setPatientInfo(response.data.patient);
 
             // Calcular la edad y si es pediátrico
-            const birth = new Date(response.data.patient.birth_date);
+            const birth = new Date(response.data.patient.fecha_nacimiento);
             const today = new Date();
             let age = today.getFullYear() - birth.getFullYear();
             const monthDiff = today.getMonth() - birth.getMonth();
             if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
                 age--;
             }
-            setBirthDate(age);
+            setFechaNacimiento(age);
             setIsPediatric(age < 10);
         } catch (error) {
             console.error("Error fetching patient records", error);
@@ -81,7 +81,7 @@ const PatientRecordHistory = () => {
 
 
     const handleNewRecord = () => {
-        navigate(`/patient/${patientId}/add-record`);
+        navigate(`/patient/${idPaciente}/add-record`);
     };
 
     const handleGoBack = () => {
@@ -141,11 +141,11 @@ const PatientRecordHistory = () => {
         // Agregar información del paciente en secciones bien organizadas
         pdf.setFontSize(12);
         pdf.setFont("helvetica", "normal");
-        pdf.text(10, 40, `Nombres y apellidos: ${patientInfo.first_name} ${patientInfo.last_name}`);
-        pdf.text(10, 45, `Tipo de identificación: ${patientInfo.document_type}`);
-        pdf.text(10, 50, `Número de identificación: ${patientInfo.identification_number}`);
-        pdf.text(10, 55, `Ubicación: ${patientInfo.location}`);
-        pdf.text(10, 60, `Edad: ${birthDate} años`);
+        pdf.text(10, 40, `Nombres y apellidos: ${patientInfo.primer_nombre} ${patientInfo.primer_apellido}`);
+        pdf.text(10, 45, `Tipo de identificación: ${patientInfo.tipo_identificacion}`);
+        pdf.text(10, 50, `Número de identificación: ${patientInfo.numero_identificacion}`);
+        pdf.text(10, 55, `Ubicación: ${patientInfo.ubicacion}`);
+        pdf.text(10, 60, `Edad: ${patientInfo.fecha_nacimiento} años`);
         pdf.text(10, 65, `Estado: ${patientInfo.status === "activo" ? "Activo" : "Inactivo"}`);
 
         // Prepara los datos de la tabla
@@ -158,15 +158,15 @@ const PatientRecordHistory = () => {
             return [
                 { content: format(new Date(record.record_date), "dd/MM/yyyy"), styles: {} },
                 { content: record.record_time, styles: {} },
-                { content: record.pulse, styles: getCellStyle(record.pulse, 60, 90) },
-                { content: record.temperature, styles: getCellStyle(record.temperature, 36.0, 37.9) },
-                { content: record.respiratory_rate, styles: getCellStyle(record.respiratory_rate, 16, 24) },
-                { content: record.systolic_pressure, styles: getCellStyle(record.systolic_pressure, 60, 100) },
-                { content: record.diastolic_pressure, styles: getCellStyle(record.diastolic_pressure, 90, 140) },
-                { content: record.mean_arterial_pressure, styles: getCellStyle(record.mean_arterial_pressure, 70, 83) },
-                { content: record.oxygen_saturation, styles: getCellStyle(record.oxygen_saturation, 95, 100) },
-                { content: isPediatric ? record.pediatric_weight : record.adult_weight, styles: {} },
-                { content: record.observations || "-", styles: {} }
+                { content: record.pulso, styles: getCellStyle(record.pulso, 60, 90) },
+                { content: record.temperatura, styles: getCellStyle(record.temperatura, 36.0, 37.9) },
+                { content: record.frecuencia_respiratoria, styles: getCellStyle(record.frecuencia_respiratoria, 16, 24) },
+                { content: record.presion_sistolica, styles: getCellStyle(record.presion_sistolica, 60, 100) },
+                { content: record.presion_diastolica, styles: getCellStyle(record.presion_diastolica, 90, 140) },
+                { content: record.presion_media, styles: getCellStyle(record.presion_media, 70, 83) },
+                { content: record.saturacion_oxigeno, styles: getCellStyle(record.saturacion_oxigeno, 95, 100) },
+                { content: isPediatric ? record.peso_pediatrico : record.peso_adulto, styles: {} },
+                { content: record.observaciones || "-", styles: {} }
             ];
         });
 
@@ -233,11 +233,11 @@ const PatientRecordHistory = () => {
                 <div className="flex justify-between mb-4">
                     <div>
 
-                        <p><strong>Nombre:</strong> {patientInfo.first_name} {patientInfo.last_name}</p>
-                        <p><strong>Tipo de identificación:</strong> {patientInfo.document_type}</p>
-                        <p><strong>Número de identificación:</strong> {patientInfo.identification_number}</p>
-                        <p><strong>Ubicación:</strong> {patientInfo.location}</p>
-                        <p><strong>Edad:</strong> {birthDate} años</p>
+                        <p><strong>Nombre:</strong> {patientInfo.primer_nombre} {patientInfo.primer_apellido}</p>
+                        <p><strong>Tipo de identificación:</strong> {patientInfo.tipo_identificacion}</p>
+                        <p><strong>Número de identificación:</strong> {patientInfo.numero_identificacion}</p>
+                        <p><strong>Ubicación:</strong> {patientInfo.ubicacion}</p>
+                        <p><strong>Edad:</strong> {fechaNacimiento} años</p>
 
                     </div>
                     <span className={`font-bold ${patientInfo.status === "activo" ? "text-green-500" : "text-red-500"}`}>
@@ -260,7 +260,7 @@ const PatientRecordHistory = () => {
                     <div>
                         <h3 className="font-bold">Variables:</h3>
                         <div className="flex space-x-4">
-                            {["pulse", "temperature", "respiratory_rate", "systolic_pressure", "diastolic_pressure", "oxygen_saturation"].map(variable => (
+                            {["pulso", "temperatura", "frecuencia_respiratoria", "presion_sistolica", "presion_diastolica", "saturacion_oxigeno"].map(variable => (
                                 <label key={variable} className="flex items-center">
                                     <input
                                         type="checkbox"
@@ -299,18 +299,18 @@ const PatientRecordHistory = () => {
                             <tr key={index} className="text-center">
                                 <td className="p-2 border">{format(new Date(record.record_date), "dd/MM/yyyy")}</td>
                                 <td className="p-2 border">{record.record_time}</td>
-                                <td className={`p-2 border ${record.pulse < 60 || record.pulse > 90 ? "bg-red-200" : ""}`}>{record.pulse}</td>
-                                <td className={`p-2 border ${record.temperature < 36.0 || record.temperature > 37.9 ? "bg-red-200" : ""}`}>{record.temperature}</td>
-                                <td className={`p-2 border ${record.respiratory_rate < 16 || record.respiratory_rate > 24 ? "bg-red-200" : ""}`}>{record.respiratory_rate}</td>
-                                <td className={`p-2 border ${record.systolic_pressure < 60 || record.systolic_pressure > 100 ? "bg-red-200" : ""}`}>{record.systolic_pressure}</td>
-                                <td className={`p-2 border ${record.diastolic_pressure < 90 || record.diastolic_pressure > 140 ? "bg-red-200" : ""}`}>{record.diastolic_pressure}</td>
-                                <td className={`p-2 border ${record.mean_arterial_pressure < 70 || record.mean_arterial_pressure > 83 ? "bg-red-200" : ""}`}>{record.mean_arterial_pressure}</td>
-                                <td className={`p-2 border ${record.oxygen_saturation < 95 ? "bg-red-200" : ""}`}>{record.oxygen_saturation}</td>
+                                <td className={`p-2 border ${record.pulso < 60 || record.pulso > 90 ? "bg-red-200" : ""}`}>{record.pulso}</td>
+                                <td className={`p-2 border ${record.temperatura < 36.0 || record.temperatura > 37.9 ? "bg-red-200" : ""}`}>{record.temperatura}</td>
+                                <td className={`p-2 border ${record.frecuencia_respiratoria < 16 || record.frecuencia_respiratoria > 24 ? "bg-red-200" : ""}`}>{record.frecuencia_respiratoria}</td>
+                                <td className={`p-2 border ${record.presion_sistolica < 60 || record.presion_sistolica > 100 ? "bg-red-200" : ""}`}>{record.presion_sistolica}</td>
+                                <td className={`p-2 border ${record.presion_diastolica < 90 || record.presion_diastolica > 140 ? "bg-red-200" : ""}`}>{record.presion_diastolica}</td>
+                                <td className={`p-2 border ${record.presion_media < 70 || record.presion_media > 83 ? "bg-red-200" : ""}`}>{record.presion_media}</td>
+                                <td className={`p-2 border ${record.saturacion_oxigeno < 95 ? "bg-red-200" : ""}`}>{record.saturacion_oxigeno}</td>
                                 {/* Mostrar peso dependiendo de si es pediátrico o adulto */}
                                 <td className="p-2 border">
-                                    {isPediatric ? record.pediatric_weight : record.adult_weight}
+                                    {isPediatric ? record.peso_pediatrico : record.peso_adulto}
                                 </td>
-                                <td className="p-2 border">{record.observations || "-"}</td>
+                                <td className="p-2 border">{record.observaciones || "-"}</td>
                             </tr>
 
                         ))}

@@ -32,10 +32,10 @@ function App() {
                 <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
                 <Route path="/register-patient" element={<ProtectedRoute><Layout><PatientRegister/></Layout></ProtectedRoute>} />
                 <Route path="/qr-reader" element={<ProtectedRoute><Layout><QRReaderPage /></Layout></ProtectedRoute>} />
-                {/* <Route path='/patient/:patientId/add-record' element={<PatientRecordForm />} /> */}
-                <Route path="/patient/:patientId/add-record" element={<ProtectedRoute><Layout><PatientDataForm /></Layout></ProtectedRoute>} />
-                <Route path="/patient/:patientId/records" element={<ProtectedRoute><Layout><PatientRecordHistory /></Layout></ProtectedRoute>} />
-                <Route path="/patient/:patientId/graphs" element={<ProtectedRoute><Layout><PatientGraphs /></Layout></ProtectedRoute>} />
+                {/* <Route path='/patient/:idPaciente/add-record' element={<PatientRecordForm />} /> */}
+                <Route path="/patient/:idPaciente/add-record" element={<ProtectedRoute><Layout><PatientDataForm /></Layout></ProtectedRoute>} />
+                <Route path="/patient/:idPaciente/records" element={<ProtectedRoute><Layout><PatientRecordHistory /></Layout></ProtectedRoute>} />
+                <Route path="/patient/:idPaciente/graphs" element={<ProtectedRoute><Layout><PatientGraphs /></Layout></ProtectedRoute>} />
                 <Route path="/search-patient" element={<ProtectedRoute><Layout><SearchPatient /></Layout></ProtectedRoute>} />
                 <Route path="/admin-panel" element={<ProtectedRoute><Layout><AdminPanel /></Layout></ProtectedRoute>} />
 

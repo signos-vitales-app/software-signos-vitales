@@ -21,12 +21,12 @@ const VitalSignsChart = ({ records, selectedVariables }) => {
     });
 
     const colors = {
-        pulse: 'rgb(255, 132, 132)', 
-        temperature: 'rgb(54, 162, 235)',
-        respiratory_rate: 'rgb(255, 132, 132)',
-        systolic_pressure: 'rgb(153, 102, 255)',
-        diastolic_pressure: 'rgb(255, 159, 64)',
-        oxygen_saturation: 'rgb(201, 203, 207)',
+        pulso: 'rgb(255, 132, 132)', 
+        temperatura: 'rgb(54, 162, 235)',
+        frecuencia_respiratoria: 'rgb(255, 132, 132)',
+        presion_sistolica: 'rgb(153, 102, 255)',
+        presion_diastolica: 'rgb(255, 159, 64)',
+        saturacion_oxigeno: 'rgb(201, 203, 207)',
     };
 
     const data = {
@@ -49,14 +49,14 @@ const VitalSignsChart = ({ records, selectedVariables }) => {
     };
 
     // "pulso" 
-    const pulseData = {
+    const pulsoData = {
         labels: getLabels(),
         datasets: [
-            createDataset('Pulso', 'pulse', colors.pulse), 
+            createDataset('Pulso', 'pulso', colors.pulso), 
         ],
     };
 
-    const pulseOptions = {
+    const pulsoOptions = {
         responsive: true,
         plugins: {
             legend: { position: 'top' },
@@ -69,14 +69,14 @@ const VitalSignsChart = ({ records, selectedVariables }) => {
     };
 
     // "FR" 
-    const respiratory_rateData = {
+    const frecuencia_respiratoriaData = {
         labels: getLabels(),
         datasets: [
-            createDataset('Frecuencia Respiratoria', 'respiratory_rate', colors.respiratory_rate), 
+            createDataset('Frecuencia Respiratoria', 'frecuencia_respiratoria', colors.frecuencia_respiratoria), 
         ],
     };
 
-    const respiratory_rateOptions = {
+    const frecuencia_respiratoriaOptions = {
         responsive: true,
         plugins: {
             legend: { position: 'top' },
@@ -89,14 +89,14 @@ const VitalSignsChart = ({ records, selectedVariables }) => {
     };
 
         // "systolic Pressure" 
-    const systolic_pressureData = {
+    const presion_sistolicaData = {
         labels: getLabels(),
         datasets: [
-            createDataset('Presion sistolica', 'systolic_pressure', colors.systolic_pressure), 
+            createDataset('Presion sistolica', 'presion_sistolica', colors.presion_sistolica), 
         ],
     };
     
-    const systolic_pressureOptions = {
+    const presion_sistolicaOptions = {
         responsive: true,
         plugins: {
             legend: { position: 'top' },
@@ -108,14 +108,14 @@ const VitalSignsChart = ({ records, selectedVariables }) => {
         },
     };
         // "Diastolic Pressure" 
-        const diastolic_pressureData = {
+        const presion_diastolicaData = {
             labels: getLabels(),
             datasets: [
-                createDataset('Presion diastolica', 'diastolic_pressure', colors.diastolic_pressure), 
+                createDataset('Presion diastolica', 'presion_diastolica', colors.presion_diastolica), 
             ],
         };
         
-        const diastolic_pressureOptions = {
+        const presion_diastolicaOptions = {
             responsive: true,
             plugins: {
                 legend: { position: 'top' },
@@ -129,14 +129,14 @@ const VitalSignsChart = ({ records, selectedVariables }) => {
         
 
      // "temperatura" 
-     const temperatureData = {
+     const temperaturaData = {
         labels: getLabels(),
         datasets: [
-            createDataset('Temperatura', 'temperature', colors.temperature), 
+            createDataset('Temperatura', 'temperatura', colors.temperatura), 
         ],
     };
 
-    const temperatureOptions = {
+    const temperaturaOptions = {
         responsive: true,
         plugins: {
             legend: { position: 'top' },
@@ -148,14 +148,14 @@ const VitalSignsChart = ({ records, selectedVariables }) => {
         },
     };
     // "saturacion de oxigeno" 
-    const oxygen_saturationData = {
+    const saturacion_oxigenoData = {
         labels: getLabels(),
         datasets: [
-            createDataset('Saturacion oxigeno', 'oxygen_saturation', colors.oxygen_saturation),
+            createDataset('Saturacion oxigeno', 'saturacion_oxigeno', colors.saturacion_oxigeno),
         ],
     };
 
-    const oxygen_saturationOptions = {
+    const saturacion_oxigenoOptions = {
         responsive: true,
         plugins: {
             legend: { position: 'top' },
@@ -173,39 +173,39 @@ const VitalSignsChart = ({ records, selectedVariables }) => {
             {/*<Line data={data} options={options} />*/}
 
             {/* Gráfico de "Pulso"  */}
-            {selectedVariables.includes('pulse') && (
+            {selectedVariables.includes('pulso') && (
                 <div className="mt-8">
-                    <Line data={pulseData} options={pulseOptions} />
+                    <Line data={pulsoData} options={pulsoOptions} />
                 </div>
             )}
             {/* Gráfico de "Temperatura"  */}
-            {selectedVariables.includes('temperature') && (
+            {selectedVariables.includes('temperatura') && (
                 <div className="mt-8">
-                    <Line data={temperatureData} options={temperatureOptions} />
+                    <Line data={temperaturaData} options={temperaturaOptions} />
                 </div>
             )}
             {/* Gráfico de "FR"  */}
-            {selectedVariables.includes('respiratory_rate') && (
+            {selectedVariables.includes('frecuencia_respiratoria') && (
                 <div className="mt-8">
-                    <Line data={respiratory_rateData} options={respiratory_rateOptions} />
+                    <Line data={frecuencia_respiratoriaData} options={frecuencia_respiratoriaOptions} />
                 </div>
             )}
             {/* Gráfico de "PS"  */}
-            {selectedVariables.includes('systolic_pressure') && (
+            {selectedVariables.includes('presion_sistolica') && (
                 <div className="mt-8">
-                    <Line data={systolic_pressureData} options={systolic_pressureOptions} />
+                    <Line data={presion_sistolicaData} options={presion_sistolicaOptions} />
                 </div>
             )}
             {/* Gráfico de "PD"  */}
-            {selectedVariables.includes('diastolic_pressure') && (
+            {selectedVariables.includes('presion_diastolica') && (
                 <div className="mt-8">
-                    <Line data={diastolic_pressureData} options={diastolic_pressureOptions} />
+                    <Line data={presion_diastolicaData} options={presion_diastolicaOptions} />
                 </div>
             )}
              {/* Gráfico de "FR"  */}
-             {selectedVariables.includes('oxygen_saturation') && (
+             {selectedVariables.includes('saturacion_oxigeno') && (
                 <div className="mt-8">
-                    <Line data={ oxygen_saturationData} options={ oxygen_saturationOptions} />
+                    <Line data={ saturacion_oxigenoData} options={ saturacion_oxigenoOptions} />
                 </div>
             )}
 

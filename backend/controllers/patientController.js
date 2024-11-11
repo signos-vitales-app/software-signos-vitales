@@ -11,10 +11,10 @@ exports.getPatients = async (req, res) => {
 };
 
 exports.registerPatient = async (req, res) => {
-    const { first_name, last_name, identification_number, birth_date, document_type, location, status } = req.body;
+    const { primer_nombre, primer_apellido, numero_identificacion, fecha_nacimiento, tipo_identificacion, ubicacion, status } = req.body;
 
     // Calcular si el paciente es pediátrico en base a la fecha de nacimiento
-    const birth = new Date(birth_date);
+    const birth = new Date(fecha_nacimiento);
     const today = new Date();
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
@@ -25,8 +25,8 @@ exports.registerPatient = async (req, res) => {
 
     try {
         await db.query(
-            "INSERT INTO patients (first_name, last_name, identification_number, birth_date, document_type, location, status, is_pediatric) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            [first_name, last_name, identification_number, birth_date, document_type, location, status || 'activo', is_pediatric]
+            "INSERT INTO patients (primer_nombre, primer_apellido, numero_identificacion, fecha_nacimiento, tipo_identificacion, ubicacion, status, is_pediatric) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [primer_nombre, primer_apellido, numero_identificacion, fecha_nacimiento, tipo_identificacion, ubicacion, status || 'activo', is_pediatric]
         );
         res.status(201).json({ message: "Paciente registrado exitosamente" });
     } catch (error) {
