@@ -145,7 +145,7 @@ const PatientRecordHistory = () => {
         pdf.text(10, 45, `Tipo de identificación: ${patientInfo.tipo_identificacion}`);
         pdf.text(10, 50, `Número de identificación: ${patientInfo.numero_identificacion}`);
         pdf.text(10, 55, `Ubicación: ${patientInfo.ubicacion}`);
-        pdf.text(10, 60, `Edad: ${patientInfo.fecha_nacimiento} años`);
+        pdf.text(10, 60, `Edad: ${fechaNacimiento} años`);
         pdf.text(10, 65, `Estado: ${patientInfo.status === "activo" ? "Activo" : "Inactivo"}`);
 
         // Prepara los datos de la tabla
