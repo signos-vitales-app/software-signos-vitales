@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// Modificar la URL base para que use variables de entorno
 const API_URL = "http://localhost:5000/api";
 
 export const registerPatient = async (patientData) => {
