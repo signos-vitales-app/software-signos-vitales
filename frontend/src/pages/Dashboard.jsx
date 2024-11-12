@@ -46,26 +46,12 @@ const Dashboard = () => {
                     >
                         Registrar paciente
                     </button>
+                    
                 </div>
+                
             </div>
 
-            {/* Botón para ir al panel de administración, solo visible para administradores */}
-            {role === "admin" && (
-                <button
-                    onClick={() => navigate("/admin-panel")}
-                    className="mb-4 px-4 py-2 bg-red-500 text-white rounded"
-                >
-                    Ir al panel de administrador
-                </button>
-            )}
-
-            {/* Botón para cerrar sesión */}
-            <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-blue-500 text-white rounded"
-            >
-                Cerrar sesión
-            </button>
+            
         </div>
     );
 };

@@ -104,7 +104,7 @@ const Sidebar = () => {
                             className="flex items-center w-full p-2 hover:bg-gray-700 rounded"
                         >
                             <FiHome size={20} />
-                            {isOpen && <span className="ml-3">Dashboard</span>}
+                            {isOpen && <span className="ml-3">Inicio</span>}
                         </button>
 
                         <button 
@@ -123,13 +123,13 @@ const Sidebar = () => {
                             {isOpen && <span className="ml-3">Registrar Paciente</span>}
                         </button>
 
-                        {role === 'admin' && (
+                        {role === 'jefe' && (
                             <button 
                                 onClick={() => navigate('/admin-panel')}
                                 className="flex items-center w-full p-2 hover:bg-gray-700 rounded"
                             >
                                 <FiUsers size={20} />
-                                {isOpen && <span className="ml-3">Panel Admin</span>}
+                                {isOpen && <span className="ml-3">Panel de administrador</span>}
                             </button>
                         )}
                     </nav>

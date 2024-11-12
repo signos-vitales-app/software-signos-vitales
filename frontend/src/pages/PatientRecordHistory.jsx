@@ -85,7 +85,7 @@ const PatientRecordHistory = () => {
     };
 
     const handleGoBack = () => {
-        navigate("/dashboard");
+        navigate("/search-patient");
     };
 
 
@@ -316,7 +316,21 @@ const PatientRecordHistory = () => {
                         ))}
                     </tbody>
                 </table>
+                {/* Botones de acción */}
+                <div className="flex justify-between w-full max-w-4xl mt-4"> {/* Añadí mt-4 para mayor separación */}
+                    <button onClick={handleNewRecord} className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition">
+                        <FiPlusCircle className="mr-2" /> Nuevo registro
+                    </button>
+                    <button onClick={handleExportPDF} className="flex items-center px-4 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition">
+                        <FiDownload className="mr-2" /> Exportar como PDF
+                    </button>
+                    <button onClick={handleGoBack} className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition">
+                        <FiHome className="mr-2" /> Regresar
+                    </button>
+                </div>
+
             </div>
+
 
             {/* Gráfico de Signos Vitales */}
             <div className="bg-white p-4 rounded shadow-lg w-full max-w-4xl mb-6" ref={chartRef}>
@@ -324,18 +338,7 @@ const PatientRecordHistory = () => {
                 <VitalSignsChart records={filteredRecords} selectedVariables={selectedVariables} />
             </div>
 
-            {/* Botones de acción */}
-            <div className="flex justify-between w-full max-w-4xl">
-                <button onClick={handleNewRecord} className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition">
-                    <FiPlusCircle className="mr-2" /> Nuevo registro
-                </button>
-                <button onClick={handleExportPDF} className="flex items-center px-4 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition">
-                    <FiDownload className="mr-2" /> Exportar como PDF
-                </button>
-                <button onClick={handleGoBack} className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition">
-                    <FiHome className="mr-2" /> Regresar
-                </button>
-            </div>
+
         </div>
     );
 };

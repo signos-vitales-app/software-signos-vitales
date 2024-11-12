@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchPatients, updatePatientStatus } from "../services/patientService";
 import { QrReader } from 'react-qr-reader'; // Importamos el lector de QR
+import { FiPlusCircle, FiHome, FiFilter, FiDownload, FiX  } from "react-icons/fi";
+import { LuClipboardEdit } from "react-icons/lu";
+import { FaCamera } from 'react-icons/fa';  // Cámara para el escaneo
 
 const SearchPatient = () => {
     const [patients, setPatients] = useState([]);
@@ -43,10 +46,10 @@ const SearchPatient = () => {
 
     const handleScan = (data) => {
         if (data && !scanCompleted) {
-            setSearchId(data); 
-            setErrorMessage(""); 
-            setScanCompleted(true); 
-            stopScanning(); 
+            setSearchId(data);
+            setErrorMessage("");
+            setScanCompleted(true);
+            stopScanning();
         }
     };
 
@@ -60,22 +63,25 @@ const SearchPatient = () => {
     };
 
     const stopScanning = () => {
-        setIsScanning(false); 
+        setIsScanning(false);
         setScanCompleted(true); // Marcamos como completado
 
     };
 
     const handleOpenQRScanner = () => {
-        setSearchId(""); 
-        setErrorMessage(""); 
-        setIsScanning(true); 
-        setScanCompleted(false); 
+        setSearchId("");
+        setErrorMessage("");
+        setIsScanning(true);
+        setScanCompleted(false);
     };
 
     const handleCancelScan = () => {
-        setIsScanning(false); 
-        setErrorMessage(""); 
-        setScanCompleted(false); 
+        setIsScanning(false);
+        setErrorMessage("");
+        setScanCompleted(false);
+    };
+    const handleGoBack = () => {
+        navigate("/dashboard");
     };
 
     return (
@@ -89,31 +95,33 @@ const SearchPatient = () => {
                 className="mb-4 p-2 border rounded w-full max-w-md"
             />
 
-            <button
-                onClick={handleOpenQRScanner}
-                className="mb-4 px-4 py-2 bg-blue-500 text-white font-bold rounded"
-            >
-                Escanear Código QR
-            </button>
+<button
+    onClick={handleOpenQRScanner}
+    className="mb-4 px-4 py-2 bg-blue-500 text-white font-bold rounded flex items-center"
+>
+    <FaCamera className="mr-2" /> {/* Ícono de cámara */}
+    Escanear Código QR
+</button>
 
-            {isScanning && (
-                <div className="mb-4">
-                    <QrReader
-                        onResult={(result, error) => {
-                            if (result) handleScan(result?.text);
-                            if (error) handleError(error);
-                        }}
-                        constraints={{ facingMode: "environment" }}
-                        style={{ width: '100%' }}
-                    />
-                    <button
-                        onClick={handleCancelScan}
-                        className="mt-2 px-4 py-2 bg-red-500 text-white font-bold rounded"
-                    >
-                        Cancelar Escaneo
-                    </button>
-                </div>
-            )}
+{isScanning && (
+    <div className="mb-4">
+        <QrReader
+            onResult={(result, error) => {
+                if (result) handleScan(result?.text);
+                if (error) handleError(error);
+            }}
+            constraints={{ facingMode: "environment" }}
+            style={{ width: '100%' }}
+        />
+        <button
+            onClick={handleCancelScan}
+            className="mt-2 px-4 py-2 bg-red-500 text-white font-bold rounded flex items-center"
+        >
+            <FiX className="mr-2" /> {/* Ícono de cancelación */}
+            Cancelar Escaneo
+        </button>
+    </div>
+)}
 
             {errorMessage && (
                 <div className="mb-4 text-red-500 font-bold">
@@ -139,9 +147,8 @@ const SearchPatient = () => {
                             <td className="p-4">
                                 <button
                                     onClick={() => handleStatusToggle(patient.id, patient.status)}
-                                    className={`px-4 py-1 rounded ${
-                                        patient.status === "activo" ? "bg-green-500" : "bg-red-500"
-                                    } text-white`}
+                                    className={`px-4 py-1 rounded ${patient.status === "activo" ? "bg-green-500" : "bg-red-500"
+                                        } text-white`}
                                 >
                                     {patient.status === "activo" ? "Activo" : "Inactivo"}
                                 </button>
@@ -157,9 +164,8 @@ const SearchPatient = () => {
                             <td className="p-4">
                                 <button
                                     onClick={() => handleSelectPatient(patient.id)}
-                                    className={`px-4 py-1 rounded ${
-                                        selectedIdPaciente === patient.id ? "bg-blue-500 text-white" : "bg-gray-300"
-                                    }`}
+                                    className={`px-4 py-1 rounded ${selectedIdPaciente === patient.id ? "bg-blue-500 text-white" : "bg-gray-300"
+                                        }`}
                                 >
                                     {selectedIdPaciente === patient.id ? "Seleccionado" : "Seleccionar"}
                                 </button>
@@ -168,16 +174,21 @@ const SearchPatient = () => {
                     ))}
                 </tbody>
             </table>
+            {/* Botones de acción */}
+            <div className="flex justify-center w-full max-w-4xl space-x-4">
 
-            <button
-                onClick={handleRegisterData}
-                disabled={!selectedIdPaciente}
-                className={`mt-6 px-4 py-2 ${
-                    selectedIdPaciente ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-300 cursor-not-allowed"
-                } text-white font-bold rounded`}
-            >
-                Registrar Datos
-            </button>
+                <button onClick={handleGoBack} className="mt-6 flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition">
+                    <FiHome className="mr-2" /> Regresar
+                </button>
+                <button
+                    onClick={handleRegisterData}
+                    disabled={!selectedIdPaciente}
+                    className={`mt-6 px-4 py-2 ${selectedIdPaciente ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-300 cursor-not-allowed"} text-white font-bold rounded flex items-center space-x-2`}
+                >
+                    <LuClipboardEdit className="w-5 h-5" /> Registrar Datos
+                </button>
+            </div>
+
         </div>
     );
 };

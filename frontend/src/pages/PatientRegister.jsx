@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { registerPatient } from "../services/patientService";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { FiPlusCircle, FiHome, FiFilter, FiDownload } from "react-icons/fi";
 
 const PatientRegister = () => {
     const navigate = useNavigate();
@@ -48,7 +49,9 @@ const PatientRegister = () => {
             toast.error("No se pudo registrar al paciente. Inténtelo nuevamente.");
         }
     };
-
+    const handleGoBack = () => {
+        navigate("/dashboard");
+    };
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
             <form onSubmit={handleRegister} className="w-full max-w-md p-8 bg-white rounded shadow-lg">
@@ -85,14 +88,14 @@ const PatientRegister = () => {
                 <h1> Fecha de nacimiento </h1>
                 <input
                     type="date"
-                    
+
                     placeholder="Fecha de nacimiento"
                     value={fechaNacimiento}
                     onChange={(e) => setFechaNacimiento(e.target.value)}
                     required
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 />
-                
+
                 <input
                     type="text"
                     placeholder="Ubicación (habitacion)"
@@ -109,11 +112,20 @@ const PatientRegister = () => {
                     <option value="inactivo">Inactivo</option>
                 </select>
                 <button
-                    type="submit"
-                    className="w-full p-3 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition"
-                >
-                    Registrar paciente
-                </button>
+    type="submit"
+    className="w-full p-3 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition"
+>
+    Registrar paciente
+</button>
+
+{/* Contenedor centrado */}
+<div className="flex justify-center w-full mt-4"> {/* Añadido mt-4 para separación */}
+    <button onClick={handleGoBack} className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition">
+        <FiHome className="mr-2" /> Regresar
+    </button>
+</div>
+
+
             </form>
         </div>
     );

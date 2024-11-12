@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // Importamos íconos
 import { FiUpload } from "react-icons/fi";
+import { FiPlusCircle, FiHome, FiFilter, FiDownload } from "react-icons/fi";
 
 const AdminPanel = () => {
     const navigate = useNavigate();
@@ -20,7 +21,7 @@ const AdminPanel = () => {
 
     useEffect(() => {
         const role = localStorage.getItem("role");
-        if (role !== "admin") {
+        if (role !== "jefe") {
             navigate("/dashboard"); // Redirigir al panel general si no es admin
         } else {
             fetchUsers();
@@ -72,7 +73,7 @@ const AdminPanel = () => {
         e.preventDefault();
 
         if (password !== confirmPassword) {
-            setError("Passwords do not match");
+            setError("Las contraseñas no coinciden");
             setSuccess(null);
             return;
         }
@@ -111,27 +112,26 @@ const AdminPanel = () => {
             console.error('Error detallado:', err.response?.data);
         }
     };
-
+    const handleGoBack = () => {
+        navigate("/dashboard");
+    };
     const togglePasswordVisibility = () => {
         setPasswordVisible((prevState) => !prevState); // Cambiar la visibilidad de la contraseña
     };
-
     return (
-        <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-            <h1 className="text-3xl font-bold mb-6">Admin Panel</h1>
-            <p>Manage user roles and permissions below.</p>
+        <div className="flex flex-col items-center justify-start h-screen bg-gray-100 p-4">
+            <h1 className="text-3xl font-bold mb-6">Panel de administrador</h1>
+            <p>Administre los roles y permisos de usuario a continuación.</p>
             {error && <p className="text-red-500">{error}</p>}
             {success && <p className="text-green-500">{success}</p>}
-
+    
             {/* Formulario de registro de usuario */}
             <form onSubmit={handleRegister} className="w-full max-w-md p-4 bg-white rounded shadow-lg mb-6">
-                <h2 className="text-2xl font-bold mb-4 text-center">Register New User</h2>
-                
-                
-                
+                <h2 className="text-2xl font-bold mb-4 text-center">Registrar nuevo usuario</h2>
+    
                 <input
                     type="text"
-                    placeholder="Username"
+                    placeholder="Usuario"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
@@ -146,7 +146,7 @@ const AdminPanel = () => {
                 <div className="relative">
                     <input
                         type={passwordVisible ? "text" : "password"} // Mostrar u ocultar la contraseña
-                        placeholder="Password"
+                        placeholder="Contraseña"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full mb-4 p-3 border border-gray-300 rounded"
@@ -161,7 +161,7 @@ const AdminPanel = () => {
                 <div className="relative">
                     <input
                         type={passwordVisible ? "text" : "password"} // Hacer lo mismo para la confirmación
-                        placeholder="Confirm Password"
+                        placeholder="Confirmar contraseña"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         className="w-full mb-4 p-3 border border-gray-300 rounded"
@@ -178,69 +178,72 @@ const AdminPanel = () => {
                     onChange={(e) => setRole(e.target.value)}
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                    <option value="staff">Staff</option>
+                    <option value="user">Enfermero/a</option>
+                    <option value="jefe">Jefe enfermeria</option>
+                    <option value="staff">Medico/a</option>
                 </select>
                 <button
                     type="submit"
                     className="w-full p-3 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition"
                 >
-                    Register User
+                    Registrar usuario
                 </button>
             </form>
-
+    
             {/* Tabla de usuarios */}
             <div className="w-full max-w-2xl mt-6">
-                <table className="w-full bg-white shadow-md rounded">
-                    <thead>
-                        <tr className="bg-gray-200">
-                            <th className="p-3 text-left">Username</th>
-                            <th className="p-3 text-left">Email</th>
-                            <th className="p-3 text-left">Role</th>
-                            <th className="p-3 text-left">Status</th>
-                            <th className="p-3 text-left">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {users.map((user) => (
-                            <tr key={user.id} className="border-b">
-                                <td className="p-3">{user.username}</td>
-                                <td className="p-3">{user.email}</td>
-                                <td className="p-3">{user.role}</td>
-                                <td className="p-3">
-                                    {user.is_active ? "Active" : "Disabled"}
-                                </td>
-                                <td className="p-3 flex space-x-2">
-                                    <select
-                                        value={user.role}
-                                        onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                                        className="p-2 border rounded"
-                                    >
-                                        <option value="user">User</option>
-                                        <option value="admin">Admin</option>
-                                        <option value="staff">Staff</option>
-                                    </select>
-                                    <button
-                                        onClick={() => handleToggleStatus(user.id, user.is_active)}
-                                        className={`p-2 text-white rounded ${user.is_active ? 'bg-red-500' : 'bg-green-500'}`}
-                                    >
-                                        {user.is_active ? "Disable" : "Enable"}
-                                    </button>
-                                </td>
+                <div className="overflow-y-auto max-h-[400px]"> 
+                    <table className="w-full bg-white shadow-md rounded">
+                        <thead>
+                            <tr className="bg-gray-200">
+                                <th className="p-3 text-left">Usuario</th>
+                                <th className="p-3 text-left">Email</th>
+                                <th className="p-3 text-left">Rol</th>
+                                <th className="p-3 text-left">Estado</th>
+                                <th className="p-3 text-left">Acciones</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {users.map((user) => (
+                                <tr key={user.id} className="border-b">
+                                    <td className="p-3">{user.username}</td>
+                                    <td className="p-3">{user.email}</td>
+                                    <td className="p-3">{user.role}</td>
+                                    <td className="p-3">
+                                        {user.is_active ? "Activo" : "Inactivo"}
+                                    </td>
+                                    <td className="p-3 flex space-x-2">
+                                        <select
+                                            value={user.role}
+                                            onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                                            className="p-2 border rounded"
+                                        >
+                                            <option value="user">Enfermero/a</option>
+                                            <option value="jefe">Jefe de enfermeria</option>
+                                            <option value="staff">Medico/a</option>
+                                        </select>
+                                        <button
+                                            onClick={() => handleToggleStatus(user.id, user.is_active)}
+                                            className={`p-2 text-white rounded ${user.is_active ? 'bg-red-500' : 'bg-green-500'}`}
+                                        >
+                                            {user.is_active ? "Desactivar" : "Activar"}
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <button
-                onClick={() => navigate("/dashboard")}
-                className="mt-6 px-4 py-2 bg-blue-500 text-white rounded"
-            >
-                Back to Dashboard
+    
+            <button onClick={handleGoBack} className="mt-6 flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition">
+                <FiHome className="mr-2" /> Regresar
             </button>
         </div>
     );
+    
+    
+    
 };
 
 export default AdminPanel;

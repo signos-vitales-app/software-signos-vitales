@@ -129,7 +129,7 @@ const Register = () => {
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 >
                     <option value="user">Enfermero/a</option>
-                    <option value="admin">Jefe de enfermeria</option>
+                    <option value="jefe">Jefe de enfermeria</option>
                     <option value="staff">Medico/a</option>
                 </select>
                 {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
