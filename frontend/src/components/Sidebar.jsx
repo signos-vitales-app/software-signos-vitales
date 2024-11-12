@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiMenu, FiX, FiHome, FiUsers, FiUserPlus, FiSearch, FiLogOut, FiSettings, FiUser } from 'react-icons/fi';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { FiHome, FiSearch, FiUserPlus, FiUsers, FiSettings, FiLogOut, FiUser } from 'react-icons/fi';
 import { getUserInfo } from '../services/authService';
-import process from 'process';
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);
     const [userInfo, setUserInfo] = useState(null);
     const navigate = useNavigate();
+    const location = useLocation();
     const role = localStorage.getItem('role');
 
     useEffect(() => {
@@ -33,45 +33,21 @@ const Sidebar = () => {
         return `${import.meta.env.VITE_API_URL}/uploads/profile-images/${imageName}`;
     };
 
-    const handleImageUpload = async (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const formData = new FormData();
-        formData.append('profileImage', file);
-
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/upload-profile-image`, {
-                method: 'POST',
-                credentials: 'include',
-                body: formData
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                setUserInfo(prevState => ({
-                    ...prevState,
-                    profile_image: data.profileImage
-                }));
-            }
-        } catch (error) {
-            console.error('Error al subir la imagen:', error);
-        }
-    };
+    const isActive = (path) => location.pathname === path;
 
     return (
-        <div className={`fixed left-0 h-full bg-gray-800 text-white transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
+        <div className={`fixed left-0 h-full bg-white text-gray-700 shadow-lg transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
             <button 
                 onClick={() => setIsOpen(!isOpen)} 
-                className="absolute right-0 top-4 transform translate-x-full bg-gray-800 p-2 rounded-r-md"
+                className="absolute right-0 top-4 transform translate-x-full bg-white p-2 rounded-r-md shadow-md"
             >
-                {isOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+                {isOpen ? '◀' : '▶'}
             </button>
 
             <div className="flex flex-col h-full p-4">
                 {/* Perfil de usuario */}
                 <div className="flex flex-col items-center mb-8 mt-4">
-                    <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white mb-2">
+                    <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-blue-500 mb-2">
                         {userInfo?.profile_image ? (
                             <img 
                                 src={getProfileImageUrl(userInfo.profile_image)}
@@ -79,56 +55,56 @@ const Sidebar = () => {
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
                                     e.target.onerror = null;
-                                    e.target.src = 'default-avatar.png'; // Imagen por defecto
+                                    e.target.src = 'default-avatar.png';
                                 }}
                             />
                         ) : (
-                            <div className="w-full h-full bg-gray-600 flex items-center justify-center">
-                                <FiUser size={40} className="text-gray-300" />
+                            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <FiUser size={40} className="text-gray-500" />
                             </div>
                         )}
                     </div>
                     {isOpen && userInfo && (
                         <div className="text-center">
-                            <h3 className="font-bold">{userInfo.username}</h3>
-                            <p className="text-sm text-gray-300">{userInfo.role}</p>
+                            <h3 className="font-bold text-gray-900">{userInfo.username}</h3>
+                            <p className="text-sm text-gray-500">{userInfo.role}</p>
                         </div>
                     )}
                 </div>
 
-                {/* Resto del contenido del sidebar */}
+                {/* Navegación del sidebar */}
                 <div className="flex-grow">
                     <nav className="space-y-4">
                         <button 
                             onClick={() => navigate('/dashboard')}
-                            className="flex items-center w-full p-2 hover:bg-gray-700 rounded"
+                            className={`flex items-center w-full p-2 rounded ${isActive('/dashboard') ? 'bg-blue-500 text-white' : 'hover:bg-blue-100 text-gray-700'}`}
                         >
-                            <FiHome size={20} />
+                            <FiHome size={20} className={`${isActive('/dashboard') ? 'text-white' : 'text-blue-500'}`} />
                             {isOpen && <span className="ml-3">Inicio</span>}
                         </button>
 
                         <button 
                             onClick={() => navigate('/search-patient')}
-                            className="flex items-center w-full p-2 hover:bg-gray-700 rounded"
+                            className={`flex items-center w-full p-2 rounded ${isActive('/search-patient') ? 'bg-blue-500 text-white' : 'hover:bg-blue-100 text-gray-700'}`}
                         >
-                            <FiSearch size={20} />
+                            <FiSearch size={20} className={`${isActive('/search-patient') ? 'text-white' : 'text-blue-500'}`} />
                             {isOpen && <span className="ml-3">Buscar Paciente</span>}
                         </button>
 
                         <button 
                             onClick={() => navigate('/register-patient')}
-                            className="flex items-center w-full p-2 hover:bg-gray-700 rounded"
+                            className={`flex items-center w-full p-2 rounded ${isActive('/register-patient') ? 'bg-blue-500 text-white' : 'hover:bg-blue-100 text-gray-700'}`}
                         >
-                            <FiUserPlus size={20} />
+                            <FiUserPlus size={20} className={`${isActive('/register-patient') ? 'text-white' : 'text-blue-500'}`} />
                             {isOpen && <span className="ml-3">Registrar Paciente</span>}
                         </button>
 
                         {role === 'jefe' && (
                             <button 
                                 onClick={() => navigate('/admin-panel')}
-                                className="flex items-center w-full p-2 hover:bg-gray-700 rounded"
+                                className={`flex items-center w-full p-2 rounded ${isActive('/admin-panel') ? 'bg-blue-500 text-white' : 'hover:bg-blue-100 text-gray-700'}`}
                             >
-                                <FiUsers size={20} />
+                                <FiUsers size={20} className={`${isActive('/admin-panel') ? 'text-white' : 'text-blue-500'}`} />
                                 {isOpen && <span className="ml-3">Panel de administrador</span>}
                             </button>
                         )}
@@ -136,38 +112,22 @@ const Sidebar = () => {
                 </div>
 
                 {/* Footer del sidebar */}
-                <div className="pt-4 border-t border-gray-700">
+                <div className="pt-4 border-t border-gray-300">
                     <button 
                         onClick={() => navigate('/settings')}
-                        className="flex items-center w-full p-2 hover:bg-gray-700 rounded"
+                        className={`flex items-center w-full p-2 rounded ${isActive('/settings') ? 'bg-blue-500 text-white' : 'hover:bg-blue-100 text-gray-700'}`}
                     >
-                        <FiSettings size={20} />
+                        <FiSettings size={20} className={`${isActive('/settings') ? 'text-white' : 'text-blue-500'}`} />
                         {isOpen && <span className="ml-3">Configuración</span>}
                     </button>
                     
                     <button 
                         onClick={handleLogout}
-                        className="flex items-center w-full p-2 hover:bg-gray-700 rounded text-red-400"
+                        className="flex items-center w-full p-2 hover:bg-red-100 rounded text-red-500"
                     >
-                        <FiLogOut size={20} />
+                        <FiLogOut size={20} className="text-red-500" />
                         {isOpen && <span className="ml-3">Cerrar Sesión</span>}
                     </button>
-                </div>
-
-                <div className="profile-image-section">
-                    <input 
-                        type="file"
-                        id="profile-image-input"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        style={{ display: 'none' }}
-                    />
-                    <label 
-                        htmlFor="profile-image-input" 
-                        className="upload-button"
-                    >
-                        {/* Actualizar foto de perfil */}
-                    </label>
                 </div>
             </div>
         </div>
