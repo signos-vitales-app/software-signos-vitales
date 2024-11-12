@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { login } from "../services/authService";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // Importamos los íconos para la visibilidad de la contraseña
+import { FaUser, FaLock,FaEye, FaEyeSlash } from "react-icons/fa"; // Importamos los íconos para la visibilidad de la contraseña
+import loginBackground from "./imagen Login.png"; // Importar la imagen directamente desde la ruta
 
 const Login = () => {
     const [username, setUsername] = useState("");
@@ -31,40 +32,84 @@ const Login = () => {
     };
 
     return (
-        <div className="flex flex-col h-screen items-center justify-center bg-gray-100">
-            <form onSubmit={handleLogin} className="w-full max-w-md p-8 bg-white rounded shadow-lg">
-                <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-                <input
+        <div className="flex flex-col h-screen items-center justify-center bg-gray-100 relative">
+          {/* Imagen de fondo */}
+          <div className="absolute inset-0 z-0">
+            <img
+              src={loginBackground} // Usar la imagen importada
+              alt="Login Background"
+              className="w-full h-full object-cover"
+            />
+          </div>
+    
+          <div className="w-full max-w-md bg-blue-800 rounded-lg shadow-lg p-8 relative z-10">
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center">
+                <FaUser className="text-gray-600 text-4xl" />
+              </div>
+            </div>
+    
+            <form onSubmit={handleLogin}>
+              {/* Campo de usuario */}
+              <div className="mb-4">
+                <div className="relative">
+                  <input
                     type="text"
                     placeholder="Usuario"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full mb-4 p-3 border border-gray-300 rounded"
-                />
-                <div className="relative">
-                    <input
-                        type={passwordVisible ? "text" : "password"} // Cambiar entre texto o contraseña
-                        placeholder="Contraseña"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full mb-4 p-3 border border-gray-300 rounded"
-                    />
-                    <span
-                        onClick={togglePasswordVisibility} // Al hacer clic se alterna la visibilidad
-                        className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer"
-                    >
-                        {passwordVisible ? <FaEyeSlash /> : <FaEye />}
-                    </span>
+                    className="w-full pl-10 p-3 border rounded-full bg-white focus:outline-none"
+                  />
+                  <span className="absolute inset-y-0 left-3 flex items-center text-gray-600">
+                    <FaUser />
+                  </span>
                 </div>
-                <button
-                    type="submit"
-                    className="w-full p-3 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
-                >
-                    Entrar
-                </button>
+              </div>
+    
+              {/* Campo de contraseña */}
+              <div className="mb-4">
+                <div className="relative">
+                  <input
+                    type={passwordVisible ? "text" : "password"}
+                    placeholder="Contraseña"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-10 p-3 border rounded-full bg-white focus:outline-none"
+                  />
+                  <span className="absolute inset-y-0 left-3 flex items-center text-gray-600">
+                    <FaLock />
+                  </span>
+                  <span
+                    onClick={togglePasswordVisibility}
+                    className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer"
+                  >
+                    {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+                  </span>
+                </div>
+              </div>
+    
+              {/* Olvidé mi contraseña */}
+              <div className="mb-6 text-center">
+                        <button
+                            type="button"
+                            onClick={() => navigate("/reset-password")} // Redirigir a la página de restablecer contraseña
+                            className="text-white text-sm hover:underline"
+                        >
+                            Olvidé mi contraseña
+                        </button>
+                    </div>
+    
+              {/* Botón de iniciar sesión */}
+              <button
+                type="submit"
+                className="w-full p-3 bg-green-500 text-white font-bold rounded-full hover:bg-green-600 transition"
+              >
+                Iniciar Sesión
+              </button>
             </form>
+          </div>
         </div>
-    );
+      );
 };
 
 export default Login;
