@@ -16,7 +16,8 @@ import PatientGraphs from './pages/PatientGraphs';
 import QRReaderPage from './pages/ScanQr';
 import ProtectedRoute from './pages/ProtectedRoute';
 import Layout from './components/Layout';
-
+import RegisterUser from './pages/RegisterUser'; // Importamos el nuevo componente de registro de usuario
+import SearchUsers from './pages/SearchUsers'; // Importamos el nuevo componente de tabla de usuarios
 
 function App() {
     return (
@@ -28,20 +29,23 @@ function App() {
                 <Route path="/register" element={<Register />} /> {/* ruta de registro temporalmente para facilitar la creación del admin */}
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/reset-password/:token" element={<ChangePassword />} />
-                {/*RUtas protegidas */}
+
+                {/* Rutas protegidas */}
                 <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
                 <Route path="/register-patient" element={<ProtectedRoute><Layout><PatientRegister/></Layout></ProtectedRoute>} />
                 <Route path="/qr-reader" element={<ProtectedRoute><Layout><QRReaderPage /></Layout></ProtectedRoute>} />
-                {/* <Route path='/patient/:idPaciente/add-record' element={<PatientRecordForm />} /> */}
                 <Route path="/patient/:idPaciente/add-record" element={<ProtectedRoute><Layout><PatientDataForm /></Layout></ProtectedRoute>} />
                 <Route path="/patient/:idPaciente/records" element={<ProtectedRoute><Layout><PatientRecordHistory /></Layout></ProtectedRoute>} />
                 <Route path="/patient/:idPaciente/graphs" element={<ProtectedRoute><Layout><PatientGraphs /></Layout></ProtectedRoute>} />
                 <Route path="/search-patient" element={<ProtectedRoute><Layout><SearchPatient /></Layout></ProtectedRoute>} />
                 <Route path="/admin-panel" element={<ProtectedRoute><Layout><AdminPanel /></Layout></ProtectedRoute>} />
 
-                {/* Default route */}
-                <Route path="*" element={<h1>404 Page Not Found</h1>} />
+                {/* Nuevas rutas para registro y búsqueda de usuarios */}
+                <Route path="/register-user" element={<ProtectedRoute><Layout><RegisterUser /></Layout></ProtectedRoute>} />
+                <Route path="/search-user" element={<ProtectedRoute><Layout><SearchUsers /></Layout></ProtectedRoute>} />
 
+                {/* Ruta por defecto */}
+                <Route path="*" element={<h1>404 Page Not Found</h1>} />
             </Routes>
         </Router>
     );
