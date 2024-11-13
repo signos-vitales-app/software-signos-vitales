@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { FiUserPlus, FiSearch } from "react-icons/fi";
+import { FaUserPlus  } from "react-icons/fa";
+import { FaUsersGear } from "react-icons/fa6";
 
 const AdminPanel = () => {
     const navigate = useNavigate();
@@ -12,7 +13,7 @@ const AdminPanel = () => {
                     className="flex flex-col items-center bg-white p-6 rounded shadow-lg cursor-pointer hover:shadow-xl transition"
                     onClick={() => navigate("/search-user")}
                 >
-                    <FiSearch size={64} />
+                    <FaUsersGear size={64} />
                     <button className="mt-4 bg-green-400 text-white px-4 py-2 rounded">
                         Buscar usuario
                     </button>
@@ -22,7 +23,7 @@ const AdminPanel = () => {
                     className="flex flex-col items-center bg-white p-6 rounded shadow-lg cursor-pointer hover:shadow-xl transition"
                     onClick={() => navigate("/register-user")}
                 >
-                    <FiUserPlus size={64} />
+                    <FaUserPlus size={64} />
                     <button className="mt-4 bg-green-400 text-white px-4 py-2 rounded">
                         Registrar usuario
                     </button>
