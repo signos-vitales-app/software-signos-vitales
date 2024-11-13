@@ -69,7 +69,8 @@ const RegisterUser = () => {
             const response = await register(formData);
             setSuccess("Usuario registrado exitosamente!");
             setError(null);
-            navigate('/admin');
+            toast.success("Usuario registrado exitosamente!");
+            navigate('/login');  // Redirigir al login después de registro exitoso
         } catch (err) {
             const errorMessage = err.response?.data?.message || err.response?.data?.error || "Error en el registro. Por favor, intente nuevamente.";
             setError(errorMessage);
