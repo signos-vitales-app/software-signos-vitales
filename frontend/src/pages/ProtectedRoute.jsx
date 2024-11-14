@@ -7,4 +7,4 @@ function ProtectedRoute({children}) {
     return token ? children : <Navigate to={"/login"} />
 }
 
-export default ProtectedRoute;
+export default ProtectedRoute; 
