@@ -1,23 +1,29 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchPatients, updatePatientStatus } from "../services/patientService";
-import { QrReader } from 'react-qr-reader'; // Importamos el lector de QR
-import { FiPlusCircle, FiHome, FiFilter, FiDownload, FiX  } from "react-icons/fi";
-import { LuClipboardEdit } from "react-icons/lu";
-import { FaCamera } from 'react-icons/fa';  // Cámara para el escaneo
+import { FiHome, FiX } from "react-icons/fi";
+import { FaCamera } from 'react-icons/fa';
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 const SearchPatient = () => {
     const [patients, setPatients] = useState([]);
-    const [searchId, setSearchId] = useState(""); // Para almacenar el ID escaneado
+    const [searchId, setSearchId] = useState("");
     const [selectedIdPaciente, setSelectedIdPaciente] = useState(null);
-    const [isScanning, setIsScanning] = useState(false); // Controlar si el escáner está activo
-    const [errorMessage, setErrorMessage] = useState(""); // Para mostrar el mensaje de error
-    const [scanCompleted, setScanCompleted] = useState(false); // Controlar si el escaneo está completado
+    const [isScanning, setIsScanning] = useState(false);
+    const [cameraPermission, setCameraPermission] = useState(null);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [scanCompleted, setScanCompleted] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         loadPatients();
     }, []);
+
+    useEffect(() => {
+        if (isScanning) {
+            handleOpenQRScanner();
+        }
+    }, [isScanning]);
 
     const loadPatients = async () => {
         const response = await fetchPatients();
@@ -40,39 +46,60 @@ const SearchPatient = () => {
 
     const handleRegisterData = () => {
         if (selectedIdPaciente) {
-            navigate(`/patient/${selectedIdPaciente}/records`);//cambio de lusvin
+            navigate(`/patient/${selectedIdPaciente}/records`);
         }
     };
 
-    const handleScan = (data) => {
-        if (data && !scanCompleted) {
-            setSearchId(data);
+    const handleScan = (qrCodeMessage) => {
+        if (qrCodeMessage && !scanCompleted) {
+            setSearchId(qrCodeMessage);
             setErrorMessage("");
             setScanCompleted(true);
             stopScanning();
         }
     };
 
-    const handleError = (err) => {
-        // Solo mostramos el error si es diferente al último error registrado
-        if (err?.message && err?.message !== lastError) {
-            console.error(err);
-            setLastError(err.message);
-            setErrorMessage("Error al escanear el código QR. Intenta nuevamente.");
+    const stopScanning = () => {
+        setIsScanning(false);
+        setScanCompleted(true);
+    };
+
+    const requestCameraPermission = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            if (stream) {
+                setCameraPermission(true);
+                handleOpenQRScanner();
+            }
+        } catch (err) {
+            setCameraPermission(false);
+            setErrorMessage("Permiso de cámara denegado o no disponible.");
         }
     };
 
-    const stopScanning = () => {
-        setIsScanning(false);
-        setScanCompleted(true); // Marcamos como completado
-
-    };
-
     const handleOpenQRScanner = () => {
+        if (!cameraPermission) {
+            requestCameraPermission();
+            return;
+        }
+
         setSearchId("");
         setErrorMessage("");
         setIsScanning(true);
         setScanCompleted(false);
+
+        // Inicializar el lector QR solo cuando la cámara esté disponible
+        const scanner = new Html5QrcodeScanner("qr-reader", {
+            fps: 10,
+            qrbox: { width: 250, height: 250 }
+        });
+
+        // Iniciar el escaneo
+        scanner.render((decodedText, decodedResult) => {
+            handleScan(decodedText);
+        }, (errorMessage) => {
+            console.log(`Error de escaneo: ${errorMessage}`);
+        });
     };
 
     const handleCancelScan = () => {
@@ -80,6 +107,7 @@ const SearchPatient = () => {
         setErrorMessage("");
         setScanCompleted(false);
     };
+
     const handleGoBack = () => {
         navigate("/dashboard");
     };
@@ -90,41 +118,42 @@ const SearchPatient = () => {
             <input
                 type="text"
                 placeholder="Número de identificación"
-                value={searchId} // El valor del QR se asignará aquí
+                value={searchId}
                 onChange={(e) => setSearchId(e.target.value)}
                 className="mb-4 p-2 border rounded w-full max-w-md"
             />
 
-<button
-    onClick={handleOpenQRScanner}
-    className="mb-4 px-4 py-2 bg-blue-500 text-white font-bold rounded flex items-center"
->
-    <FaCamera className="mr-2" /> {/* Ícono de cámara */}
-    Escanear Código QR
-</button>
+            <button
+                onClick={handleOpenQRScanner}
+                className="mb-4 px-4 py-2 bg-blue-500 text-white font-bold rounded flex items-center"
+            >
+                <FaCamera className="mr-2" />
+                {cameraPermission === null
+                    ? "Solicitar acceso a la cámara"
+                    : "Escanear Código QR"}
+            </button>
 
-{isScanning && (
-    <div className="mb-4">
-        <QrReader
-            onResult={(result, error) => {
-                if (result) handleScan(result?.text);
-                if (error) handleError(error);
-            }}
-            constraints={{ facingMode: "environment" }}
-            style={{ width: '100%' }}
-        />
-        <button
-            onClick={handleCancelScan}
-            className="mt-2 px-4 py-2 bg-red-500 text-white font-bold rounded flex items-center"
-        >
-            <FiX className="mr-2" /> {/* Ícono de cancelación */}
-            Cancelar Escaneo
-        </button>
-    </div>
-)}
+            {cameraPermission === false && (
+                <div className="text-red-500 font-bold mb-4">
+                    No se ha concedido acceso a la cámara. Verifique los permisos en su navegador.
+                </div>
+            )}
+
+            {isScanning && (
+                <div className="flex flex-col items-center justify-center bg-gray-200 p-4 rounded-md shadow-lg w-full max-w-xs mb-4">
+                    <div id="qr-reader" className="mb-4" style={{ width: "250px", height: "250px" }}></div>
+                    <button
+                        onClick={handleCancelScan}
+                        className="mt-4 px-4 py-2 bg-red-500 text-white font-bold rounded flex items-center"
+                    >
+                        <FiX className="mr-2" />
+                        Cancelar Escaneo
+                    </button>
+                </div>
+            )}
 
             {errorMessage && (
-                <div className="mb-4 text-red-500 font-bold">
+                <div className="text-red-500 font-bold mb-4">
                     {errorMessage}
                 </div>
             )}
@@ -174,9 +203,8 @@ const SearchPatient = () => {
                     ))}
                 </tbody>
             </table>
-            {/* Botones de acción */}
-            <div className="flex justify-center w-full max-w-4xl space-x-4">
 
+            <div className="flex justify-center w-full max-w-4xl space-x-4">
                 <button onClick={handleGoBack} className="mt-6 flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition">
                     <FiHome className="mr-2" /> Regresar
                 </button>
@@ -185,10 +213,9 @@ const SearchPatient = () => {
                     disabled={!selectedIdPaciente}
                     className={`mt-6 px-4 py-2 ${selectedIdPaciente ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-300 cursor-not-allowed"} text-white font-bold rounded flex items-center space-x-2`}
                 >
-                    <LuClipboardEdit className="w-5 h-5" /> Registrar Datos
+                    Registrar Datos
                 </button>
             </div>
-
         </div>
     );
 };
