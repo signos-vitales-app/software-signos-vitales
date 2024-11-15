@@ -12,7 +12,6 @@ import SearchPatient from './pages/SearchPatient';
 import PatientDataForm from './pages/PatientDataForm';
 import PatientRecordHistory from './pages/PatientRecordHistory';
 import PatientGraphs from './pages/PatientGraphs';
-import QRReaderPage from './pages/ScanQr';
 import ProtectedRoute from './pages/ProtectedRoute';
 import Layout from './components/Layout';
 import RegisterUser from './pages/RegisterUser'; // Importamos el nuevo componente de registro de usuario
@@ -32,7 +31,6 @@ function App() {
                 {/* Rutas protegidas */}
                 <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
                 <Route path="/register-patient" element={<ProtectedRoute><Layout><PatientRegister/></Layout></ProtectedRoute>} />
-                <Route path="/qr-reader" element={<ProtectedRoute><Layout><QRReaderPage /></Layout></ProtectedRoute>} />
                 <Route path="/patient/:idPaciente/add-record" element={<ProtectedRoute><Layout><PatientDataForm /></Layout></ProtectedRoute>} />
                 <Route path="/patient/:idPaciente/records" element={<ProtectedRoute><Layout><PatientRecordHistory /></Layout></ProtectedRoute>} />
                 <Route path="/patient/:idPaciente/graphs" element={<ProtectedRoute><Layout><PatientGraphs /></Layout></ProtectedRoute>} />
