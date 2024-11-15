@@ -233,7 +233,10 @@ const PatientRecordHistory = () => {
                 <div className="flex justify-between mb-4">
                     <div>
 
-                        <p><strong>Nombre:</strong> {patientInfo.primer_nombre} {patientInfo.primer_apellido}</p>
+                    <p><strong>Primer nombre:</strong> {patientInfo.primer_nombre} </p>
+                        <p><strong>Segundo nombre:</strong> {patientInfo.segundo_nombre}</p>
+                        <p><strong>Primer apellido:</strong> {patientInfo.primer_apellido} </p>
+                        <p><strong>Segundo apellido:</strong> {patientInfo.segundo_apellido}</p>
                         <p><strong>Tipo de identificación:</strong> {patientInfo.tipo_identificacion}</p>
                         <p><strong>Número de identificación:</strong> {patientInfo.numero_identificacion}</p>
                         <p><strong>Ubicación:</strong> {patientInfo.ubicacion}</p>

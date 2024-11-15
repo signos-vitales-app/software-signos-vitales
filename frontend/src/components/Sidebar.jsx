@@ -35,6 +35,17 @@ const Sidebar = () => {
 
     const isActive = (path) => location.pathname === path;
 
+    // Función que mapea el rol del usuario a una descripción más amigable
+    const getRoleDescription = (role) => {
+        const roleDescriptions = {
+            user: 'Enfermero/a',
+            staff: 'Medico/a',
+            jefe: 'Jefe de Enfermería',
+            // Agrega más roles según tu base de datos
+        };
+        return roleDescriptions[role] || 'Rol desconocido';
+    };
+
     return (
         <div className={`fixed left-0 h-full bg-white text-gray-700 shadow-lg transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
             <button 
@@ -67,7 +78,8 @@ const Sidebar = () => {
                     {isOpen && userInfo && (
                         <div className="text-center">
                             <h3 className="font-bold text-gray-900">{userInfo.username}</h3>
-                            <p className="text-sm text-gray-500">{userInfo.role}</p>
+                            {/* Usamos la función getRoleDescription para mostrar una descripción más amigable del rol */}
+                            <p className="text-sm text-gray-500">{getRoleDescription(userInfo.role)}</p>
                         </div>
                     )}
                 </div>

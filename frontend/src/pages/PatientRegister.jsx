@@ -8,7 +8,9 @@ import { FiPlusCircle, FiHome, FiFilter, FiDownload } from "react-icons/fi";
 const PatientRegister = () => {
     const navigate = useNavigate();
     const [primerNombre, setprimerNombre] = useState("");
+    const [segundoNombre, setSegundoNombre] = useState("");
     const [primerApellido, setprimerApellido] = useState("");
+    const [segundoApellido, setSegundoApellido] = useState("");
     const [numeroIdentificacion, setnumeroIdentificacion] = useState("");
     const [fechaNacimiento, setFechaNacimiento] = useState("");
     const [tipoIdentificacion, settipoIdentificacion] = useState("cédula de ciudadanía");
@@ -34,7 +36,9 @@ const PatientRegister = () => {
         try {
             await registerPatient({
                 primer_nombre: primerNombre,
+                segundo_nombre: segundoNombre,
                 primer_apellido: primerApellido,
+                segundo_apellido: segundoApellido,
                 numero_identificacion: numeroIdentificacion,
                 fecha_nacimiento: fechaNacimiento,
                 tipo_identificacion: tipoIdentificacion,
@@ -58,21 +62,35 @@ const PatientRegister = () => {
                 <h2 className="text-2xl font-bold mb-6 text-center">Registrar paciente</h2>
                 <input
                     type="text"
-                    placeholder="Nombres"
+                    placeholder="Primer nombre"
                     value={primerNombre}
-                    onChange={(e) => setprimerNombre(e.target.value)}
+                    onChange={(e) => setPrimerNombre(e.target.value)}
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 />
                 <input
                     type="text"
-                    placeholder="Apellidos"
+                    placeholder="Segundo nombre"
+                    value={segundoNombre}
+                    onChange={(e) => setSegundoNombre(e.target.value)}
+                    className="w-full mb-4 p-3 border border-gray-300 rounded"
+                />
+                <input
+                    type="text"
+                    placeholder="Primer apellido"
                     value={primerApellido}
-                    onChange={(e) => setprimerApellido(e.target.value)}
+                    onChange={(e) => setPrimerApellido(e.target.value)}
+                    className="w-full mb-4 p-3 border border-gray-300 rounded"
+                />
+                <input
+                    type="text"
+                    placeholder="Primer apellido"
+                    value={segundoApellido}
+                    onChange={(e) => setSegundoApellido(e.target.value)}
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 />
                 <select
                     value={tipoIdentificacion}
-                    onChange={(e) => settipoIdentificacion(e.target.value)}
+                    onChange={(e) => setTipoIdentificacion(e.target.value)}
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 >
                     <option value="cédula de ciudadanía">Cédula de Ciudadanía</option>
@@ -82,7 +100,7 @@ const PatientRegister = () => {
                     type="text"
                     placeholder="Numero de identificación"
                     value={numeroIdentificacion}
-                    onChange={(e) => setnumeroIdentificacion(e.target.value)}
+                    onChange={(e) => setNumeroIdentificacion(e.target.value)}
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 />
                 <h1> Fecha de nacimiento </h1>
@@ -100,7 +118,7 @@ const PatientRegister = () => {
                     type="text"
                     placeholder="Ubicación (habitacion)"
                     value={ubicacion}
-                    onChange={(e) => setubicacion(e.target.value)}
+                    onChange={(e) => setUbicacion(e.target.value)}
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 />
                 <select
@@ -112,18 +130,18 @@ const PatientRegister = () => {
                     <option value="inactivo">Inactivo</option>
                 </select>
                 <button
-    type="submit"
-    className="w-full p-3 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition"
->
-    Registrar paciente
-</button>
+                    type="submit"
+                    className="w-full p-3 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition"
+                >
+                    Registrar paciente
+                </button>
 
-{/* Contenedor centrado */}
-<div className="flex justify-center w-full mt-4"> {/* Añadido mt-4 para separación */}
-    <button onClick={handleGoBack} className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition">
-        <FiHome className="mr-2" /> Regresar
-    </button>
-</div>
+                {/* Contenedor centrado */}
+                <div className="flex justify-center w-full mt-4"> {/* Añadido mt-4 para separación */}
+                    <button onClick={handleGoBack} className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition">
+                        <FiHome className="mr-2" /> Regresar
+                    </button>
+                </div>
 
 
             </form>

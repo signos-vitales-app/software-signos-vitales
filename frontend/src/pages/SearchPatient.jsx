@@ -15,6 +15,7 @@ const SearchPatient = () => {
     const [scanCompleted, setScanCompleted] = useState(false);
     const navigate = useNavigate();
 
+
     useEffect(() => {
         loadPatients();
     }, []);
@@ -161,8 +162,13 @@ const SearchPatient = () => {
             <table className="w-full max-w-2xl bg-white rounded-lg shadow-lg overflow-hidden">
                 <thead>
                     <tr className="bg-blue-100 text-blue-700">
-                        <th className="p-4">Nombres y apellidos</th>
+                        <th className="p-4">Primer nombre</th>
+                        <th className="p-4">Segundo nombre</th>
+                        <th className="p-4">Primer apellido</th>
+                        <th className="p-4">Segundo apellido</th>
                         <th className="p-4">Número de identificación</th>
+                        <th className="p-4">Tipo de identificación</th>
+                        <th className="p-4">Ubicación</th>
                         <th className="p-4">Estado</th>
                         <th className="p-4">Editar</th>
                         <th className="p-4">Seleccionar</th>
@@ -171,8 +177,13 @@ const SearchPatient = () => {
                 <tbody>
                     {filteredPatients.map((patient) => (
                         <tr key={patient.id} className="border-b">
-                            <td className="p-4">{patient.primer_nombre} {patient.primer_apellido}</td>
+                            <td className="p-4">{patient.primer_nombre}</td>
+                            <td className="p-4">{patient.segundo_nombre}</td>
+                            <td className="p-4">{patient.primer_apellido}</td>
+                            <td className="p-4">{patient.segundo_apellido}</td>
                             <td className="p-4">{patient.numero_identificacion}</td>
+                            <td className="p-4">{patient.tipo_identificacion}</td>
+                            <td className="p-4">{patient.ubicacion}</td>
                             <td className="p-4">
                                 <button
                                     onClick={() => handleStatusToggle(patient.id, patient.status)}
