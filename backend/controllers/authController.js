@@ -90,7 +90,7 @@ exports.login = async (req, res) => {
         const { username, password } = req.body;
 
         const [rows] = await db.query(
-            "SELECT id, username, password, role FROM users WHERE username = ?",
+            "SELECT id, username, password, role, is_active FROM users WHERE username = ?",
             [username]
         );
 
@@ -99,6 +99,10 @@ exports.login = async (req, res) => {
         }
 
         const user = rows[0];
+
+        if (!user.is_active) {
+            return res.status(403).json({ message: "User is disabled. Contact the administrator." });
+        }
         const isValidPassword = await bcrypt.compare(password, user.password);
 
         if (!isValidPassword) {

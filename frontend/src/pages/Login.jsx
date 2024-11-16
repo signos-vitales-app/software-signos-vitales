@@ -23,8 +23,16 @@ const Login = () => {
             toast.success("Inicio de sesión exitosa!");
             navigate("/dashboard"); // Redirigir al panel general
         } catch (err) {
-            console.error("No se pudo iniciar sesión", err);
-            toast.error("Error al iniciar sesión. Por favor, verifique sus credenciales.");
+          console.error("Error al iniciar sesión", err);
+          
+          // Verifica si el error indica que el usuario está deshabilitado
+          if (err.response && err.response.status === 403) {
+              toast.error("El usuario está deshabilitado. Contacte al administrador.");
+          } else if (err.response && err.response.status === 401) {
+              toast.error("Credenciales inválidas. Por favor, intente de nuevo.");
+          } else {
+              toast.error("Error del servidor. Intente más tarde.");
+          }
         }
     };
 
