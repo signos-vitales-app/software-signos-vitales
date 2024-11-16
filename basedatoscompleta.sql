@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 11-11-2024 a las 08:14:25
+-- Tiempo de generación: 16-11-2024 a las 05:17:40
 -- Versión del servidor: 8.0.40
 -- Versión de PHP: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `softwaresignos`
+-- Base de datos: `basedatoscompleta`
 --
 
 -- --------------------------------------------------------
@@ -29,12 +29,14 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `patients` (
   `id` int NOT NULL,
-  `primer_nombre` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `primer_apellido` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `numero_identificacion` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
-  `tipo_identificacion` enum('cédula de ciudadanía','tarjeta de identidad') COLLATE utf8mb4_general_ci NOT NULL,
-  `ubicacion` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `status` enum('activo','inactivo') COLLATE utf8mb4_general_ci DEFAULT 'activo',
+  `primer_nombre` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `segundo_nombre` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `primer_apellido` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `segundo_apellido` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `numero_identificacion` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `tipo_identificacion` enum('cédula de ciudadanía','tarjeta de identidad') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `ubicacion` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `status` enum('activo','inactivo') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT 'activo',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_nacimiento` date NOT NULL DEFAULT '1900-01-01',
   `is_pediatric` tinyint(1) DEFAULT '0'
@@ -44,18 +46,18 @@ CREATE TABLE `patients` (
 -- Volcado de datos para la tabla `patients`
 --
 
-INSERT INTO `patients` (`id`, `primer_nombre`, `primer_apellido`, `numero_identificacion`, `tipo_identificacion`, `ubicacion`, `status`, `created_at`, `fecha_nacimiento`, `is_pediatric`) VALUES
-(1, 'asd', 'asd', '165', 'tarjeta de identidad', '101A', 'activo', '2024-11-01 03:13:36', '2019-06-11', 1),
-(2, 'Laura', 'solares', '12354661', 'cédula de ciudadanía', '305A', 'activo', '2024-11-05 12:02:48', '2006-07-04', 0),
-(3, 'Prueba ', '2', '00000000000', 'cédula de ciudadanía', '405A', 'activo', '2024-11-06 22:44:47', '2000-08-13', 0),
-(5, 'Daya', 'Garcia', '10097654', 'cédula de ciudadanía', 'A204', 'activo', '2024-11-09 03:33:42', '2001-07-11', 0),
-(6, 'Aura', 'Lara', '1003383319', 'cédula de ciudadanía', 'A202', 'activo', '2024-11-10 04:18:39', '2003-09-13', 0),
-(7, 'Aura Natalia', 'Lara Daza', '10087776', 'cédula de ciudadanía', '409b', 'activo', '2024-11-10 04:26:24', '2004-09-13', 0),
-(8, 'Aura', 'Lara', '10038773', 'cédula de ciudadanía', '204A', 'activo', '2024-11-10 05:08:42', '2003-09-13', 0),
-(9, 'as', 'asd', '5456', 'cédula de ciudadanía', '10', 'activo', '2024-11-11 04:57:27', '2024-11-10', 1),
-(10, 'sdasd', 'asdasd', '22', 'cédula de ciudadanía', '45', 'activo', '2024-11-11 06:19:31', '2000-05-02', 0),
-(11, 'aesdf', 'sdfsd', '1500', 'cédula de ciudadanía', '150', 'activo', '2024-11-11 06:26:46', '1222-12-12', 0),
-(12, 'weqwe', 'wqewe', '454566', 'cédula de ciudadanía', '56', 'activo', '2024-11-11 06:50:33', '2222-02-22', 1);
+INSERT INTO `patients` (`id`, `primer_nombre`, `segundo_nombre`, `primer_apellido`, `segundo_apellido`, `numero_identificacion`, `tipo_identificacion`, `ubicacion`, `status`, `created_at`, `fecha_nacimiento`, `is_pediatric`) VALUES
+(1, 'asd', '', 'asd', '', '165', 'tarjeta de identidad', '101A', 'activo', '2024-11-01 03:13:36', '2019-06-11', 1),
+(2, 'Laura', '', 'solares', '', '12354661', 'cédula de ciudadanía', '305A', 'activo', '2024-11-05 12:02:48', '2006-07-04', 0),
+(3, 'Prueba ', '', '2', '', '00000000000', 'cédula de ciudadanía', '405A', 'activo', '2024-11-06 22:44:47', '2000-08-13', 0),
+(5, 'Daya', '', 'Garcia', '', '10097654', 'cédula de ciudadanía', 'A204', 'activo', '2024-11-09 03:33:42', '2001-07-11', 0),
+(6, 'Aura', '', 'Lara', '', '1003383319', 'cédula de ciudadanía', 'A202', 'activo', '2024-11-10 04:18:39', '2003-09-13', 0),
+(7, 'Aura Natalia', '', 'Lara Daza', '', '10087776', 'cédula de ciudadanía', '409b', 'activo', '2024-11-10 04:26:24', '2004-09-13', 0),
+(8, 'Aura', '', 'Lara', '', '10038773', 'cédula de ciudadanía', '204A', 'activo', '2024-11-10 05:08:42', '2003-09-13', 0),
+(9, 'as', '', 'asd', '', '5456', 'cédula de ciudadanía', '10', 'activo', '2024-11-11 04:57:27', '2024-11-10', 1),
+(10, 'sdasd', '', 'asdasd', '', '22', 'cédula de ciudadanía', '45', 'activo', '2024-11-11 06:19:31', '2000-05-02', 0),
+(11, 'aesdf', '', 'sdfsd', '', '1500', 'cédula de ciudadanía', '150', 'activo', '2024-11-11 06:26:46', '1222-12-12', 0),
+(12, 'weqwe', '', 'wqewe', '', '454566', 'cédula de ciudadanía', '56', 'activo', '2024-11-11 06:50:33', '2222-02-22', 1);
 
 -- --------------------------------------------------------
 
@@ -78,7 +80,7 @@ CREATE TABLE `registros_paciente` (
   `peso_adulto` decimal(6,3) DEFAULT NULL,
   `peso_pediatrico` decimal(4,1) DEFAULT NULL,
   `talla` int DEFAULT NULL,
-  `observaciones` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `observaciones` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -108,15 +110,15 @@ INSERT INTO `registros_paciente` (`id`, `id_paciente`, `record_date`, `record_ti
 
 CREATE TABLE `users` (
   `id` int NOT NULL,
-  `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `role` enum('jefe','staff','user') COLLATE utf8mb4_general_ci NOT NULL,
+  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `role` enum('jefe','staff','user') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `reset_token` varchar(64) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `reset_token` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `reset_token_expiration` datetime DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT '1',
-  `profile_image` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL
+  `profile_image` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -124,9 +126,12 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `email`, `role`, `created_at`, `reset_token`, `reset_token_expiration`, `is_active`, `profile_image`) VALUES
-(4, 'laura', '$2a$10$Wa.ffNDP52rf6v2vZfLp5.31cUlK6wR8ss.G23fTwdWi2z4dLmnFa', 'lsolares@unab.edu.co', '', '2024-11-05 12:00:36', NULL, NULL, 1, NULL),
-(5, 'laura solares', '$2a$10$8b5luMW51kspEKlPIxMNTecxiahdCl08x4tg5qsbs0gyTc40Ip8/q', 'lauraquintero881120@gmail.com', '', '2024-11-05 12:05:18', NULL, NULL, 1, NULL),
-(6, 'Aura', '$2a$10$c/rPAkvhs.DsiU5viHTQfudTtk21hJijekuVWRr90xE95n/fSUtiW', 'alara470@unab.edu.co', 'jefe', '2024-11-06 06:50:57', NULL, NULL, 1, NULL);
+(11, 'laura solares', '$2a$10$JMJmfzT.ZFu8wQaYgFBL5egUG4zgL5GNX/u7K.HiFqh3zB4KhS2em', 'lsolares@unab.edu.co', 'jefe', '2024-11-15 21:59:49', NULL, NULL, 1, 'profile-1731707988670-819622142.png'),
+(14, 'qweq', '$2a$10$4ae..tqmccvi/Fkh3eBaPeDdk8UR5DkN/MXfV.AMbjmjoYYU5Dg/m', 'qweqw@gmail.com', 'user', '2024-11-15 22:21:32', NULL, NULL, 1, NULL),
+(15, 'qweqewq', '$2a$10$9IllpQhN/8nbgVW0TD6oCusNkAKn9AoAGUU1HWRIvyV5s71Odc.oe', 'hola56465564@gmail.com', 'staff', '2024-11-15 22:28:15', NULL, NULL, 1, 'profile-1731709695825-708769332.png'),
+(16, 'ewqeqweqw', '$2a$10$HwPLxjAe8vr3poRuHaOkiORSy0kaum11fhFyDCFUPD8N.YV7BX2h.', 'qweqweqwsd@gmail.com', 'staff', '2024-11-15 22:36:07', NULL, NULL, 1, NULL),
+(17, 'laura quintero', '$2a$10$9o80JqYAT4svpzHJMw8.UO0PENZAzIT0qN.eZ6ieQOcBZIULTKJIu', 'lauraquintero881120@gmail.com', 'jefe', '2024-11-15 22:40:31', NULL, NULL, 1, NULL),
+(18, 'Alejandra Hernández', '$2a$10$NZPWqgWxcpsDQvdZIuM5xeTiuFq4bZeqDE/zjNfEQv97aZtBrWvNC', 'haoidalL564@gmail.com', 'user', '2024-11-15 23:19:20', NULL, NULL, 1, NULL);
 
 --
 -- Índices para tablas volcadas
@@ -174,7 +179,7 @@ ALTER TABLE `registros_paciente`
 -- AUTO_INCREMENT de la tabla `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- Restricciones para tablas volcadas
