@@ -42,7 +42,7 @@ exports.register = async (req, res) => {
                 return res.status(400).json({ message: err.message });
             }
 
-            const { username, password, email, role } = req.body;
+            const { username, password, email, role, numero_identificacion } = req.body;
             const profileImage = req.file ? req.file.filename : null;
 
             // Verificar si el usuario o el correo ya existen
@@ -58,7 +58,8 @@ exports.register = async (req, res) => {
                 password, 
                 email, 
                 role,
-                profile_image: profileImage 
+                profile_image: profileImage,
+                numero_identificacion
             });
 
             // Enviar correo de bienvenida
@@ -193,7 +194,7 @@ exports.getUserInfo = async (req, res) => {
         const userId = req.user.id;
         
         const [rows] = await db.query(
-            "SELECT id, username, email, role, profile_image FROM users WHERE id = ?",
+            "SELECT id, username, email, role, profile_image, numero_identificacion FROM users WHERE id = ?",
             [userId]
         );
 

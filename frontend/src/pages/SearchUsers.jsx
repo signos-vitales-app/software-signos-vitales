@@ -64,6 +64,7 @@ const SearchUsers = () => {
                         <thead>
                             <tr className="bg-gray-200">
                                 <th className="p-3 text-left">Usuario</th>
+                                <th className="p-3 text-left">Número de Identificación</th>
                                 <th className="p-3 text-left">Email</th>
                                 <th className="p-3 text-left">Rol</th>
                                 <th className="p-3 text-left">Estado</th>
@@ -74,6 +75,7 @@ const SearchUsers = () => {
                             {users.map((user) => (
                                 <tr key={user.id} className="border-b">
                                     <td className="p-3">{user.username}</td>
+                                    <td className="p-3">{user.numero_identificacion}</td>
                                     <td className="p-3">{user.email}</td>
                                     <td className="p-3">{roleNames[user.role]}</td>
                                     <td className="p-3">

@@ -11,6 +11,7 @@ const Register = () => {
     const [password, setPassword] = useState("");
     const [role, setRole] = useState("user");
     const [profileImage, setProfileImage] = useState(null);
+    const [numeroIdentificacion, setNumeroIdentificacion] = useState("");
     const [previewImage, setPreviewImage] = useState(null);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
@@ -53,6 +54,7 @@ const Register = () => {
             if (profileImage) {
                 formData.append('profileImage', profileImage);
             }
+            formData.append('numero_identificacion', numeroIdentificacion);
 
             console.log('Enviando datos:');
             for (let pair of formData.entries()) {
@@ -110,6 +112,13 @@ const Register = () => {
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 />
                 <input
+                    type="text"
+                    placeholder="numero de identificación"
+                    value={numeroIdentificacion}
+                    onChange={(e) => setNumeroIdentificacion(e.target.value)}
+                    className="w-full mb-4 p-3 border border-gray-300 rounded"
+                />
+                <input
                     type="email"
                     placeholder="Correo electronico"
                     value={email}
@@ -129,7 +138,7 @@ const Register = () => {
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 >
                     <option value="user">Enfermero/a</option>
-                    <option value="jefe">Jefe de enfermeria</option>
+                    <option value="jefe">Jefe de enfermería</option>
                     <option value="staff">Medico/a</option>
                 </select>
                 {error && <p className="text-red-500 text-sm mb-4">{error}</p>}

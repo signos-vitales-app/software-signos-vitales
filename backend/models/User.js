@@ -2,13 +2,13 @@ const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 
 // Función para crear un nuevo usuario
-exports.createUser = async ({ username, password, email, role, profile_image }) => {
+exports.createUser = async ({ username, password, email, role, profile_image, numero_identificacion }) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
         const [result] = await db.query(
-            "INSERT INTO users (username, password, email, role, profile_image) VALUES (?, ?, ?, ?, ?)",
-            [username, hashedPassword, email, role, profile_image]
+            "INSERT INTO users (username, password, email, role, profile_image, numero_identificacion) VALUES (?, ?, ?, ?, ?,?)",
+            [username, hashedPassword, email, role, profile_image, numero_identificacion]
         );
         return result.insertId;
     } catch (error) {

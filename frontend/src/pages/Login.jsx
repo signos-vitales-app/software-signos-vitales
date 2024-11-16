@@ -18,6 +18,8 @@ const Login = () => {
             const response = await login(username, password);
             localStorage.setItem("token", response.data.token); // Guardar el token
             localStorage.setItem("role", response.data.role);   // Guardar el rol del usuario
+            localStorage.setItem("username", response.data.username); // Guardar el token
+
             toast.success("Inicio de sesión exitosa!");
             navigate("/dashboard"); // Redirigir al panel general
         } catch (err) {

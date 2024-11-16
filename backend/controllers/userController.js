@@ -3,7 +3,7 @@ const db = require('../config/db'); //requiere la base de datos
 // Obtener lista de usuarios
 exports.getUsers = async (req, res) => {
     try {
-        const [users] = await db.query("SELECT id, username, email, role, is_active FROM users");
+        const [users] = await db.query("SELECT id, username, email, role, numero_identificacion, is_active FROM users");
         res.status(200).json(users);
     } catch (error) {
         console.error(error);

@@ -14,6 +14,7 @@ const RegisterUser = () => {
     const [role, setRole] = useState("user");
     const [profileImage, setProfileImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
+    const [numeroIdentificacion, setNumeroIdentificacion] = useState("");
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     const [showPassword, setShowPassword] = useState(false);  // Estado para visibilidad de la contraseña
@@ -65,6 +66,7 @@ const RegisterUser = () => {
             if (profileImage) {
                 formData.append('profileImage', profileImage);
             }
+            formData.append('numero_identificacion', numeroIdentificacion);
 
             const response = await register(formData);
             setSuccess("Usuario registrado exitosamente!");
@@ -111,6 +113,13 @@ const RegisterUser = () => {
                     placeholder="Usuario"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    className="w-full mb-4 p-3 border border-gray-300 rounded"
+                />
+                 <input
+                    type="text"
+                    placeholder="numero de identificación"
+                    value={numeroIdentificacion}
+                    onChange={(e) => setNumeroIdentificacion(e.target.value)}
                     className="w-full mb-4 p-3 border border-gray-300 rounded"
                 />
                 <input
