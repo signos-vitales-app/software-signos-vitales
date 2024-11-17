@@ -71,7 +71,7 @@ const PatientRecordHistory = () => {
                 age--;
             }
             setFechaNacimiento(age);
-            setIsPediatric(age < 14);
+            setIsPediatric(age < 10);
         } catch (error) {
             console.error("Error al recuperar registros de pacientes", error);
         }
