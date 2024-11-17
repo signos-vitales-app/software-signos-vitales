@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
+import HomePage from './pages/HomePage'; // Importa la nueva página de inicio
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ResetPassword from './pages/ResetPassword';
@@ -22,7 +23,8 @@ function App() {
         <Router>
             <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
             <Routes>
-                <Route path="/" element={<Login />} />
+                {/* Ruta predeterminada de la página de inicio */}
+                <Route path="/" element={<HomePage />} /> {/* Esta es la página que se mostrará al cargar el front */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} /> {/* ruta de registro temporalmente para facilitar la creación del admin */}
                 <Route path="/reset-password" element={<ResetPassword />} />
@@ -30,7 +32,7 @@ function App() {
 
                 {/* Rutas protegidas */}
                 <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
-                <Route path="/register-patient" element={<ProtectedRoute><Layout><PatientRegister/></Layout></ProtectedRoute>} />
+                <Route path="/register-patient" element={<ProtectedRoute><Layout><PatientRegister /></Layout></ProtectedRoute>} />
                 <Route path="/patient/:idPaciente/add-record" element={<ProtectedRoute><Layout><PatientDataForm /></Layout></ProtectedRoute>} />
                 <Route path="/patient/:idPaciente/records" element={<ProtectedRoute><Layout><PatientRecordHistory /></Layout></ProtectedRoute>} />
                 <Route path="/patient/:idPaciente/graphs" element={<ProtectedRoute><Layout><PatientGraphs /></Layout></ProtectedRoute>} />
