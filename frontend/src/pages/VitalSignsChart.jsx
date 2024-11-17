@@ -1,16 +1,41 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { format } from 'date-fns';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const VitalSignsChart = ({ records, selectedVariables }) => {
     const getLabels = () => {
-        return records.map(record => {
-            const date = new Date(record.record_date); // Asegúrate de que record_date sea una fecha válida
-            return date.toLocaleString(); // Esto devolverá una cadena con fecha y hora
+        return records.map((record, index) => {
+            console.log(`Registro ${index + 1}:`); // Identificar registros
+            console.log('record_date:', record.record_date); 
+            console.log('record_time:', record.record_time);
+    
+            if (record.record_date && record.record_time) {
+                // Extraer solo la fecha (YYYY-MM-DD) de record_date
+                const datePart = record.record_date.split('T')[0]; 
+                const dateTimeString = `${datePart}T${record.record_time}`;
+                console.log('dateTimeString:', dateTimeString); // Ver cadena combinada
+    
+                const dateTime = new Date(dateTimeString);
+    
+                if (!isNaN(dateTime)) {
+                    console.log('dateTime válido:', dateTime);
+                    return format(dateTime, 'dd/MM/yyyy HH:mm:ss');
+                } else {
+                    console.warn(`Fecha inválida: ${dateTimeString}`);
+                    return 'Fecha inválida';
+                }
+            } else {
+                console.warn('record_date o record_time faltante:', record);
+                return 'Fecha/Hora no disponible';
+            }
         });
     };
+    
+    
+    
     const createDataset = (label, dataKey, color) => ({
         label,
         data: records.map(record => record[dataKey]),

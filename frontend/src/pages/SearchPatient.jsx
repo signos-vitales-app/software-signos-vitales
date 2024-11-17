@@ -5,6 +5,8 @@ import { FiHome, FiX  } from "react-icons/fi";
 import { FaCamera } from 'react-icons/fa';
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { BiSolidSpreadsheet } from "react-icons/bi";
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
 
 const SearchPatient = () => {
     const [patients, setPatients] = useState([]);
@@ -39,6 +41,8 @@ const SearchPatient = () => {
         await updatePatientStatus(idPaciente, newStatus);
         loadPatients();
     };
+    
+    
 
     const filteredPatients = patients.filter(patient =>
         patient.numero_identificacion.includes(searchId)
@@ -70,6 +74,16 @@ const SearchPatient = () => {
     const handleRegisterData = () => {
         if (selectedIdPaciente) {
             navigate(`/patient/${selectedIdPaciente}/records`);
+        }else {
+            toast.error("Debes seleccionar un paciente", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
         }
     };
 
@@ -281,7 +295,6 @@ const SearchPatient = () => {
                 </button>
                 <button
                     onClick={handleRegisterData}
-                    disabled={!selectedIdPaciente}
                     className={`px-4 py-2 ${selectedIdPaciente ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-300 cursor-not-allowed"} text-white font-bold rounded flex items-center space-x-2`}
                 >
                     <BiSolidSpreadsheet className="mr-2" />

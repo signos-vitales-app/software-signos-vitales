@@ -7,6 +7,8 @@ import { FiPlusCircle, FiHome, FiFilter, FiDownload } from "react-icons/fi";
 import { format } from "date-fns";
 import VitalSignsChart from "./VitalSignsChart";
 import "jspdf-autotable"; // Importar el complemento para la tabla
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
 
 const PatientRecordHistory = () => {
     const { idPaciente } = useParams();
@@ -81,13 +83,39 @@ const PatientRecordHistory = () => {
 
 
     const handleNewRecord = () => {
-        navigate(`/patient/${idPaciente}/add-record`);
+        if (patientInfo.status !== "activo") {
+            toast.error("No se pueden agregar registros para pacientes inactivos.", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+        } else {
+            navigate(`/patient/${idPaciente}/add-record`);
+        }
     };
+
 
     const handleGoBack = () => {
         navigate("/search-patient");
     };
 
+    //variables bonitas <3
+    const variableLabels = {
+        pulso: "Pulso",
+        temperatura: "Temperatura",
+        frecuencia_respiratoria: "Frecuencia Respiratoria",
+        presion_sistolica: "Presión Sistólica",
+        presion_diastolica: "Presión Diastólica",
+        saturacion_oxigeno: "SatO2",
+        peso_pediatrico: "Peso Pediátrico",
+        peso_adulto: "Peso Adulto",
+        presion_media: "Presión Media"
+    };
+    
 
 
     const handleFilter = () => {
@@ -220,8 +248,8 @@ const PatientRecordHistory = () => {
         }
 
         // Guardar el PDF
-// Guardar el PDF con el número de identificación en el nombre del archivo
-pdf.save(`Historia_Registro_Paciente_${patientInfo.numero_identificacion}.pdf`);
+        // Guardar el PDF con el número de identificación en el nombre del archivo
+        pdf.save(`Historia_Registro_Paciente_${patientInfo.numero_identificacion}.pdf`);
     };
 
 
@@ -270,8 +298,8 @@ pdf.save(`Historia_Registro_Paciente_${patientInfo.numero_identificacion}.pdf`);
                                         onChange={() => toggleVariable(variable)}
                                         className="mr-2"
                                     />
-                                    {variable}
-                                </label>
+                {variableLabels[variable]}  {/* Usamos el objeto variableLabels aquí */}
+                </label>
                             ))}
                         </div>
                     </div>
@@ -320,9 +348,15 @@ pdf.save(`Historia_Registro_Paciente_${patientInfo.numero_identificacion}.pdf`);
                 </table>
                 {/* Botones de acción */}
                 <div className="flex justify-between w-full max-w-4xl mt-4"> {/* Añadí mt-4 para mayor separación */}
-                    <button onClick={handleNewRecord} className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition">
-                        <FiPlusCircle className="mr-2" /> Nuevo registro
+
+                    <button
+                        onClick={handleNewRecord}
+                        className={`flex items-center px-4 py-2 ${patientInfo.status !== "activo" ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"} text-white rounded transition flex items-center`}
+                    > 
+                        <FiPlusCircle className="mr-2" /> Agregar Registro
                     </button>
+
+
                     <button onClick={handleExportPDF} className="flex items-center px-4 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition">
                         <FiDownload className="mr-2" /> Exportar como PDF
                     </button>
