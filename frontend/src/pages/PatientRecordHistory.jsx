@@ -22,7 +22,6 @@ const PatientRecordHistory = () => {
     const [isPediatric, setIsPediatric] = useState(false);
     const [fechaNacimiento, setFechaNacimiento] = useState("");
 
-
     const tableRef = useRef(null); // Referencia para la tabla
     const chartRef = useRef(null); // Referencia para el gráfico
 
@@ -48,7 +47,6 @@ const PatientRecordHistory = () => {
                     // Convertir horas y minutos en minutos totales para compararlos
                     const minutesA = parseInt(timeA[0]) * 60 + parseInt(timeA[1]);
                     const minutesB = parseInt(timeB[0]) * 60 + parseInt(timeB[1]);
-
                     return minutesA - minutesB;  // Ordenar por hora
                 }
 
@@ -77,11 +75,6 @@ const PatientRecordHistory = () => {
         }
     };
 
-
-
-
-
-
     const handleNewRecord = () => {
         if (patientInfo.status !== "activo") {
             toast.error("No se pueden agregar registros para pacientes inactivos.", {
@@ -97,7 +90,6 @@ const PatientRecordHistory = () => {
             navigate(`/patient/${idPaciente}/add-record`);
         }
     };
-
 
     const handleGoBack = () => {
         navigate("/search-patient");
@@ -115,8 +107,6 @@ const PatientRecordHistory = () => {
         peso_adulto: "Peso Adulto",
         presion_media: "Presión Media"
     };
-
-
 
     const handleFilter = () => {
         // Filtrar los registros según las fechas
@@ -150,8 +140,6 @@ const PatientRecordHistory = () => {
                 : [...prev, variable]
         );
     };
-
-
 
     const handleExportPDF = async () => {
         const pdf = new jsPDF("p", "mm", "a4");
@@ -203,8 +191,6 @@ const PatientRecordHistory = () => {
                 // Valor dentro del rango: sin color
                 return {};
             };
-
-
             return [
                 { content: format(new Date(record.record_date), "dd/MM/yyyy"), styles: {} },
                 { content: record.record_time, styles: {} },
@@ -220,7 +206,6 @@ const PatientRecordHistory = () => {
                 { content: record.observaciones || "-", styles: {} }
             ];
         });
-
         // Tabla con autoTable estilizada
         pdf.autoTable({
             head: [["Fecha", "Hora", "Pulso", "T°C", "FR", "TAD", "TAS", "TAM", "SatO2", "Peso", "Observaciones"]],
@@ -255,16 +240,12 @@ const PatientRecordHistory = () => {
             // Verificar si la altura del gráfico excede la altura de la página
             if (chartHeight > maxHeight) {
                 chartHeight = maxHeight;
-                chartWidth = chartHeight / aspectRatio;
-            }
-
+                chartWidth = chartHeight / aspectRatio;}
             // Agregar una nueva página al PDF
             pdf.addPage();
-
             // Agregar el texto de título al PDF
             pdf.setFontSize(12);
             pdf.text(10, 10, "Gráfico de Signos Vitales:");
-
             // Agregar el gráfico al PDF
             pdf.addImage(chartDataURL, "PNG", margin, 20, chartWidth, chartHeight); // Ajuste del gráfico con tamaño automático
         }
@@ -274,9 +255,6 @@ const PatientRecordHistory = () => {
         pdf.save(`Historia_Registro_Paciente_${patientInfo.numero_identificacion}.pdf`);
     };
 
-
-
-
     return (
         <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6 overflow-auto">
             <h1 className="text-2xl font-bold mb-6">Registro del Paciente</h1>
@@ -284,13 +262,11 @@ const PatientRecordHistory = () => {
                 {/* Información del paciente */}
                 <div className="flex justify-between mb-4">
                     <div>
-
                         <p><strong>Nombre:</strong> {patientInfo.primer_nombre} {patientInfo.segundo_nombre} {patientInfo.primer_apellido} {patientInfo.segundo_apellido}</p>
                         <p><strong>Tipo de identificación:</strong> {patientInfo.tipo_identificacion}</p>
                         <p><strong>Número de identificación:</strong> {patientInfo.numero_identificacion}</p>
                         <p><strong>Ubicación (habitación):</strong> {patientInfo.ubicacion}</p>
                         <p><strong>Edad:</strong> {fechaNacimiento} años</p>
-
                     </div>
                     <span className={`font-bold ${patientInfo.status === "activo" ? "text-green-500" : "text-red-500"}`}>
                         Paciente {patientInfo.status === "activo" ? "Activo" : "Inactivo"}
@@ -318,8 +294,7 @@ const PatientRecordHistory = () => {
                                         type="checkbox"
                                         checked={selectedVariables.includes(variable)}
                                         onChange={() => toggleVariable(variable)}
-                                        className="mr-2"
-                                    />
+                                        className="mr-2"/>
                                     {variableLabels[variable]}  {/* Usamos el objeto variableLabels aquí */}
                                 </label>
                             ))}
@@ -342,7 +317,6 @@ const PatientRecordHistory = () => {
                             <th className="p-2 border">SatO2 (%)</th>
                             {/* Aquí cambiaremos el encabezado */}
                             <th className="p-2 border">{isPediatric ? "Peso Pediátrico (kg)" : "Peso Adulto (kg)"}</th>
-
                             <th className="p-2 border">Observaciones</th>
                         </tr>
                     </thead>
@@ -351,66 +325,52 @@ const PatientRecordHistory = () => {
                             <tr key={index} className="text-center">
                                 <td className="p-2 border">{format(new Date(record.record_date), "dd/MM/yyyy")}</td>
                                 <td className="p-2 border">{record.record_time}</td>
-
                                 {/* Pulso */}
                                 <td className={`p-2 border ${record.pulso < 60 ? "bg-[rgb(120,190,230)]" : record.pulso > 90 ? "bg-red-200" : "bg-withe-200"}`}>
                                     {record.pulso}
                                 </td>
-
                                 {/* Temperatura */}
                                 <td className={`p-2 border ${record.temperatura < 36.0 ? "bg-[rgb(120,190,230)]" : record.temperatura > 37.9 ? "bg-red-200" : "bg-withe-200"}`}>
                                     {record.temperatura}
                                 </td>
-
                                 {/* Frecuencia respiratoria */}
                                 <td className={`p-2 border ${record.frecuencia_respiratoria < 16 ? "bg-[rgb(120,190,230)]" : record.frecuencia_respiratoria > 24 ? "bg-red-400" : "bg-withe-200"}`}>
                                     {record.frecuencia_respiratoria}
                                 </td>
-
                                 {/* Presión sistólica */}
                                 <td className={`p-2 border ${record.presion_sistolica < 60 ? "bg-[rgb(120,190,230)]" : record.presion_sistolica > 100 ? "bg-red-200" : "bg-withe-200"}`}>
                                     {record.presion_sistolica}
                                 </td>
-
                                 {/* Presión diastólica */}
                                 <td className={`p-2 border ${record.presion_diastolica < 90 ? "bg-[rgb(120,190,230)]" : record.presion_diastolica > 140 ? "bg-red-200" : "bg-withe-200"}`}>
                                     {record.presion_diastolica}
                                 </td>
-
                                 {/* Presión media */}
                                 <td className={`p-2 border ${record.presion_media < 70 ? "bg-[rgb(120,190,230)]" : record.presion_media > 83 ? "bg-red-200" : "bg-withe-200"}`}>
                                     {record.presion_media}
                                 </td>
-
                                 {/* Saturación de oxígeno */}
                                 <td className={`p-2 border ${record.saturacion_oxigeno < 95 ? "bg-[rgb(120,190,230)]" : record.saturacion_oxigeno > 100 ? "bg-red-200" : "bg-withe-200"}`}>
                                     {record.saturacion_oxigeno}
                                 </td>
-
                                 {/* Mostrar peso dependiendo de si es pediátrico o adulto */}
                                 <td className="p-2 border">
                                     {isPediatric ? record.peso_pediatrico : record.peso_adulto}
                                 </td>
-
                                 {/* Observaciones */}
                                 <td className="p-2 border">{record.observaciones || "-"}</td>
-
                             </tr>
-
                         ))}
                     </tbody>
                 </table>
                 {/* Botones de acción */}
                 <div className="flex justify-between w-full max-w-4xl mt-4"> {/* Añadí mt-4 para mayor separación */}
-
                     <button
                         onClick={handleNewRecord}
                         className={`flex items-center px-4 py-2 ${patientInfo.status !== "activo" ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"} text-white rounded transition flex items-center`}
                     >
                         <FiPlusCircle className="mr-2" /> Agregar Registro
                     </button>
-
-
                     <button onClick={handleExportPDF} className="flex items-center px-4 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition">
                         <FiDownload className="mr-2" /> Exportar como PDF
                     </button>
@@ -418,17 +378,12 @@ const PatientRecordHistory = () => {
                         <FiHome className="mr-2" /> Regresar
                     </button>
                 </div>
-
             </div>
-
-
             {/* Gráfico de Signos Vitales */}
             <div className="bg-white p-4 rounded shadow-lg w-full max-w-4xl mb-6" ref={chartRef}>
                 <h3 className="font-bold mb-4">Gráfico de Signos Vitales</h3>
                 <VitalSignsChart records={filteredRecords} selectedVariables={selectedVariables} />
             </div>
-
-
         </div>
     );
 };
