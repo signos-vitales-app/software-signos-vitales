@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchPatients, updatePatientStatus } from "../services/patientService";
-import { FiHome, FiX } from "react-icons/fi";
+import { FiHome, FiX  } from "react-icons/fi";
 import { FaCamera } from 'react-icons/fa';
 import { Html5QrcodeScanner } from "html5-qrcode";
+import { BiSolidSpreadsheet } from "react-icons/bi";
 
 const SearchPatient = () => {
     const [patients, setPatients] = useState([]);
@@ -13,8 +14,10 @@ const SearchPatient = () => {
     const [cameraPermission, setCameraPermission] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
     const [scanCompleted, setScanCompleted] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1); // Página actual del slider
     const navigate = useNavigate();
 
+    const patientsPerPage = 10; // Pacientes por página
 
     useEffect(() => {
         loadPatients();
@@ -41,6 +44,25 @@ const SearchPatient = () => {
         patient.numero_identificacion.includes(searchId)
     );
 
+    // Ordenar alfabéticamente por primer nombre, segundo nombre, primer apellido y segundo apellido
+    const sortedPatients = [...filteredPatients].sort((a, b) => {
+        if (a.primer_nombre < b.primer_nombre) return -1;
+        if (a.primer_nombre > b.primer_nombre) return 1;
+        if (a.segundo_nombre < b.segundo_nombre) return -1;
+        if (a.segundo_nombre > b.segundo_nombre) return 1;
+        if (a.primer_apellido < b.primer_apellido) return -1;
+        if (a.primer_apellido > b.primer_apellido) return 1;
+        if (a.segundo_apellido < b.segundo_apellido) return -1;
+        if (a.segundo_apellido > b.segundo_apellido) return 1;
+        return 0;
+    });
+
+    // Calcular la paginación
+    const totalPages = Math.ceil(sortedPatients.length / patientsPerPage);
+    const indexOfLastPatient = currentPage * patientsPerPage;
+    const indexOfFirstPatient = indexOfLastPatient - patientsPerPage;
+    const currentPatients = sortedPatients.slice(indexOfFirstPatient, indexOfLastPatient);
+
     const handleSelectPatient = (id) => {
         setSelectedIdPaciente(id);
     };
@@ -53,12 +75,28 @@ const SearchPatient = () => {
 
     const handleScan = (qrCodeMessage) => {
         if (qrCodeMessage && !scanCompleted) {
-            setSearchId(qrCodeMessage);
-            setErrorMessage("");
-            setScanCompleted(true);
-            stopScanning();
+            setSearchId(qrCodeMessage);  // Establece el valor de búsqueda
+            setErrorMessage("");         // Borra el mensaje de error si existe
+            setScanCompleted(true);      // Marca que el escaneo ha sido completado
+            setScanPage(qrCodeMessage);  // Cambia la página si el paciente está en otra página
         }
     };
+    
+    const setScanPage = (qrCodeMessage) => {
+        // Busca al paciente con el número de identificación del QR
+        const foundPatient = patients.find(patient => patient.numero_identificacion === qrCodeMessage);
+        if (foundPatient) {
+            // Filtra los pacientes que coinciden con el número de identificación
+            const filteredPatient = filteredPatients.find(patient => patient.numero_identificacion === qrCodeMessage);
+            if (filteredPatient) {
+                // Encuentra el índice del paciente en la lista filtrada
+                const patientIndex = filteredPatients.indexOf(filteredPatient);
+                const pageNumber = Math.ceil((patientIndex + 1) / patientsPerPage);
+                setCurrentPage(pageNumber); // Cambia a la página donde está el paciente
+            }
+        }
+    };
+    
 
     const stopScanning = () => {
         setIsScanning(false);
@@ -89,14 +127,12 @@ const SearchPatient = () => {
         setIsScanning(true);
         setScanCompleted(false);
 
-        // Inicializar el lector QR solo cuando la cámara esté disponible
         const scanner = new Html5QrcodeScanner("qr-reader", {
             fps: 10,
             qrbox: { width: 250, height: 250 }
         });
 
-        // Iniciar el escaneo
-        scanner.render((decodedText, decodedResult) => {
+        scanner.render((decodedText) => {
             handleScan(decodedText);
         }, (errorMessage) => {
             console.log(`Error de escaneo: ${errorMessage}`);
@@ -175,7 +211,7 @@ const SearchPatient = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredPatients.map((patient) => (
+                    {currentPatients.map((patient) => (
                         <tr key={patient.id} className="border-b">
                             <td className="p-4">{patient.primer_nombre}</td>
                             <td className="p-4">{patient.segundo_nombre}</td>
@@ -195,36 +231,61 @@ const SearchPatient = () => {
                             </td>
                             <td className="p-4">
                                 <button
-                                    onClick={() => console.log(`Edit patient ${patient.id}`)}
+                                    onClick={() => navigate(`/patient/${patient.id}/edit`)}
                                     className="text-blue-600 hover:text-blue-800"
                                 >
                                     &#9998;
+
                                 </button>
                             </td>
                             <td className="p-4">
                                 <button
                                     onClick={() => handleSelectPatient(patient.id)}
-                                    className={`px-4 py-1 rounded ${selectedIdPaciente === patient.id ? "bg-blue-500 text-white" : "bg-gray-300"
+                                    className={`px-4 py-1 rounded ${selectedIdPaciente === patient.id ? "bg-blue-600 text-white" : "bg-gray-300"
                                         }`}
                                 >
-                                    {selectedIdPaciente === patient.id ? "Seleccionado" : "Seleccionar"}
+                                    Seleccionar
                                 </button>
+                                
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
 
-            <div className="flex justify-center w-full max-w-4xl space-x-4">
-                <button onClick={handleGoBack} className="mt-6 flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition">
-                    <FiHome className="mr-2" /> Regresar
+            <div className="mt-6">
+                <div className="flex justify-between items-center">
+                    <button
+                        onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+                        className={`px-4 py-2 ${currentPage > 1 ? "bg-blue-500 hover:bg-blue-600 text-white" : "bg-gray-300 cursor-not-allowed"} rounded`}
+                    >
+                        Anterior
+                    </button>
+                    <span> Página {currentPage} de {totalPages} </span>
+                    <button
+                        onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
+                        className={`px-4 py-2 ${currentPage < totalPages ? "bg-blue-500 hover:bg-blue-600 text-white" : "bg-gray-300 cursor-not-allowed"} rounded`}
+                    >
+                        Siguiente
+                    </button>
+                </div>
+            </div>
+
+            <div className="mt-6 flex justify-center w-full max-w-4xl space-x-4">
+                <button
+                    onClick={handleGoBack}
+                    className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
+                >
+                    <FiHome className="mr-2" />
+                    Regresar
                 </button>
                 <button
                     onClick={handleRegisterData}
                     disabled={!selectedIdPaciente}
-                    className={`mt-6 px-4 py-2 ${selectedIdPaciente ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-300 cursor-not-allowed"} text-white font-bold rounded flex items-center space-x-2`}
+                    className={`px-4 py-2 ${selectedIdPaciente ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-300 cursor-not-allowed"} text-white font-bold rounded flex items-center space-x-2`}
                 >
-                    Registrar Datos
+                    <BiSolidSpreadsheet className="mr-2" />
+                    Ir a registros
                 </button>
             </div>
         </div>
@@ -232,3 +293,5 @@ const SearchPatient = () => {
 };
 
 export default SearchPatient;
+
+

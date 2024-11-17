@@ -38,7 +38,7 @@ exports.createPatientRecord = async (req, res) => {
             [id_paciente, record_date, record_time, presion_sistolica, presion_diastolica, presion_media, pulso, temperatura, frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones]
         );
 
-        res.status(201).json({ message: "Registro del paciente creado exitosamente y temperatura actualizada" });
+        res.status(201).json({ message: "Registro del paciente creado exitosamente" });
     } catch (error) {
         console.error("Error al crear el registro del paciente:", error);
         // Guardar los datos localmente si falla la conexión a la base de datos

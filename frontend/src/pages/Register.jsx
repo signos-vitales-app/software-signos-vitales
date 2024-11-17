@@ -92,7 +92,7 @@ const Register = () => {
                         )}
                     </div>
                     <label className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
-                        <span>Upload Profile Picture</span>
+                        <span>Subir foto de perfil</span>
                         <input
                             type="file"
                             accept="image/*"
@@ -113,7 +113,7 @@ const Register = () => {
                 />
                 <input
                     type="text"
-                    placeholder="numero de identificación"
+                    placeholder="Numero de identificación"
                     value={numeroIdentificacion}
                     onChange={(e) => setNumeroIdentificacion(e.target.value)}
                     className="w-full mb-4 p-3 border border-gray-300 rounded"

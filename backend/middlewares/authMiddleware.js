@@ -5,7 +5,7 @@ const authMiddleware = async (req, res, next) => {
         // Obtener el token del header
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ message: 'No token provided' });
+            return res.status(401).json({ message: 'No se proporciona ningún token' });
         }
 
         const token = authHeader.split(' ')[1];
@@ -19,7 +19,7 @@ const authMiddleware = async (req, res, next) => {
         next();
     } catch (error) {
         console.error('Auth middleware error:', error);
-        res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Token invalido' });
     }
 };
 

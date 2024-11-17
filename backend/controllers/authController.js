@@ -66,21 +66,21 @@ exports.register = async (req, res) => {
             await transporter.sendMail({
                 from: process.env.EMAIL_USER,
                 to: email,
-                subject: "Welcome to the Hospital Patient Management System",
-                html: `<p>Hello ${username},</p>
-                       <p>Welcome! Your account has been successfully created with the role of ${role}.</p>
-                       <p>Thank you for registering with us.</p>`
+                subject: "Bienvenido al sistema de gestion de pacientes",
+                html: `<p>Hola ${username},</p>
+                       <p>¡Bienvenido! Su cuenta se ha creado correctamente con el rol de ${role}.</p>
+                       <p>Gracias por registrarte con nosotros.</p>`
             });
 
             res.status(201).json({ 
-                message: "User registered successfully, welcome email sent", 
+                message: "Usuario registrado exitosamente, correo electrónico de bienvenida enviado", 
                 userId,
                 profileImage 
             });
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Error en el servidor" });
     }
 };
 
@@ -95,18 +95,19 @@ exports.login = async (req, res) => {
         );
 
         if (rows.length === 0) {
-            return res.status(401).json({ message: "Invalid credentials" });
+            return res.status(401).json({ message: "Credenciales invalidas" });
         }
 
         const user = rows[0];
 
         if (!user.is_active) {
-            return res.status(403).json({ message: "User is disabled. Contact the administrator." });
+            return res.status(403).json({ message: "El usuario está deshabilitado. Póngase en contacto con el administrador." });
         }
+        
         const isValidPassword = await bcrypt.compare(password, user.password);
 
         if (!isValidPassword) {
-            return res.status(401).json({ message: "Invalid credentials" });
+            return res.status(401).json({ message: "Credenciales invalidas" });
         }
 
         // Crear token incluyendo el id del usuario
@@ -127,7 +128,7 @@ exports.login = async (req, res) => {
         });
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Error en el servidor" });
     }
 };
 
@@ -137,7 +138,7 @@ exports.resetPassword = async (req, res) => {
 
     try {
         const user = await User.findByEmail(email);
-        if (!user) return res.status(404).json({ message: "User not found" });
+        if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
 
         const token = crypto.randomBytes(32).toString('hex');
         await User.saveResetToken(user.id, token);
@@ -148,14 +149,14 @@ exports.resetPassword = async (req, res) => {
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: email,
-            subject: "Password Reset Request",
-            html: `<p>Click <a href="${resetLink}">here</a> to reset your password. The link is valid for 1 hour.</p>`
+            subject: "Solicitud de restablecimiento de contraseña",
+            html: `<p>Click <a href="${resetLink}">here</a> para restablecer su contraseña. El enlace es válido por 1 hora.</p>`
         });
 
-        res.status(200).json({ message: "Password reset email sent" });
+        res.status(200).json({ message: "Correo electrónico de restablecimiento de contraseña enviado" });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Error en el servidor" });
     }
 };
 
@@ -165,7 +166,7 @@ exports.verifyResetToken = async (token) => {
         const user = await User.findByResetToken(token);
         return user;
     } catch (error) {
-        throw new Error("Invalid or expired token");
+        throw new Error("Token no válido o caducado");
     }
 };
 
@@ -179,16 +180,16 @@ exports.updatePassword = async (req, res) => {
         const user = await exports.verifyResetToken(token); // Función que verifica el token y obtiene al usuario
 
         if (!user) {
-            return res.status(400).json({ message: "Invalid or expired token" });
+            return res.status(400).json({ message: "Token no válido o caducado" });
         }
 
         // Encripta la nueva contraseña y actualízala en la base de datos
         await User.updatePassword(user.id, newPassword);
 
-        res.status(200).json({ message: "Password updated successfully" });
+        res.status(200).json({ message: "Contraseña actualizada exitosamente" });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Erro en el servidor" });
     }
 };
 
@@ -203,13 +204,13 @@ exports.getUserInfo = async (req, res) => {
         );
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "Usuario no encontrado" });
         }
 
         const user = rows[0];
         res.json(user);
     } catch (error) {
         console.error('Error in getUserInfo:', error);
-        res.status(500).json({ message: "Server error", error: error.message });
+        res.status(500).json({ message: "Error en el servidor", error: error.message });
     }
 };

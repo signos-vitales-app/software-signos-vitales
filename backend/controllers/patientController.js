@@ -55,11 +55,11 @@ exports.getPatientInfo = async (req, res) => {
     try {
         const [patient] = await db.query("SELECT * FROM patients WHERE id = ?", [id]);
         if (patient.length === 0) {
-            return res.status(404).json({ message: "Patient not found" });
+            return res.status(404).json({ message: "Paciente no encontrado" });
         }
         res.json(patient[0]);
     } catch (error) {
-        console.error("Error fetching patient info:", error);
-        res.status(500).json({ message: "Error fetching patient info" });
+        console.error("Error al recuperar la información del paciente:", error);
+        res.status(500).json({ message: "Error al recuperar la información del paciente" });
     }
 };

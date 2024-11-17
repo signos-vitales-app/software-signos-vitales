@@ -69,9 +69,9 @@ const PatientRecordHistory = () => {
                 age--;
             }
             setFechaNacimiento(age);
-            setIsPediatric(age < 10);
+            setIsPediatric(age < 14);
         } catch (error) {
-            console.error("Error fetching patient records", error);
+            console.error("Error al recuperar registros de pacientes", error);
         }
     };
 
@@ -141,10 +141,10 @@ const PatientRecordHistory = () => {
         // Agregar información del paciente en secciones bien organizadas
         pdf.setFontSize(12);
         pdf.setFont("helvetica", "normal");
-        pdf.text(10, 40, `Nombres y apellidos: ${patientInfo.primer_nombre} ${patientInfo.primer_apellido}`);
+        pdf.text(10, 40, `Nombres y apellidos: ${patientInfo.primer_nombre} ${patientInfo.segundo_nombre} ${patientInfo.primer_apellido} ${patientInfo.segundo_apellido}`);
         pdf.text(10, 45, `Tipo de identificación: ${patientInfo.tipo_identificacion}`);
         pdf.text(10, 50, `Número de identificación: ${patientInfo.numero_identificacion}`);
-        pdf.text(10, 55, `Ubicación: ${patientInfo.ubicacion}`);
+        pdf.text(10, 55, `Ubicación (habitación): ${patientInfo.ubicacion}`);
         pdf.text(10, 60, `Edad: ${fechaNacimiento} años`);
         pdf.text(10, 65, `Estado: ${patientInfo.status === "activo" ? "Activo" : "Inactivo"}`);
 
@@ -165,7 +165,8 @@ const PatientRecordHistory = () => {
                 { content: record.presion_diastolica, styles: getCellStyle(record.presion_diastolica, 90, 140) },
                 { content: record.presion_media, styles: getCellStyle(record.presion_media, 70, 83) },
                 { content: record.saturacion_oxigeno, styles: getCellStyle(record.saturacion_oxigeno, 95, 100) },
-                { content: isPediatric ? record.peso_pediatrico : record.peso_adulto, styles: {} },
+                { content: isPediatric ? (record.peso_pediatrico || "No registrado") : (record.peso_adulto || "No registrado"), styles: {} },
+
                 { content: record.observaciones || "-", styles: {} }
             ];
         });
@@ -219,7 +220,8 @@ const PatientRecordHistory = () => {
         }
 
         // Guardar el PDF
-        pdf.save("Patient_Record_History.pdf");
+// Guardar el PDF con el número de identificación en el nombre del archivo
+pdf.save(`Historia_Registro_Paciente_${patientInfo.numero_identificacion}.pdf`);
     };
 
 
@@ -233,13 +235,10 @@ const PatientRecordHistory = () => {
                 <div className="flex justify-between mb-4">
                     <div>
 
-                    <p><strong>Primer nombre:</strong> {patientInfo.primer_nombre} </p>
-                        <p><strong>Segundo nombre:</strong> {patientInfo.segundo_nombre}</p>
-                        <p><strong>Primer apellido:</strong> {patientInfo.primer_apellido} </p>
-                        <p><strong>Segundo apellido:</strong> {patientInfo.segundo_apellido}</p>
+                        <p><strong>Nombre:</strong> {patientInfo.primer_nombre} {patientInfo.segundo_nombre} {patientInfo.primer_apellido} {patientInfo.segundo_apellido}</p>
                         <p><strong>Tipo de identificación:</strong> {patientInfo.tipo_identificacion}</p>
                         <p><strong>Número de identificación:</strong> {patientInfo.numero_identificacion}</p>
-                        <p><strong>Ubicación:</strong> {patientInfo.ubicacion}</p>
+                        <p><strong>Ubicación (habitación):</strong> {patientInfo.ubicacion}</p>
                         <p><strong>Edad:</strong> {fechaNacimiento} años</p>
 
                     </div>

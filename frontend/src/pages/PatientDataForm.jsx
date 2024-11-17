@@ -38,8 +38,8 @@ const PatientDataForm = () => {
                 const patient = response.data;
                 setIsPediatric(patient.is_pediatric); // Verificar si el paciente es pediátrico
             } catch (error) {
-                console.error("Error fetching patient info:", error);
-                toast.error("Error loading patient information.");
+                console.error("Error al recuperar la información del paciente:", error);
+                toast.error("Error al recuperar la información del paciente.");
             }
         };
         loadPatientInfo();
@@ -71,11 +71,11 @@ const PatientDataForm = () => {
                 talla,
                 observaciones
             });
-            toast.success("Patient data saved successfully!");
+            toast.success("¡Los datos del paciente se guardaron correctamente!");
             navigate(`/patient/${idPaciente}/records`);
         } catch (error) {
-            console.error("Error saving patient data:", error);
-            const errorMessage = error.response?.data?.message || "Failed to save patient data.";
+            console.error("Error al guardar los datos del paciente:", error);
+            const errorMessage = error.response?.data?.message || "Error al guardar los datos del paciente.";
             toast.error(errorMessage);
         }
     };

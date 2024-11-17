@@ -12,7 +12,7 @@ exports.createUser = async ({ username, password, email, role, profile_image, nu
         );
         return result.insertId;
     } catch (error) {
-        throw new Error("Error creating user");
+        throw new Error("Error al crear usuario");
     }
 };
 
@@ -22,7 +22,7 @@ exports.findByUsername = async (username) => {
         const [user] = await db.query("SELECT * FROM users WHERE username = ?", [username]);
         return user[0];
     } catch (error) {
-        throw new Error("User not found");
+        throw new Error("Usuario no encontrado");
     }
 };
 
@@ -32,7 +32,7 @@ exports.findByEmail = async (email) => {
         const [user] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
         return user[0];
     } catch (error) {
-        throw new Error("User not found");
+        throw new Error("Usuario no encontrado");
     }
 };
 
@@ -44,7 +44,7 @@ exports.updatePassword = async (id, newPassword) => {
         await db.query("UPDATE users SET password = ? WHERE id = ?", [hashedPassword, id]);
         return true;
     } catch (error) {
-        throw new Error("Error updating password");
+        throw new Error("Error al actualizar la contraseña");
     }
 };
 
@@ -60,7 +60,7 @@ exports.saveResetToken = async (userId, token) => {
         );
         return true;
     } catch (error) {
-        throw new Error("Error saving reset token");
+        throw new Error("Error al guardar el token de reinicio");
     }
 };
 
@@ -73,6 +73,6 @@ exports.findByResetToken = async (token) => {
         );
         return user[0];
     } catch (error) {
-        throw new Error("Token is invalid or has expired");
+        throw new Error("El token no es válido o ha caducado");
     }
 };

@@ -15,7 +15,7 @@ const PatientGraphs = () => {
                 const response = await fetchPatientRecords(idPaciente);
                 setRecords(response.data.records);
             } catch (error) {
-                console.error("Error fetching patient records", error);
+                console.error("Error al recuperar registros de pacientes", error);
             }
         };
         loadPatientRecords();
