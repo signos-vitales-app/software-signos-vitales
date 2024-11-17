@@ -13,7 +13,7 @@ exports.createPatientRecord = async (req, res) => {
     if (talla > 250) {
         return res.status(400).json({ message: "La altura excede el valor máximo realista" });
     }
-    if (pulso > 200 || pulso < 55) {
+    if (pulso > 200 || pulso < 40) {
         return res.status(400).json({ message: "Valor de pulso fuera de rango" });
     }
     if (frecuencia_respiratoria > 70 || frecuencia_respiratoria < 10) {

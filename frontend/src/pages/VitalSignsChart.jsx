@@ -46,12 +46,12 @@ const VitalSignsChart = ({ records, selectedVariables }) => {
     });
 
     const colors = {
-        pulso: 'rgb(255, 132, 132)', 
-        temperatura: 'rgb(54, 162, 235)',
-        frecuencia_respiratoria: 'rgb(255, 132, 132)',
+        pulso: 'rgb(255, 15, 15)', 
+        temperatura: 'rgb(250, 147, 23)',
+        frecuencia_respiratoria: 'rgb(25, 204, 31)',
         presion_sistolica: 'rgb(153, 102, 255)',
-        presion_diastolica: 'rgb(255, 159, 64)',
-        saturacion_oxigeno: 'rgb(201, 203, 207)',
+        presion_diastolica: 'rgb(204, 25, 163)',
+        saturacion_oxigeno: 'rgb(53, 154, 255)',
     };
 
     const data = {

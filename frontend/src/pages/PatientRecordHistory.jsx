@@ -115,7 +115,7 @@ const PatientRecordHistory = () => {
         peso_adulto: "Peso Adulto",
         presion_media: "Presión Media"
     };
-    
+
 
 
     const handleFilter = () => {
@@ -168,20 +168,42 @@ const PatientRecordHistory = () => {
 
         // Agregar información del paciente en secciones bien organizadas
         pdf.setFontSize(12);
+
+        // Texto en negrita para las etiquetas
+        pdf.setFont("helvetica", "bold");
+        pdf.text(10, 40, "Nombres y apellidos: ");
+        pdf.text(10, 45, "Tipo de identificación: ");
+        pdf.text(10, 50, "Número de identificación: ");
+        pdf.text(10, 55, "Ubicación (habitación): ");
+        pdf.text(10, 60, "Edad: ");
+        pdf.text(10, 65, "Estado: ");
+
+        // Volver a la fuente normal para los datos del paciente
         pdf.setFont("helvetica", "normal");
-        pdf.text(10, 40, `Nombres y apellidos: ${patientInfo.primer_nombre} ${patientInfo.segundo_nombre} ${patientInfo.primer_apellido} ${patientInfo.segundo_apellido}`);
-        pdf.text(10, 45, `Tipo de identificación: ${patientInfo.tipo_identificacion}`);
-        pdf.text(10, 50, `Número de identificación: ${patientInfo.numero_identificacion}`);
-        pdf.text(10, 55, `Ubicación (habitación): ${patientInfo.ubicacion}`);
-        pdf.text(10, 60, `Edad: ${fechaNacimiento} años`);
-        pdf.text(10, 65, `Estado: ${patientInfo.status === "activo" ? "Activo" : "Inactivo"}`);
+        pdf.text(55, 40, `${patientInfo.primer_nombre} ${patientInfo.segundo_nombre} ${patientInfo.primer_apellido} ${patientInfo.segundo_apellido}`);
+        pdf.text(57, 45, `${patientInfo.tipo_identificacion}`);
+        pdf.text(63, 50, `${patientInfo.numero_identificacion}`);
+        pdf.text(58, 55, `${patientInfo.ubicacion}`);
+        pdf.text(23, 60, `${fechaNacimiento} años`);
+        pdf.text(27, 65, `${patientInfo.status === "activo" ? "Activo" : "Inactivo"}`);
 
         // Prepara los datos de la tabla
         const tableData = filteredRecords.map(record => {
             const getCellStyle = (value, min, max) => {
-                // Si el valor está fuera del rango, aplica un fondo rojo
-                return value < min || value > max ? { fillColor: [255, 99, 71] } : {};  // Rojo
+                if (value < min) {
+                    // Valor por debajo del mínimo: color azul
+                    return { fillColor: [120, 190, 230] }; // Azul
+                } else if (value > max) {
+                    // Valor por encima del máximo: color rojo
+                    return { fillColor: [248, 113, 113] }; // Rojo
+                } else {
+                    // Valor dentro del rango: color verde
+                    return { backgroundColor: 'green', color: 'white' }; // Verde
+                }
+                // Valor dentro del rango: sin color
+                return {};
             };
+
 
             return [
                 { content: format(new Date(record.record_date), "dd/MM/yyyy"), styles: {} },
@@ -298,8 +320,8 @@ const PatientRecordHistory = () => {
                                         onChange={() => toggleVariable(variable)}
                                         className="mr-2"
                                     />
-                {variableLabels[variable]}  {/* Usamos el objeto variableLabels aquí */}
-                </label>
+                                    {variableLabels[variable]}  {/* Usamos el objeto variableLabels aquí */}
+                                </label>
                             ))}
                         </div>
                     </div>
@@ -329,18 +351,50 @@ const PatientRecordHistory = () => {
                             <tr key={index} className="text-center">
                                 <td className="p-2 border">{format(new Date(record.record_date), "dd/MM/yyyy")}</td>
                                 <td className="p-2 border">{record.record_time}</td>
-                                <td className={`p-2 border ${record.pulso < 60 || record.pulso > 90 ? "bg-red-200" : ""}`}>{record.pulso}</td>
-                                <td className={`p-2 border ${record.temperatura < 36.0 || record.temperatura > 37.9 ? "bg-red-200" : ""}`}>{record.temperatura}</td>
-                                <td className={`p-2 border ${record.frecuencia_respiratoria < 16 || record.frecuencia_respiratoria > 24 ? "bg-red-200" : ""}`}>{record.frecuencia_respiratoria}</td>
-                                <td className={`p-2 border ${record.presion_sistolica < 60 || record.presion_sistolica > 100 ? "bg-red-200" : ""}`}>{record.presion_sistolica}</td>
-                                <td className={`p-2 border ${record.presion_diastolica < 90 || record.presion_diastolica > 140 ? "bg-red-200" : ""}`}>{record.presion_diastolica}</td>
-                                <td className={`p-2 border ${record.presion_media < 70 || record.presion_media > 83 ? "bg-red-200" : ""}`}>{record.presion_media}</td>
-                                <td className={`p-2 border ${record.saturacion_oxigeno < 95 ? "bg-red-200" : ""}`}>{record.saturacion_oxigeno}</td>
+
+                                {/* Pulso */}
+                                <td className={`p-2 border ${record.pulso < 60 ? "bg-[rgb(120,190,230)]" : record.pulso > 90 ? "bg-red-200" : "bg-withe-200"}`}>
+                                    {record.pulso}
+                                </td>
+
+                                {/* Temperatura */}
+                                <td className={`p-2 border ${record.temperatura < 36.0 ? "bg-[rgb(120,190,230)]" : record.temperatura > 37.9 ? "bg-red-200" : "bg-withe-200"}`}>
+                                    {record.temperatura}
+                                </td>
+
+                                {/* Frecuencia respiratoria */}
+                                <td className={`p-2 border ${record.frecuencia_respiratoria < 16 ? "bg-[rgb(120,190,230)]" : record.frecuencia_respiratoria > 24 ? "bg-red-400" : "bg-withe-200"}`}>
+                                    {record.frecuencia_respiratoria}
+                                </td>
+
+                                {/* Presión sistólica */}
+                                <td className={`p-2 border ${record.presion_sistolica < 60 ? "bg-[rgb(120,190,230)]" : record.presion_sistolica > 100 ? "bg-red-200" : "bg-withe-200"}`}>
+                                    {record.presion_sistolica}
+                                </td>
+
+                                {/* Presión diastólica */}
+                                <td className={`p-2 border ${record.presion_diastolica < 90 ? "bg-[rgb(120,190,230)]" : record.presion_diastolica > 140 ? "bg-red-200" : "bg-withe-200"}`}>
+                                    {record.presion_diastolica}
+                                </td>
+
+                                {/* Presión media */}
+                                <td className={`p-2 border ${record.presion_media < 70 ? "bg-[rgb(120,190,230)]" : record.presion_media > 83 ? "bg-red-200" : "bg-withe-200"}`}>
+                                    {record.presion_media}
+                                </td>
+
+                                {/* Saturación de oxígeno */}
+                                <td className={`p-2 border ${record.saturacion_oxigeno < 95 ? "bg-[rgb(120,190,230)]" : record.saturacion_oxigeno > 100 ? "bg-red-200" : "bg-withe-200"}`}>
+                                    {record.saturacion_oxigeno}
+                                </td>
+
                                 {/* Mostrar peso dependiendo de si es pediátrico o adulto */}
                                 <td className="p-2 border">
                                     {isPediatric ? record.peso_pediatrico : record.peso_adulto}
                                 </td>
+
+                                {/* Observaciones */}
                                 <td className="p-2 border">{record.observaciones || "-"}</td>
+
                             </tr>
 
                         ))}
@@ -352,7 +406,7 @@ const PatientRecordHistory = () => {
                     <button
                         onClick={handleNewRecord}
                         className={`flex items-center px-4 py-2 ${patientInfo.status !== "activo" ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"} text-white rounded transition flex items-center`}
-                    > 
+                    >
                         <FiPlusCircle className="mr-2" /> Agregar Registro
                     </button>
 
