@@ -50,8 +50,3 @@ export const getUserInfo = async () => {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     });
 };
-
-//Funcion para eliminar usuario
-export const deleteUser = async (id) => {
-    return axios.delete(`${API_URL}/users/${id}`);
-};

@@ -14,6 +14,7 @@ const SearchUsers = () => {
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [error, setError] = useState(null);
+    const [loadingId, setLoadingId] = useState(null);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -70,7 +71,7 @@ const SearchUsers = () => {
                                 <th className="p-3 text-left">Estado</th>
                                 <th className="p-3 text-left">Cambiar rol</th>
                                 <th className="p-3 text-left">Acciones</th>
-                                
+
                             </tr>
                         </thead>
                         <tbody>
@@ -95,15 +96,14 @@ const SearchUsers = () => {
                                                 </option>
                                             ))}
                                         </select>
-                                        </td>
-                                        <td className="p-3">
+                                    </td>
+                                    <td className="p-3">
                                         <button
                                             onClick={() =>
                                                 handleToggleStatus(user.id, user.is_active)
                                             }
-                                            className={`p-2 text-white rounded ${
-                                                user.is_active ? "bg-red-500" : "bg-green-500"
-                                            }`}
+                                            className={`p-2 text-white rounded ${user.is_active ? "bg-red-500" : "bg-green-500"
+                                                }`}
                                         >
                                             {user.is_active ? "Desactivar" : "Activar"}
                                         </button>

@@ -25,22 +25,6 @@ exports.updateUserRole = async (req, res) => {
     }
 };
 
-//borrar usuario 
-exports.deleteUser = async (req, res) => {
-    const { id } = req.params;
-    try {
-        // Lógica para eliminar usuario de la base de datos
-        // Suponiendo que usas un ORM como Sequelize o Mongoose:
-        const deletedUser = await User.destroy({ where: { id } });
-        if (deletedUser) {
-            res.status(200).json({ message: "Usuario eliminado exitosamente" });
-        } else {
-            res.status(404).json({ error: "Usuario no encontrado" });
-        }
-    } catch (error) {
-        res.status(500).json({ error: "Error al eliminar el usuario" });
-    }
-};
 // Habilitar o deshabilitar usuario
 exports.toggleUserStatus = async (req, res) => {
     const { id } = req.params;
