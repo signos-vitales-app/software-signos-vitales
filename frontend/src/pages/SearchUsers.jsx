@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUsers, updateUserRole, toggleUserStatus } from "../services/authService";
-import { FiHome } from "react-icons/fi"; // Icono para regresar
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // Iconos de visibilidad de la contraseña
+import { getUsers, updateUserRole, toggleUserStatus, deleteUser } from "../services/authService";
+import { FiHome, FiTrash2, FiUserCheck, FiUserX } from "react-icons/fi";
+import { MdOutlineEdit } from "react-icons/md";
+import Swal from "sweetalert2";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const roleNames = {
     user: "Enfermero/a",
@@ -14,7 +17,6 @@ const SearchUsers = () => {
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [error, setError] = useState(null);
-    const [loadingId, setLoadingId] = useState(null);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -54,8 +56,35 @@ const SearchUsers = () => {
         }
     };
 
+    const handleDeleteUser = async (id) => {
+        const userToDelete = users.find((user) => user.id === id);
+        if (!userToDelete) return;
+
+        const result = await Swal.fire({
+            title: "¿Estás seguro?",
+            text: `Estás a punto de eliminar al usuario "${userToDelete.username}". Esta acción no se puede deshacer.`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await deleteUser(id);
+                setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
+                toast.success(`Usuario "${userToDelete.username}" eliminado correctamente.`);
+            } catch (error) {
+                toast.error("Error al eliminar el usuario.");
+            }
+        }
+    };
+
     return (
         <div className="flex flex-col items-center justify-start h-screen bg-gray-100 p-4">
+            <ToastContainer />
             <h1 className="text-3xl font-bold mb-6">Panel de Administración de Usuarios</h1>
             {error && <p className="text-red-500">{error}</p>}
 
@@ -71,7 +100,6 @@ const SearchUsers = () => {
                                 <th className="p-3 text-left">Estado</th>
                                 <th className="p-3 text-left">Cambiar rol</th>
                                 <th className="p-3 text-left">Acciones</th>
-
                             </tr>
                         </thead>
                         <tbody>
@@ -82,7 +110,7 @@ const SearchUsers = () => {
                                     <td className="p-3">{user.email}</td>
                                     <td className="p-3">{roleNames[user.role]}</td>
                                     <td className="p-3">{user.is_active ? "Activo" : "Inactivo"}</td>
-                                    <td className="p-3 flex space-x-2">
+                                    <td className="p-3">
                                         <select
                                             value={user.role}
                                             onChange={(e) =>
@@ -97,15 +125,30 @@ const SearchUsers = () => {
                                             ))}
                                         </select>
                                     </td>
-                                    <td className="p-3">
+                                    <td className="p-3 flex space-x-2">
                                         <button
                                             onClick={() =>
                                                 handleToggleStatus(user.id, user.is_active)
                                             }
-                                            className={`p-2 text-white rounded ${user.is_active ? "bg-red-500" : "bg-green-500"
-                                                }`}
+                                            className={`flex items-center p-2 text-white rounded ${
+                                                user.is_active ? "bg-blue-500" : "bg-green-500"
+                                            }`}
                                         >
-                                            {user.is_active ? "Desactivar" : "Activar"}
+                                            {user.is_active ? (
+                                                <>
+                                                    <FiUserX className="mr-1" /> Desactivar
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <FiUserCheck className="mr-1" /> Activar
+                                                </>
+                                            )}
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteUser(user.id)}
+                                            className="flex items-center p-2 bg-red-500 text-white rounded hover:bg-red-600"
+                                        >
+                                            <FiTrash2 className="mr-1" /> Eliminar
                                         </button>
                                     </td>
                                 </tr>

@@ -44,9 +44,14 @@ export const toggleUserStatus = async (id, isActive) => {
     return await axios.patch(`${API_URL}/users/${id}/status`, { is_active: isActive });
 };
 
-// Función para obtener la información del usuario
+// Función para obtener la información del usuario (token)
 export const getUserInfo = async () => {
     return await axios.get(`${API_URL}/auth/user-info`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     });
+};
+
+// Eliminar un usuario
+export const deleteUser = async (id) => {
+    return await axios.delete(`${API_URL}/users/${id}`);
 };
