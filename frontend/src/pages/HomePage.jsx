@@ -52,7 +52,7 @@ const HomePage = () => {
           animation: "fadeIn 2s ease-out, moveUp 2s ease-out", // Animación combinada: fadeIn y movimiento hacia arriba con duración más larga
         }}
       >
-        Bienvenido al Sistema
+        Bienvenido al sistema de gestion de signos vitales
       </h1>
 
       <p

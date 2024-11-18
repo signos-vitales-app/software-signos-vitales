@@ -107,7 +107,7 @@ const PatientRegister = () => {
                         value={numeroIdentificacion}
                         onChange={(e) => setnumeroIdentificacion(e.target.value)}
                         className="w-full p-3 border border-gray-300 rounded col-span-2"
-                    />
+                    />Fehca de nacimiento 
                     <input
                         type="date"
                         placeholder="Fecha de nacimiento"
