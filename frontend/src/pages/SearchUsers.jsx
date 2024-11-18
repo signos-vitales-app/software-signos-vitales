@@ -68,7 +68,9 @@ const SearchUsers = () => {
                                 <th className="p-3 text-left">Email</th>
                                 <th className="p-3 text-left">Rol</th>
                                 <th className="p-3 text-left">Estado</th>
+                                <th className="p-3 text-left">Cambiar rol</th>
                                 <th className="p-3 text-left">Acciones</th>
+                                
                             </tr>
                         </thead>
                         <tbody>
@@ -78,9 +80,7 @@ const SearchUsers = () => {
                                     <td className="p-3">{user.numero_identificacion}</td>
                                     <td className="p-3">{user.email}</td>
                                     <td className="p-3">{roleNames[user.role]}</td>
-                                    <td className="p-3">
-                                        {user.is_active ? "Activo" : "Inactivo"}
-                                    </td>
+                                    <td className="p-3">{user.is_active ? "Activo" : "Inactivo"}</td>
                                     <td className="p-3 flex space-x-2">
                                         <select
                                             value={user.role}
@@ -95,6 +95,8 @@ const SearchUsers = () => {
                                                 </option>
                                             ))}
                                         </select>
+                                        </td>
+                                        <td className="p-3">
                                         <button
                                             onClick={() =>
                                                 handleToggleStatus(user.id, user.is_active)
