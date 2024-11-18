@@ -3,8 +3,8 @@ import axios from 'axios';
 const API_URL = "http://localhost:5000/api";
 
 // Función de inicio de sesión
-export const login = async (username, password) => {
-    return await axios.post(`${API_URL}/auth/login`, { username, password });
+export const login = async (numero_identificacion, password) => {
+    return await axios.post(`${API_URL}/auth/login`, { numero_identificacion, password });
 };
 
 // Función de registro de usuario

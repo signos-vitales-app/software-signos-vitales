@@ -25,6 +25,15 @@ exports.findByUsername = async (username) => {
         throw new Error("Usuario no encontrado");
     }
 };
+// Función para buscar un usuario por identificacion 
+exports.findByNumeroIdentificacion = async (numero_identificacion) => {
+    try {
+        const [user] = await db.query("SELECT * FROM users WHERE numero_identificacion = ?", [numero_identificacion]);
+        return user[0];
+    } catch (error) {
+        throw new Error("Usuario no encontrado");
+    }
+};
 
 // Función para buscar un usuario por email
 exports.findByEmail = async (email) => {

@@ -3,16 +3,24 @@ import { useNavigate } from "react-router-dom";
 import { FaSearch, FaUserPlus, FaHandSparkles, FaUserNurse } from "react-icons/fa";
 import { motion } from "framer-motion";
 import 'react-toastify/dist/ReactToastify.css';
+import { getUserInfo } from '../services/authService';
 
 const Dashboard = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState(localStorage.getItem("username") || "Usuario");
 
     useEffect(() => {
-        if (!localStorage.getItem("token")) {
-            navigate("/login");
-        }
-    }, [navigate]);
+        const fetchUserInfo = async () => {
+            try {
+                const response = await getUserInfo();
+                setUsername(response.data.username); // Actualiza el estado con el nombre de usuario
+            } catch (error) {
+                console.error('Error fetching user info:', error);
+            }
+        };
+
+        fetchUserInfo();
+    }, []);
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">

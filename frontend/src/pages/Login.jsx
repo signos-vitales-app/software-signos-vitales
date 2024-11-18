@@ -7,7 +7,7 @@ import { FaUser, FaLock,FaEye, FaEyeSlash } from "react-icons/fa"; // Importamos
 import loginBackground from "./imagen Login.png"; // Importar la imagen directamente desde la ruta
 
 const Login = () => {
-    const [username, setUsername] = useState("");
+    const [numeroIdentificacion, setNumeroIdentificacion] = useState("");
     const [password, setPassword] = useState("");
     const [passwordVisible, setPasswordVisible] = useState(false); // Estado para controlar la visibilidad de la contraseña
     const navigate = useNavigate();
@@ -15,10 +15,10 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await login(username, password);
+            const response = await login(numeroIdentificacion, password);
             localStorage.setItem("token", response.data.token); // Guardar el token
             localStorage.setItem("role", response.data.role);   // Guardar el rol del usuario
-            localStorage.setItem("username", response.data.username); // Guardar el token
+            localStorage.setItem("numero_identificacion", response.data.numero_identificacion); // Guardar el token
 
             toast.success("Inicio de sesión exitosa!");
             navigate("/dashboard"); // Redirigir al panel general
@@ -65,9 +65,9 @@ const Login = () => {
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Usuario"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Numero de identificación"
+                    value={numeroIdentificacion}
+                    onChange={(e) => setNumeroIdentificacion(e.target.value)}
                     className="w-full pl-10 p-3 border rounded-full bg-white focus:outline-none"
                   />
                   <span className="absolute inset-y-0 left-3 flex items-center text-gray-600">

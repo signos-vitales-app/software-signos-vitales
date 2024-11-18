@@ -48,15 +48,17 @@ exports.register = async (req, res) => {
             // Verificar si el usuario o el correo ya existen
             const existingUser = await User.findByUsername(username);
             const existingEmail = await User.findByEmail(email);
+            const existingNumeroIdentificacion = await User.findByNumeroIdentificacion(numero_identificacion);
 
             if (existingUser) return res.status(400).json({ message: "Username already taken" });
             if (existingEmail) return res.status(400).json({ message: "Email already in use" });
-
+            if (existingNumeroIdentificacion) return res.status(400).json({ message: "Número de identificación ya está registrado" });
+            
             // Crear el nuevo usuario con la imagen de perfil
-            const userId = await User.createUser({ 
-                username, 
-                password, 
-                email, 
+            const userId = await User.createUser({
+                username,
+                password,
+                email,
                 role,
                 profile_image: profileImage,
                 numero_identificacion
@@ -87,11 +89,11 @@ exports.register = async (req, res) => {
 // Función de inicio de sesión
 exports.login = async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { numero_identificacion, password } = req.body;
 
         const [rows] = await db.query(
-            "SELECT id, username, password, role, is_active FROM users WHERE username = ?",
-            [username]
+            "SELECT id, numero_identificacion, password, role, is_active FROM users WHERE numero_identificacion = ?",
+            [numero_identificacion]
         );
 
         if (rows.length === 0) {
@@ -114,7 +116,7 @@ exports.login = async (req, res) => {
         const token = jwt.sign(
             { 
                 id: user.id,
-                username: user.username,
+                numero_identificacion: user.numero_identificacion,
                 role: user.role 
             },
             process.env.JWT_SECRET,
@@ -124,7 +126,7 @@ exports.login = async (req, res) => {
         res.json({
             token,
             role: user.role,
-            username: user.username
+            numero_identificacion: user.numero_identificacion
         });
     } catch (error) {
         console.error('Login error:', error);
@@ -189,7 +191,7 @@ exports.updatePassword = async (req, res) => {
         res.status(200).json({ message: "Contraseña actualizada exitosamente" });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Erro en el servidor" });
+        res.status(500).json({ message: "Error en el servidor" });
     }
 };
 
