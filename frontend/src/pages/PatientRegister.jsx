@@ -32,7 +32,7 @@ const PatientRegister = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
         const age = calculateAge(fechaNacimiento);
-        const isPediatric = age < 10;
+        const isPediatric = age < 14;
 
         try {
             await registerPatient({

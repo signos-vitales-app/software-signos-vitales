@@ -44,12 +44,13 @@ const PatientDataForm = () => {
     const calculatePresionMedia = () => {
         if (presionSistolica && presionDiastolica) {
             const tam = (
-                (2 * parseInt(presionDiastolica) + parseInt(presionSistolica)) /
-                3
+                (parseInt(presionDiastolica) + 2*parseInt(presionSistolica)) / 3
             ).toFixed(0);
             setPresionMedia(tam);
         }
     };
+
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -63,7 +64,7 @@ const PatientDataForm = () => {
                 presion_media: presionMedia,
                 pulso,
                 temperatura,
-                frecuencia_resp: frecuenciaRespiratoria,
+                frecuencia_respiratoria: frecuenciaRespiratoria,
                 saturacion_oxigeno: saturacionOxigeno,
                 peso_adulto: isPediatric ? null : pesoAdulto,
                 peso_pediatrico: isPediatric ? pesoPediatrico : null,
@@ -99,10 +100,12 @@ const PatientDataForm = () => {
                             type="date"
                             value={recordDate}
                             onChange={(e) => setRecordDate(e.target.value)}
+                            max={currentDate} // Limita a no permitir fechas futuras
                             required
                             className="w-full p-2 border rounded"
                         />
                     </div>
+
                     <div>
                         <label>Hora Dato:</label>
                         <input
@@ -164,9 +167,9 @@ const PatientDataForm = () => {
                         <label>Presión Sistólica (mmHg):</label>
                         <input
                             type="number"
-                            value={presionSistolica}
+                            value={presionSistolica} // Antes estaba presionDiastolica
                             onChange={(e) => {
-                                setPresionSistolica(e.target.value);
+                                setPresionSistolica(e.target.value); // Antes estaba setPresionDiastolica
                                 calculatePresionMedia();
                             }}
                             className="w-full p-2 border rounded"
@@ -176,14 +179,15 @@ const PatientDataForm = () => {
                         <label>Presión Diastólica (mmHg):</label>
                         <input
                             type="number"
-                            value={presionDiastolica}
+                            value={presionDiastolica} // Antes estaba presionSistolica
                             onChange={(e) => {
-                                setPresionDiastolica(e.target.value);
+                                setPresionDiastolica(e.target.value); // Antes estaba setPresionSistolica
                                 calculatePresionMedia();
                             }}
                             className="w-full p-2 border rounded"
                         />
                     </div>
+
                     <div>
                         <label>Presión Media (mmHg):</label>
                         <input
@@ -236,10 +240,10 @@ const PatientDataForm = () => {
                     />
                 </div>
 
-                
+
                 {/* Botones */}
                 <div className="flex justify-between">
-                <button
+                    <button
                         type="submit"
                         className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
                     >

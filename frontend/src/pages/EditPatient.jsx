@@ -39,8 +39,11 @@ const EditPatient = () => {
         setFechaNacimiento(date);
         const age = calculateAge(date);
         setEdad(age);
-        setIsPediatric(age < 10); // Determinar si es pediátrico
+        setIsPediatric(age < 14);
     };
+   
+    
+    
 
     useEffect(() => {
         const loadPatientData = async () => {
@@ -78,6 +81,10 @@ const EditPatient = () => {
 
     const handleUpdate = async (e) => {
         e.preventDefault();
+    
+        // Recalcular antes de enviar
+        const recalculatedIsPediatric = edad < 14;
+    
         try {
             await updatePatient(idPaciente, {
                 primer_nombre: primerNombre,
@@ -89,8 +96,8 @@ const EditPatient = () => {
                 ubicacion,
                 fecha_nacimiento: fechaNacimiento,
                 status,
-                edad,
-                is_pediatric: isPediatric, // Incluir pediátrico en la solicitud
+                edad, // La edad calculada ya está en el estado
+                is_pediatric: recalculatedIsPediatric, // Asegurarse de que sea el valor actualizado
             });
             toast.success("Paciente actualizado exitosamente");
             navigate("/search-patient");
@@ -98,6 +105,8 @@ const EditPatient = () => {
             toast.error("Error al actualizar el paciente");
         }
     };
+    
+    
 
     const handleGoBack = () => {
         navigate("/search-patient");
@@ -178,10 +187,7 @@ const EditPatient = () => {
                         <option value="inactivo">Inactivo</option>
                     </select>
                 </div>
-                <div className="mb-4">
-                    <p className="text-gray-700">Edad: {edad !== null ? edad : "No disponible"}</p>
-                    <p className="text-gray-700">Pediátrico: {isPediatric ? "Sí" : "No"}</p>
-                </div>
+                
                 <div className="flex justify-center gap-6 mt-4">
                     <button
                         type="button"

@@ -69,7 +69,7 @@ const PatientRecordHistory = () => {
                 age--;
             }
             setFechaNacimiento(age);
-            setIsPediatric(age < 10);
+            setIsPediatric(age < 14);
         } catch (error) {
             console.error("Error al recuperar registros de pacientes", error);
         }
@@ -197,8 +197,8 @@ const PatientRecordHistory = () => {
                 { content: record.pulso, styles: getCellStyle(record.pulso, 60, 90) },
                 { content: record.temperatura, styles: getCellStyle(record.temperatura, 36.0, 37.9) },
                 { content: record.frecuencia_respiratoria, styles: getCellStyle(record.frecuencia_respiratoria, 16, 24) },
-                { content: record.presion_sistolica, styles: getCellStyle(record.presion_sistolica, 60, 100) },
-                { content: record.presion_diastolica, styles: getCellStyle(record.presion_diastolica, 90, 140) },
+                { content: record.presion_sistolica, styles: getCellStyle(record.presion_sistolica, 90, 140) },
+                { content: record.presion_diastolica, styles: getCellStyle(record.presion_diastolica, 60, 100) },
                 { content: record.presion_media, styles: getCellStyle(record.presion_media, 70, 83) },
                 { content: record.saturacion_oxigeno, styles: getCellStyle(record.saturacion_oxigeno, 95, 100) },
                 { content: isPediatric ? (record.peso_pediatrico || "No registrado") : (record.peso_adulto || "No registrado"), styles: {} },
@@ -311,8 +311,8 @@ const PatientRecordHistory = () => {
                             <th className="p-2 border">Pulso (lpm)</th>
                             <th className="p-2 border">T°C</th>
                             <th className="p-2 border">FR (RPM)</th>
-                            <th className="p-2 border">TAD (mmHg)</th>
                             <th className="p-2 border">TAS (mmHg)</th>
+                            <th className="p-2 border">TAD (mmHg)</th>
                             <th className="p-2 border">TAM (mmHg)</th>
                             <th className="p-2 border">SatO2 (%)</th>
                             {/* Aquí cambiaremos el encabezado */}
@@ -338,11 +338,11 @@ const PatientRecordHistory = () => {
                                     {record.frecuencia_respiratoria}
                                 </td>
                                 {/* Presión sistólica */}
-                                <td className={`p-2 border ${record.presion_sistolica < 60 ? "bg-[rgb(120,190,230)]" : record.presion_sistolica > 100 ? "bg-red-200" : "bg-withe-200"}`}>
+                                <td className={`p-2 border ${record.presion_sistolica < 90 ? "bg-[rgb(120,190,230)]" : record.presion_sistolica > 140 ? "bg-red-200" : "bg-withe-200"}`}>
                                     {record.presion_sistolica}
                                 </td>
                                 {/* Presión diastólica */}
-                                <td className={`p-2 border ${record.presion_diastolica < 90 ? "bg-[rgb(120,190,230)]" : record.presion_diastolica > 140 ? "bg-red-200" : "bg-withe-200"}`}>
+                                <td className={`p-2 border ${record.presion_diastolica < 60 ? "bg-[rgb(120,190,230)]" : record.presion_diastolica > 100 ? "bg-red-200" : "bg-withe-200"}`}>
                                     {record.presion_diastolica}
                                 </td>
                                 {/* Presión media */}

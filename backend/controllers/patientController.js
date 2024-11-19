@@ -21,12 +21,12 @@ exports.registerPatient = async (req, res) => {
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
         age--;
     }
-    const is_pediatric = age < 10;
+    const recalculatedIsPediatric = age < 14;
 
     try {
         await db.query(
             "INSERT INTO patients (primer_nombre,segundo_nombre, primer_apellido,segundo_apellido, numero_identificacion, fecha_nacimiento, tipo_identificacion, ubicacion, status, is_pediatric) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?)",
-            [primer_nombre,segundo_nombre, primer_apellido,segundo_apellido, numero_identificacion, fecha_nacimiento, tipo_identificacion, ubicacion, status || 'activo', is_pediatric]
+            [primer_nombre,segundo_nombre, primer_apellido,segundo_apellido, numero_identificacion, fecha_nacimiento, tipo_identificacion, ubicacion, status || 'activo', recalculatedIsPediatric]
         );
         res.status(201).json({ message: "Paciente registrado exitosamente" });
     } catch (error) {
@@ -66,8 +66,17 @@ exports.getPatientInfo = async (req, res) => {
 
 exports.updatePatient = async (req, res) => {
     const { id } = req.params;
-    const { primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, tipo_identificacion, ubicacion, status,fecha_nacimiento,is_pediatric } = req.body;
+    const { primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, tipo_identificacion, ubicacion, status,fecha_nacimiento } = req.body;
 
+    // Calcular si el paciente es pediátrico en base a la fecha de nacimiento
+    const birth = new Date(fecha_nacimiento);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+    }
+    const is_pediatric = age < 14;
     try {
         const [result] = await db.query(
             "UPDATE patients SET primer_nombre = ?, segundo_nombre = ?, primer_apellido = ?, segundo_apellido = ?, numero_identificacion = ?, tipo_identificacion = ?, ubicacion = ?, status = ?, fecha_nacimiento=?, is_pediatric=? WHERE id = ?",
