@@ -66,12 +66,12 @@ exports.getPatientInfo = async (req, res) => {
 
 exports.updatePatient = async (req, res) => {
     const { id } = req.params;
-    const { primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, tipo_identificacion, ubicacion, status,fecha_nacimiento } = req.body;
+    const { primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, tipo_identificacion, ubicacion, status,fecha_nacimiento,is_pediatric } = req.body;
 
     try {
         const [result] = await db.query(
-            "UPDATE patients SET primer_nombre = ?, segundo_nombre = ?, primer_apellido = ?, segundo_apellido = ?, numero_identificacion = ?, tipo_identificacion = ?, ubicacion = ?, status = ?, fecha_nacimiento=? WHERE id = ?",
-            [primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, tipo_identificacion, ubicacion, status,fecha_nacimiento, id]
+            "UPDATE patients SET primer_nombre = ?, segundo_nombre = ?, primer_apellido = ?, segundo_apellido = ?, numero_identificacion = ?, tipo_identificacion = ?, ubicacion = ?, status = ?, fecha_nacimiento=?, is_pediatric=? WHERE id = ?",
+            [primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, tipo_identificacion, ubicacion, status,fecha_nacimiento,is_pediatric, id]
         );
 
         if (result.affectedRows === 0) {

@@ -3,21 +3,18 @@ import { useParams, useNavigate } from "react-router-dom";
 import { createPatientRecord, fetchPatientInfo } from "../services/patientService";
 import { FiSave, FiClipboard } from "react-icons/fi";
 import { toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 const PatientDataForm = () => {
     const { idPaciente } = useParams();
     const navigate = useNavigate();
 
-    // Obtener la fecha y hora actuales
-    const currentDate = new Date().toISOString().split("T")[0];  // Fecha actual en formato YYYY-MM-DD
-    const currentTime = new Date().toTimeString().split(" ")[0].slice(0, 5);  // Hora actual en formato HH:MM
-    // Estado para almacenar si el paciente es pediátrico
-    const [isPediatric, setIsPediatric] = useState(false);
+    const currentDate = new Date().toISOString().split("T")[0];
+    const currentTime = new Date().toTimeString().split(" ")[0].slice(0, 5);
 
-
-    const [recordDate, setRecordDate] = useState(currentDate);  // Usar la fecha actual por defecto
-    const [recordTime, setRecordTime] = useState(currentTime);  // Usar la hora actual por defecto
+    const [isPediatric, setIsPediatric] = useState(null); // Inicializar como null
+    const [recordDate, setRecordDate] = useState(currentDate);
+    const [recordTime, setRecordTime] = useState(currentTime);
     const [pesoAdulto, setPesoAdulto] = useState("");
     const [pesoPediatrico, setPesoPediatrico] = useState("");
     const [talla, setTalla] = useState("");
@@ -27,10 +24,9 @@ const PatientDataForm = () => {
     const [pulso, setPulso] = useState("");
     const [frecuenciaRespiratoria, setFrecuenciaRespiratoria] = useState("");
     const [saturacionOxigeno, setSaturacionOxigeno] = useState("");
-    const [temperatura, setTemperatura] = useState(""); // Agregado el campo de temperatura
+    const [temperatura, setTemperatura] = useState("");
     const [observaciones, setObservations] = useState("");
 
-    // Cargar información del paciente
     useEffect(() => {
         const loadPatientInfo = async () => {
             try {
@@ -47,7 +43,10 @@ const PatientDataForm = () => {
 
     const calculatePresionMedia = () => {
         if (presionSistolica && presionDiastolica) {
-            const tam = ((2 * parseInt(presionDiastolica) + parseInt(presionSistolica)) / 3).toFixed(0);
+            const tam = (
+                (2 * parseInt(presionDiastolica) + parseInt(presionSistolica)) /
+                3
+            ).toFixed(0);
             setPresionMedia(tam);
         }
     };
@@ -63,29 +62,38 @@ const PatientDataForm = () => {
                 presion_diastolica: presionDiastolica,
                 presion_media: presionMedia,
                 pulso,
-                temperatura, 
-                frecuencia_respiratoria: frecuenciaRespiratoria,
+                temperatura,
+                frecuencia_resp: frecuenciaRespiratoria,
                 saturacion_oxigeno: saturacionOxigeno,
                 peso_adulto: isPediatric ? null : pesoAdulto,
                 peso_pediatrico: isPediatric ? pesoPediatrico : null,
                 talla,
-                observaciones
+                observaciones,
             });
             toast.success("¡Los datos del paciente se guardaron correctamente!");
             navigate(`/patient/${idPaciente}/records`);
         } catch (error) {
             console.error("Error al guardar los datos del paciente:", error);
-            const errorMessage = error.response?.data?.message || "Error al guardar los datos del paciente.";
+            const errorMessage =
+                error.response?.data?.message || "Error al guardar los datos del paciente.";
             toast.error(errorMessage);
         }
     };
 
+    if (isPediatric === null) {
+        return <div>Cargando información del paciente...</div>;
+    }
+
     return (
         <div className="flex flex-col items-center min-h-screen bg-gray-100 p-4 overflow-auto">
             <h1 className="text-2xl font-bold mb-6">Monitoreo General</h1>
-            <form onSubmit={handleSubmit} className="w-full max-w-2xl bg-white p-6 rounded shadow-md">
-                <div className="flex justify-between mb-4">
-                    <div className="w-1/2 mr-2">
+            <form
+                onSubmit={handleSubmit}
+                className="w-full max-w-3xl bg-white p-6 rounded shadow-md grid gap-6"
+            >
+                {/* Fecha y hora */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
                         <label>Fecha Dato:</label>
                         <input
                             type="date"
@@ -95,7 +103,7 @@ const PatientDataForm = () => {
                             className="w-full p-2 border rounded"
                         />
                     </div>
-                    <div className="w-1/2 ml-2">
+                    <div>
                         <label>Hora Dato:</label>
                         <input
                             type="time"
@@ -107,27 +115,29 @@ const PatientDataForm = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 mb-4">
-                    <div>
-                        <label>Peso Adulto (kg):</label>
-                        <input
-                            type="number"
-                            value={pesoAdulto}
-                            onChange={(e) => setPesoAdulto(e.target.value)}
-                            disabled={isPediatric}
-                            className={`w-full p-2 border rounded ${isPediatric ? "bg-gray-100" : ""}`}
-                        />
-                    </div>
-                    <div>
-                        <label>Peso Pediátrico (g/kg):</label>
-                        <input
-                            type="number"
-                            value={pesoPediatrico}
-                            onChange={(e) => setPesoPediatrico(e.target.value)}
-                            disabled={!isPediatric}
-                            className={`w-full p-2 border rounded ${!isPediatric ? "bg-gray-100" : ""}`}
-                        />
-                    </div>
+                {/* Peso y talla */}
+                <div className="grid grid-cols-3 gap-4">
+                    {isPediatric ? (
+                        <div>
+                            <label>Peso Pediátrico (g/kg):</label>
+                            <input
+                                type="number"
+                                value={pesoPediatrico}
+                                onChange={(e) => setPesoPediatrico(e.target.value)}
+                                className="w-full p-2 border rounded"
+                            />
+                        </div>
+                    ) : (
+                        <div>
+                            <label>Peso Adulto (kg):</label>
+                            <input
+                                type="number"
+                                value={pesoAdulto}
+                                onChange={(e) => setPesoAdulto(e.target.value)}
+                                className="w-full p-2 border rounded"
+                            />
+                        </div>
+                    )}
                     <div>
                         <label>Talla (cm):</label>
                         <input
@@ -137,53 +147,21 @@ const PatientDataForm = () => {
                             className="w-full p-2 border rounded"
                         />
                     </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4 mb-4">
                     <div>
-                        <label>Pulso (lat x min):</label>
+                        <label>Temperatura (°C):</label>
                         <input
                             type="number"
-                            value={pulso}
-                            onChange={(e) => setPulso(e.target.value)}
-                            className="w-full p-2 border rounded"
-                        />
-                    </div>
-                    <div>
-                        <label>Frecuencia Respiratoria (resp x min):</label>
-                        <input
-                            type="number"
-                            value={frecuenciaRespiratoria}
-                            onChange={(e) => setFrecuenciaRespiratoria(e.target.value)}
-                            className="w-full p-2 border rounded"
-                        />
-                    </div>
-                    <div>
-                        <label>SatO2%:</label>
-                        <input
-                            type="number"
-                            value={saturacionOxigeno}
-                            onChange={(e) => setSaturacionOxigeno(e.target.value)}
+                            value={temperatura}
+                            onChange={(e) => setTemperatura(e.target.value)}
                             className="w-full p-2 border rounded"
                         />
                     </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 mb-4">
+                {/* Presiones */}
+                <div className="grid grid-cols-3 gap-4">
                     <div>
-                        <label>TAS (mm Hg):</label>
-                        <input
-                            type="number"
-                            value={presionDiastolica}
-                            onChange={(e) => {
-                                setPresionDiastolica(e.target.value);
-                                calculatePresionMedia();
-                            }}
-                            className="w-full p-2 border rounded"
-                        />
-                    </div>
-                    <div>
-                        <label>TAD (mm Hg):</label>
+                        <label>Presión Sistólica (mmHg):</label>
                         <input
                             type="number"
                             value={presionSistolica}
@@ -195,9 +173,21 @@ const PatientDataForm = () => {
                         />
                     </div>
                     <div>
-                        <label>TAM (mm Hg):</label>
+                        <label>Presión Diastólica (mmHg):</label>
                         <input
-                            type="text"
+                            type="number"
+                            value={presionDiastolica}
+                            onChange={(e) => {
+                                setPresionDiastolica(e.target.value);
+                                calculatePresionMedia();
+                            }}
+                            className="w-full p-2 border rounded"
+                        />
+                    </div>
+                    <div>
+                        <label>Presión Media (mmHg):</label>
+                        <input
+                            type="number"
                             value={presionMedia}
                             readOnly
                             className="w-full p-2 border rounded bg-gray-100"
@@ -205,13 +195,32 @@ const PatientDataForm = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 mb-4">
+                {/* Otros datos */}
+                <div className="grid grid-cols-3 gap-4">
                     <div>
-                        <label>Temperatura (°C):</label>
+                        <label>Pulso (lat/min):</label>
                         <input
                             type="number"
-                            value={temperatura}
-                            onChange={(e) => setTemperatura(e.target.value)}
+                            value={pulso}
+                            onChange={(e) => setPulso(e.target.value)}
+                            className="w-full p-2 border rounded"
+                        />
+                    </div>
+                    <div>
+                        <label>Frecuencia Respiratoria (resp/min):</label>
+                        <input
+                            type="number"
+                            value={frecuenciaRespiratoria}
+                            onChange={(e) => setFrecuenciaRespiratoria(e.target.value)}
+                            className="w-full p-2 border rounded"
+                        />
+                    </div>
+                    <div>
+                        <label>SatO2 (%):</label>
+                        <input
+                            type="number"
+                            value={saturacionOxigeno}
+                            onChange={(e) => setSaturacionOxigeno(e.target.value)}
                             className="w-full p-2 border rounded"
                         />
                     </div>
@@ -227,9 +236,10 @@ const PatientDataForm = () => {
                     />
                 </div>
 
+                
                 {/* Botones */}
                 <div className="flex justify-between">
-                    <button
+                <button
                         type="submit"
                         className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
                     >
@@ -238,10 +248,10 @@ const PatientDataForm = () => {
                     </button>
                     <button
                         type="button"
-                        onClick={() => navigate(`/patient/${idPaciente}/records`)}
+                        onClick={() => navigate(-1)}
                         className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
                     >
-                        <FiClipboard className="mr-2" />
+                        <FiClipboard />
                         Ver registros anteriores
                     </button>
                 </div>

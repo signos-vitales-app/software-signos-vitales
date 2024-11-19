@@ -178,7 +178,10 @@ const EditPatient = () => {
                         <option value="inactivo">Inactivo</option>
                     </select>
                 </div>
-                
+                <div className="mb-4">
+                    <p className="text-gray-700">Edad: {edad !== null ? edad : "No disponible"}</p>
+                    <p className="text-gray-700">Pediátrico: {isPediatric ? "Sí" : "No"}</p>
+                </div>
                 <div className="flex justify-center gap-6 mt-4">
                     <button
                         type="button"
