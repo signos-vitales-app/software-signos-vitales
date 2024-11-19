@@ -28,3 +28,7 @@ export const createPatientRecord = async (recordData) => {
 export const fetchPatientRecords = async (idPaciente) => {
     return await axios.get(`${API_URL}/patient-records/${idPaciente}`);
 };
+// Función para editar paciente
+export const updatePatient = async (idPaciente, updatedData) => {
+    return await axios.put(`${API_URL}/patients/${idPaciente}`, updatedData);
+};

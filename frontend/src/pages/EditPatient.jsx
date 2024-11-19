@@ -1,24 +1,30 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { registerPatient } from "../services/patientService";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { fetchPatientInfo, updatePatient } from "../services/patientService";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { FaUserPlus , FaClipboard } from 'react-icons/fa';  // Usamos FaClipboard para el icono de planilla
-import { FiHome} from 'react-icons/fi';  // Usamos FaClipboard para el icono de planilla
+import { FaSave, FaClipboard } from 'react-icons/fa';
+import { FiHome } from 'react-icons/fi';
 
-const PatientRegister = () => {
+const EditPatient = () => {
+    const { idPaciente } = useParams();
     const navigate = useNavigate();
+
     const [primerNombre, setprimerNombre] = useState("");
     const [segundoNombre, setSegundoNombre] = useState("");
     const [primerApellido, setprimerApellido] = useState("");
     const [segundoApellido, setSegundoApellido] = useState("");
+    const [tipoIdentificacion, settipoIdentificacion] = useState("");
     const [numeroIdentificacion, setnumeroIdentificacion] = useState("");
-    const [fechaNacimiento, setFechaNacimiento] = useState("");
-    const [tipoIdentificacion, settipoIdentificacion] = useState("cédula de ciudadanía");
     const [ubicacion, setubicacion] = useState("");
+    const [fechaNacimiento, setFechaNacimiento] = useState("");
     const [status, setStatus] = useState("activo");
+    const [edad, setEdad] = useState(null); // Nueva variable para la edad
+    const [isPediatric, setIsPediatric] = useState(false); // Nuevo estado para pediátrico
+    const [loading, setLoading] = useState(true);
 
     const calculateAge = (date) => {
+        if (!date) return null;
         const birth = new Date(date);
         const today = new Date();
         let age = today.getFullYear() - birth.getFullYear();
@@ -29,40 +35,81 @@ const PatientRegister = () => {
         return age;
     };
 
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        const age = calculateAge(fechaNacimiento);
-        const isPediatric = age < 10;
+    const handleFechaNacimientoChange = (date) => {
+        setFechaNacimiento(date);
+        const age = calculateAge(date);
+        setEdad(age);
+        setIsPediatric(age < 10); // Determinar si es pediátrico
+    };
 
+    useEffect(() => {
+        const loadPatientData = async () => {
+            try {
+                const response = await fetchPatientInfo(idPaciente);
+                const patient = response.data;
+
+                if (patient.fecha_nacimiento) {
+                    patient.fecha_nacimiento = new Date(patient.fecha_nacimiento)
+                        .toISOString()
+                        .split("T")[0];
+                }
+
+                setprimerNombre(patient.primer_nombre || "");
+                setSegundoNombre(patient.segundo_nombre || "");
+                setprimerApellido(patient.primer_apellido || "");
+                setSegundoApellido(patient.segundo_apellido || "");
+                settipoIdentificacion(patient.tipo_identificacion || "cédula de ciudadanía");
+                setnumeroIdentificacion(patient.numero_identificacion || "");
+                setubicacion(patient.ubicacion || "");
+                setFechaNacimiento(patient.fecha_nacimiento || "");
+                setStatus(patient.status || "activo");
+                const calculatedAge = calculateAge(patient.fecha_nacimiento);
+                setEdad(calculatedAge);
+                setIsPediatric(calculatedAge < 10);
+                setLoading(false);
+            } catch (error) {
+                toast.error("Error al cargar los datos del paciente");
+                setLoading(false);
+            }
+        };
+
+        loadPatientData();
+    }, [idPaciente]);
+
+    const handleUpdate = async (e) => {
+        e.preventDefault();
         try {
-            await registerPatient({
+            await updatePatient(idPaciente, {
                 primer_nombre: primerNombre,
                 segundo_nombre: segundoNombre,
                 primer_apellido: primerApellido,
                 segundo_apellido: segundoApellido,
-                numero_identificacion: numeroIdentificacion,
-                fecha_nacimiento: fechaNacimiento,
                 tipo_identificacion: tipoIdentificacion,
+                numero_identificacion: numeroIdentificacion,
                 ubicacion,
+                fecha_nacimiento: fechaNacimiento,
                 status,
-                is_pediatric: isPediatric // Información de clasificación pediátrica
+                edad,
+                is_pediatric: isPediatric, // Incluir pediátrico en la solicitud
             });
-            toast.success("Paciente registrado exitosamente!");
-            navigate("/dashboard");
-        } catch (err) {
-            console.error("Error en el registro", err);
-            toast.error("No se pudo registrar al paciente. Inténtelo nuevamente.");
+            toast.success("Paciente actualizado exitosamente");
+            navigate("/search-patient");
+        } catch (error) {
+            toast.error("Error al actualizar el paciente");
         }
     };
+
     const handleGoBack = () => {
-        navigate("/dashboard");
+        navigate("/search-patient");
     };
+
+    if (loading) return <div>Cargando...</div>;
 
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-            <form onSubmit={handleRegister} className="w-full max-w-lg p-8 bg-white rounded shadow-lg">
+            <form onSubmit={handleUpdate} className="w-full max-w-lg p-8 bg-white rounded shadow-lg">
                 <h2 className="text-xl font-bold mb-6 text-center text-black flex items-center justify-center gap-2">
-                    <FaClipboard size={25} /> Registrar paciente
+                    <FaClipboard size={25} /> Editar paciente
                 </h2>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                     <input
@@ -107,13 +154,12 @@ const PatientRegister = () => {
                         value={numeroIdentificacion}
                         onChange={(e) => setnumeroIdentificacion(e.target.value)}
                         className="w-full p-3 border border-gray-300 rounded col-span-2"
-                    />Fecha de nacimiento 
+                    />
                     <input
                         type="date"
                         placeholder="Fecha de nacimiento"
                         value={fechaNacimiento}
-                        onChange={(e) => setFechaNacimiento(e.target.value)}
-                        required
+                        onChange={(e) => handleFechaNacimientoChange(e.target.value)}
                         className="w-full p-3 border border-gray-300 rounded col-span-2"
                     />
                     <input
@@ -132,10 +178,11 @@ const PatientRegister = () => {
                         <option value="inactivo">Inactivo</option>
                     </select>
                 </div>
+                
                 <div className="flex justify-center gap-6 mt-4">
-                <button
+                    <button
                         type="button"
-                        onClick={() => navigate("/dashboard")}
+                        onClick={handleGoBack}
                         className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
                     >
                         <FiHome size={20} className="mr-2" /> Regresar
@@ -144,13 +191,12 @@ const PatientRegister = () => {
                         type="submit"
                         className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
                     >
-                        <FaUserPlus  size={18} className="mr-2" /> Registrar
+                        <FaSave size={18} className="mr-2" /> Guardar Cambios
                     </button>
-                    
                 </div>
             </form>
         </div>
     );
 };
 
-export default PatientRegister;
+export default EditPatient;

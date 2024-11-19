@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchPatients, updatePatientStatus } from "../services/patientService";
-import { FiHome, FiX  } from "react-icons/fi";
+import { FiHome, FiX } from "react-icons/fi";
 import { FaCamera } from 'react-icons/fa';
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { BiSolidSpreadsheet } from "react-icons/bi";
@@ -41,8 +41,8 @@ const SearchPatient = () => {
         await updatePatientStatus(idPaciente, newStatus);
         loadPatients();
     };
-    
-    
+
+
 
     const filteredPatients = patients.filter(patient =>
         patient.numero_identificacion.includes(searchId)
@@ -74,7 +74,7 @@ const SearchPatient = () => {
     const handleRegisterData = () => {
         if (selectedIdPaciente) {
             navigate(`/patient/${selectedIdPaciente}/records`);
-        }else {
+        } else {
             toast.error("Debes seleccionar un paciente", {
                 position: "top-right",
                 autoClose: 5000,
@@ -95,7 +95,7 @@ const SearchPatient = () => {
             setScanPage(qrCodeMessage);  // Cambia la página si el paciente está en otra página
         }
     };
-    
+
     const setScanPage = (qrCodeMessage) => {
         // Busca al paciente con el número de identificación del QR
         const foundPatient = patients.find(patient => patient.numero_identificacion === qrCodeMessage);
@@ -110,7 +110,7 @@ const SearchPatient = () => {
             }
         }
     };
-    
+
 
     const stopScanning = () => {
         setIsScanning(false);
@@ -162,6 +162,10 @@ const SearchPatient = () => {
     const handleGoBack = () => {
         navigate("/dashboard");
     };
+    const handleEdit = (idPaciente) => {
+        navigate(`/edit-patient/${idPaciente}`);
+    };
+
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6">
@@ -244,13 +248,15 @@ const SearchPatient = () => {
                                 </button>
                             </td>
                             <td className="p-4">
-                                <button
-                                    onClick={() => navigate(`/patient/${patient.id}/edit`)}
-                                    className="text-blue-600 hover:text-blue-800"
-                                >
-                                    &#9998;
+                                <td className="p-4">
+                                    <button
+                                        onClick={() => handleEdit(patient.id)}
+                                        className="text-blue-600 hover:underline"
+                                    >
+                                        &#9998;
+                                    </button>
+                                </td>
 
-                                </button>
                             </td>
                             <td className="p-4">
                                 <button
@@ -260,7 +266,7 @@ const SearchPatient = () => {
                                 >
                                     Seleccionar
                                 </button>
-                                
+
                             </td>
                         </tr>
                     ))}

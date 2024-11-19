@@ -63,3 +63,24 @@ exports.getPatientInfo = async (req, res) => {
         res.status(500).json({ message: "Error al recuperar la información del paciente" });
     }
 };
+
+exports.updatePatient = async (req, res) => {
+    const { id } = req.params;
+    const { primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, tipo_identificacion, ubicacion, status,fecha_nacimiento } = req.body;
+
+    try {
+        const [result] = await db.query(
+            "UPDATE patients SET primer_nombre = ?, segundo_nombre = ?, primer_apellido = ?, segundo_apellido = ?, numero_identificacion = ?, tipo_identificacion = ?, ubicacion = ?, status = ?, fecha_nacimiento=? WHERE id = ?",
+            [primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, tipo_identificacion, ubicacion, status,fecha_nacimiento, id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Paciente no encontrado" });
+        }
+
+        res.json({ message: "Paciente actualizado exitosamente" });
+    } catch (error) {
+        console.error("Error al actualizar paciente:", error);
+        res.status(500).json({ message: "Error al actualizar paciente" });
+    }
+};

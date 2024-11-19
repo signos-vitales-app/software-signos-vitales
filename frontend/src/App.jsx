@@ -17,6 +17,7 @@ import ProtectedRoute from './pages/ProtectedRoute';
 import Layout from './components/Layout';
 import RegisterUser from './pages/RegisterUser'; // Importamos el nuevo componente de registro de usuario
 import SearchUsers from './pages/SearchUsers'; // Importamos el nuevo componente de tabla de usuarios
+import EditPatient from './pages/EditPatient';
 
 function App() {
     return (
@@ -42,6 +43,7 @@ function App() {
                 {/* Nuevas rutas para registro y búsqueda de usuarios */}
                 <Route path="/register-user" element={<ProtectedRoute><Layout><RegisterUser /></Layout></ProtectedRoute>} />
                 <Route path="/search-user" element={<ProtectedRoute><Layout><SearchUsers /></Layout></ProtectedRoute>} />
+                <Route path="/edit-patient/:idPaciente" element={<ProtectedRoute><Layout><EditPatient /></Layout></ProtectedRoute>} />
 
                 {/* Ruta por defecto */}
                 <Route path="*" element={<h1>404 Page Not Found</h1>} />
