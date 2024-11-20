@@ -89,7 +89,7 @@ const VitalSignsChart = ({ records, selectedVariables }) => {
         },
         scales: {
             x: { title: { display: true, text: 'Fecha' } },
-            y: { title: { display: true, text: 'Valor' }, beginAtZero: true },
+            y: { title: { display: true, text: 'Latidos por minuto' }, beginAtZero: true },
         },
     };
 
@@ -109,7 +109,7 @@ const VitalSignsChart = ({ records, selectedVariables }) => {
         },
         scales: {
             x: { title: { display: true, text: 'Fecha' } },
-            y: { title: { display: true, text: 'Valor' }, beginAtZero: true },
+            y: { title: { display: true, text: 'Respiraciones por minuto' }, beginAtZero: true },
         },
     };
 
@@ -129,7 +129,7 @@ const VitalSignsChart = ({ records, selectedVariables }) => {
         },
         scales: {
             x: { title: { display: true, text: 'Fecha' } },
-            y: { title: { display: true, text: 'Valor' }, beginAtZero: true },
+            y: { title: { display: true, text: 'mmHg' }, beginAtZero: true },
         },
     };
         // "Diastolic Pressure" 
@@ -148,7 +148,7 @@ const VitalSignsChart = ({ records, selectedVariables }) => {
             },
             scales: {
                 x: { title: { display: true, text: 'Fecha' } },
-                y: { title: { display: true, text: 'Valor' }, beginAtZero: true },
+                y: { title: { display: true, text: 'mmHg' }, beginAtZero: true },
             },
         };
         
@@ -169,7 +169,7 @@ const VitalSignsChart = ({ records, selectedVariables }) => {
         },
         scales: {
             x: { title: { display: true, text: 'Fecha' } },
-            y: { title: { display: true, text: 'Valor' }, beginAtZero: true },
+            y: { title: { display: true, text: '°C' }, beginAtZero: true },
         },
     };
     // "saturacion de oxigeno" 
@@ -188,7 +188,7 @@ const VitalSignsChart = ({ records, selectedVariables }) => {
         },
         scales: {
             x: { title: { display: true, text: 'Fecha' } },
-            y: { title: { display: true, text: 'Valor' }, beginAtZero: true },
+            y: { title: { display: true, text: '%' }, beginAtZero: true },
         },
     };
 

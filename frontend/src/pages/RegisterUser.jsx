@@ -98,17 +98,17 @@ const RegisterUser = () => {
                 <div className="grid grid-cols-2 gap-4 mb-4">
                     <input
                         type="text"
-                        placeholder="Usuario"
+                        placeholder="Nombres y apellidos"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded"
+                        className="w-full col-span-2 p-3 border border-gray-300 rounded"
                     />
                     <input
                         type="text"
                         placeholder="Número de identificación"
                         value={numeroIdentificacion}
                         onChange={(e) => setNumeroIdentificacion(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded"
+                        className="w-full col-span-2 p-3 border border-gray-300 rounded"
                     />
                     <input
                         type="email"

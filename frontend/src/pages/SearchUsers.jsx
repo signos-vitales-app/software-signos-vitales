@@ -93,7 +93,7 @@ const SearchUsers = () => {
                     <table className="min-w-full bg-white shadow-md rounded">
                         <thead>
                             <tr className="bg-gray-200">
-                                <th className="p-3 text-left">Usuario</th>
+                                <th className="p-3 text-left">Nombres y apellidos </th>
                                 <th className="p-3 text-left">Número de Identificación</th>
                                 <th className="p-3 text-left">Email</th>
                                 <th className="p-3 text-left">Rol</th>
