@@ -1,18 +1,1 @@
-[
-  {
-    "id_paciente": "47",
-    "record_date": "2024-11-19",
-    "record_time": "17:16",
-    "presion_sistolica": "120",
-    "presion_diastolica": "80",
-    "presion_media": "83",
-    "pulso": "50",
-    "temperatura": "30",
-    "frecuencia_respiratoria": "50",
-    "saturacion_oxigeno": "100",
-    "peso_adulto": null,
-    "peso_pediatrico": "",
-    "talla": "",
-    "observaciones": ""
-  }
-]
+[]

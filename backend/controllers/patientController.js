@@ -21,12 +21,12 @@ exports.registerPatient = async (req, res) => {
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
         age--;
     }
-    const recalculatedIsPediatric = age < 14;
+    const is_pediatric  = age < 14;
 
     try {
         await db.query(
             "INSERT INTO patients (primer_nombre,segundo_nombre, primer_apellido,segundo_apellido, numero_identificacion, fecha_nacimiento, tipo_identificacion, ubicacion, status, is_pediatric) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?)",
-            [primer_nombre,segundo_nombre, primer_apellido,segundo_apellido, numero_identificacion, fecha_nacimiento, tipo_identificacion, ubicacion, status || 'activo', recalculatedIsPediatric]
+            [primer_nombre,segundo_nombre, primer_apellido,segundo_apellido, numero_identificacion, fecha_nacimiento, tipo_identificacion, ubicacion, status || 'activo', is_pediatric ]
         );
         res.status(201).json({ message: "Paciente registrado exitosamente" });
     } catch (error) {
@@ -76,11 +76,11 @@ exports.updatePatient = async (req, res) => {
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
         age--;
     }
-    const is_pediatric = age < 14;
+    const recalculatedIsPediatric = age < 14;
     try {
         const [result] = await db.query(
             "UPDATE patients SET primer_nombre = ?, segundo_nombre = ?, primer_apellido = ?, segundo_apellido = ?, numero_identificacion = ?, tipo_identificacion = ?, ubicacion = ?, status = ?, fecha_nacimiento=?, is_pediatric=? WHERE id = ?",
-            [primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, tipo_identificacion, ubicacion, status,fecha_nacimiento,is_pediatric, id]
+            [primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, tipo_identificacion, ubicacion, status,fecha_nacimiento,recalculatedIsPediatric, id]
         );
 
         if (result.affectedRows === 0) {

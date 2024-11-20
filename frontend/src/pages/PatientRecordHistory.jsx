@@ -334,7 +334,7 @@ const PatientRecordHistory = () => {
                                     {record.temperatura}
                                 </td>
                                 {/* Frecuencia respiratoria */}
-                                <td className={`p-2 border ${record.frecuencia_respiratoria < 16 ? "bg-[rgb(120,190,230)]" : record.frecuencia_respiratoria > 24 ? "bg-red-400" : "bg-withe-200"}`}>
+                                <td className={`p-2 border ${record.frecuencia_respiratoria < 16 ? "bg-[rgb(120,190,230)]" : record.frecuencia_respiratoria > 24 ? "bg-red-200" : "bg-withe-200"}`}>
                                     {record.frecuencia_respiratoria}
                                 </td>
                                 {/* Presión sistólica */}
