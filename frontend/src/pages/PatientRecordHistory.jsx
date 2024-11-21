@@ -9,7 +9,7 @@ import VitalSignsChart from "./VitalSignsChart";
 import "jspdf-autotable"; // Importar el complemento para la tabla
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
-
+import generatePDF from "../services/generatePdf";
 const PatientRecordHistory = () => {
     const { idPaciente } = useParams();
     const navigate = useNavigate();
@@ -106,16 +106,7 @@ const PatientRecordHistory = () => {
         peso_adulto: "Peso Adulto",
         presion_media: "Presión Media"
     };
- // Rangos para adultos y pediátricos
- const ranges = {
-    pulso: { adulto: [60, 90], pediatrico: [60, 90] },
-    frecuencia_respiratoria: { adulto: [16, 24], pediatrico: [14, 24] },
-    presion_sistolica: { adulto: [100, 140], pediatrico: [86, 120] },
-    presion_diastolica: { adulto: [60, 100], pediatrico: [60, 85] },
-    presion_media: { adulto: [70, 83], pediatrico: [60, 80] },
-    saturacion_oxigeno: { adulto: [95, 100], pediatrico: [95, 100] },
-    temperatura: { adulto: [36.0, 37.9], pediatrico: [36.5, 37.9] }
-};
+
     const handleFilter = () => {
         // Filtrar los registros según las fechas
         let filtered = records.filter(record => {
@@ -148,118 +139,14 @@ const PatientRecordHistory = () => {
                 : [...prev, variable]
         );
     };
-    const getRange = (variable) => {
-        return isPediatric ? ranges[variable].pediatrico : ranges[variable].adulto;
-    };
 
     const handleExportPDF = async () => {
-        const pdf = new jsPDF("p", "mm", "a4");
-        // Agregar el logo al PDF
-        const logoUrl = "https://media.sipiapa.org/adjuntos/185/imagenes/001/819/0001819724.jpg";  // O usa un base64
-        const logoWidth = 50;  // Ancho del logo en milímetros
-        const logoHeight = 25; // Alto del logo en milímetros
-        // Título con fuente estilizada
-        pdf.addImage(logoUrl, 'PNG', 10, 10, logoWidth, logoHeight);
-
-        pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(16);
-        pdf.text(105, 20, "Historial de Registros del Paciente", { align: "center" });
-
-        // Agregar información del paciente en secciones bien organizadas
-        pdf.setFontSize(12);
-
-        // Texto en negrita para las etiquetas
-        pdf.setFont("helvetica", "bold");
-        pdf.text(10, 40, "Nombres y apellidos: ");
-        pdf.text(10, 45, "Tipo de identificación: ");
-        pdf.text(10, 50, "Número de identificación: ");
-        pdf.text(10, 55, "Ubicación (habitación): ");
-        pdf.text(10, 60, "Edad: ");
-        pdf.text(10, 65, "Estado: ");
-
-        // Volver a la fuente normal para los datos del paciente
-        pdf.setFont("helvetica", "normal");
-        pdf.text(55, 40, `${patientInfo.primer_nombre} ${patientInfo.segundo_nombre} ${patientInfo.primer_apellido} ${patientInfo.segundo_apellido}`);
-        pdf.text(57, 45, `${patientInfo.tipo_identificacion}`);
-        pdf.text(63, 50, `${patientInfo.numero_identificacion}`);
-        pdf.text(58, 55, `${patientInfo.ubicacion}`);
-        pdf.text(23, 60, `${fechaNacimiento} años`);
-        pdf.text(27, 65, `${patientInfo.status === "activo" ? "Activo" : "Inactivo"}`);
-
-        // Prepara los datos de la tabla
-        const tableData = filteredRecords.map(record => {
-            const getCellStyle = (value, variable) => {
-                const [min, max] = getRange(variable);
-                if (value < min) {
-                    return { fillColor: [120, 190, 230] }; // Azul
-                } else if (value > max) {
-                    return { fillColor: [248, 113, 113] }; // Rojo
-                } else {
-                    return { backgroundColor: 'green', color: 'white' }; // Verde
-                }
-            };
-            return [
-                { content: format(new Date(record.record_date), "dd/MM/yyyy"), styles: {} },
-                { content: record.record_time, styles: {} },
-                { content: record.pulso, styles: getCellStyle(record.pulso, "pulso") },
-                { content: record.temperatura, styles: getCellStyle(record.temperatura, "temperatura") },
-                { content: record.frecuencia_respiratoria, styles: getCellStyle(record.frecuencia_respiratoria, "frecuencia_respiratoria") },
-                { content: record.presion_sistolica, styles: getCellStyle(record.presion_sistolica, "presion_sistolica") },
-                { content: record.presion_diastolica, styles: getCellStyle(record.presion_diastolica, "presion_diastolica") },
-                { content: record.presion_media, styles: getCellStyle(record.presion_media, "presion_media") },
-                { content: record.saturacion_oxigeno, styles: getCellStyle(record.saturacion_oxigeno, "saturacion_oxigeno") },
-                { content: isPediatric ? record.peso_pediatrico : record.peso_adulto, styles: {} },
-                { content: record.observaciones || "-", styles: {} }
-            ];
-        });
-        // Tabla con autoTable estilizada
-        pdf.autoTable({
-            head: [["Fecha", "Hora", "Pulso", "T°C", "FR", "TAD", "TAS", "TAM", "SatO2", "Peso", "Observaciones"]],
-            body: tableData,
-            startY: 70,
-            theme: 'striped',
-            headStyles: { fillColor: [54, 162, 235], textColor: 255, fontSize: 11 },
-            bodyStyles: { textColor: 50, fontSize: 10, fillColor: [245, 245, 245] },
-            alternateRowStyles: { fillColor: [255, 255, 255] },
-        });
-        // Captura del gráfico de signos vitales
-        const chartCanvas = chartRef.current; // Referencia del gráfico de signos vitales
-        if (chartCanvas) {
-            // Captura el gráfico como una imagen con html2canvas
-            const chartImage = await html2canvas(chartCanvas);
-            const chartDataURL = chartImage.toDataURL("image/png");
-
-            // Obtener el tamaño de la página del PDF
-            const pageWidth = pdf.internal.pageSize.width; // Ancho de la página
-            const pageHeight = pdf.internal.pageSize.height; // Altura de la página
-            const margin = 10; // Margen
-            const maxWidth = pageWidth - 2 * margin; // Ancho máximo del gráfico (menos los márgenes)
-            const maxHeight = pageHeight - 2 * margin; // Altura máxima del gráfico (menos los márgenes)
-
-            // Calcular la relación de aspecto del gráfico
-            const aspectRatio = chartImage.height / chartImage.width;
-
-            // Ajuste automático del tamaño para que encaje en la página sin cortar
-            let chartWidth = maxWidth;
-            let chartHeight = chartWidth * aspectRatio;
-
-            // Verificar si la altura del gráfico excede la altura de la página
-            if (chartHeight > maxHeight) {
-                chartHeight = maxHeight;
-                chartWidth = chartHeight / aspectRatio;}
-            // Agregar una nueva página al PDF
-            pdf.addPage();
-            // Agregar el texto de título al PDF
-            pdf.setFontSize(12);
-            pdf.text(10, 10, "Gráfico de Signos Vitales:");
-            // Agregar el gráfico al PDF
-            pdf.addImage(chartDataURL, "PNG", margin, 20, chartWidth, chartHeight); // Ajuste del gráfico con tamaño automático
+        try {
+            await generatePDF(patientInfo, fechaNacimiento, filteredRecords, isPediatric, chartRef);
+        } catch (error) {
+            console.error("Error al generar el PDF", error);
         }
-
-        // Guardar el PDF con el número de identificación en el nombre del archivo
-        pdf.save(`Historia_Registro_Paciente_${patientInfo.numero_identificacion}.pdf`);
     };
-
     return (
         <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6 overflow-auto">
             <h1 className="text-2xl font-bold mb-6">Registro del Paciente</h1>
@@ -277,7 +164,7 @@ const PatientRecordHistory = () => {
                         Paciente {patientInfo.status === "activo" ? "Activo" : "Inactivo"}
                     </span>
                 </div>
-    
+
                 {/* Filtros */}
                 <div className="mb-4">
                     <div className="flex items-center mb-4">
@@ -289,7 +176,7 @@ const PatientRecordHistory = () => {
                             <FiFilter className="mr-2" /> Filtrar
                         </button>
                     </div>
-    
+
                     <div>
                         <h3 className="font-bold">Variables:</h3>
                         <div className="flex space-x-4">
@@ -299,14 +186,14 @@ const PatientRecordHistory = () => {
                                         type="checkbox"
                                         checked={selectedVariables.includes(variable)}
                                         onChange={() => toggleVariable(variable)}
-                                        className="mr-2"/>
+                                        className="mr-2" />
                                     {variableLabels[variable]}  {/* Usamos el objeto variableLabels aquí */}
                                 </label>
                             ))}
                         </div>
                     </div>
                 </div>
-    
+
                 {/* Tabla de Registros Filtrados */}
                 <table className="w-full border-collapse">
                     <thead>
@@ -331,7 +218,7 @@ const PatientRecordHistory = () => {
                                 <td className="p-2 border">{format(new Date(record.record_date), "dd/MM/yyyy")}</td>
                                 <td className="p-2 border">{record.record_time}</td>
                                 {/* Pulso */}
-                                <td className={`p-2 border ${isPediatric 
+                                <td className={`p-2 border ${isPediatric
                                     ? (record.pulso < 60 ? "bg-[rgb(120,190,230)]" : record.pulso > 90 ? "bg-red-200" : "bg-white")
                                     : (record.pulso < 60 ? "bg-[rgb(120,190,230)]" : record.pulso > 90 ? "bg-red-200" : "bg-white")}`}>
                                     {record.pulso}
@@ -350,7 +237,7 @@ const PatientRecordHistory = () => {
                                 </td>
                                 {/* Presión sistólica */}
                                 <td className={`p-2 border ${isPediatric
-                                    ? (record.presion_sistolica <86? "bg-[rgb(120,190,230)]" : record.presion_sistolica > 120 ? "bg-red-200" : "bg-white")
+                                    ? (record.presion_sistolica < 86 ? "bg-[rgb(120,190,230)]" : record.presion_sistolica > 120 ? "bg-red-200" : "bg-white")
                                     : (record.presion_sistolica < 100 ? "bg-[rgb(120,190,230)]" : record.presion_sistolica > 140 ? "bg-red-200" : "bg-white")}`}>
                                     {record.presion_sistolica}
                                 </td>
@@ -403,7 +290,7 @@ const PatientRecordHistory = () => {
             </div>
         </div>
     );
-    
+
 };
 
 export default PatientRecordHistory;
