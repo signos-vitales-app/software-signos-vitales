@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { FaUserPlus , FaClipboard } from 'react-icons/fa';  // Usamos FaClipboard para el icono de planilla
 import { FiHome} from 'react-icons/fi';  // Usamos FaClipboard para el icono de planilla
-
 const PatientRegister = () => {
     const navigate = useNavigate();
     const [primerNombre, setprimerNombre] = useState("");
@@ -17,28 +16,54 @@ const PatientRegister = () => {
     const [tipoIdentificacion, settipoIdentificacion] = useState("cédula de ciudadanía");
     const [ubicacion, setubicacion] = useState("");
     const [status, setStatus] = useState("activo");
+    const [edad, setEdad] = useState(null);
+    const [ageGroup, setAgeGroup] = useState("");
 
-    // Calcular el grupo de edad basado en meses
-    const calculateAgeGroup = (date) => {
+    const calculateAge = (date) => {
+        if (!date) return null;
+        const birth = new Date(date);
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
+    const calculateAgeInMonths = (date) => {
+        if (!date) return null;
         const birth = new Date(date);
         const today = new Date();
         const ageInMonths =
             (today.getFullYear() - birth.getFullYear()) * 12 +
             (today.getMonth() - birth.getMonth()) -
-            (today.getDate() < birth.getDate() ? 1 : 0); // Ajuste si no ha pasado el día del mes
+            (today.getDate() < birth.getDate() ? 1 : 0);
+        return ageInMonths;
+    };
 
-        if (ageInMonths >= 0 && ageInMonths <= 3) return 'Recién nacido'; // 0m-3m
-        if (ageInMonths > 3 && ageInMonths <= 6) return 'Lactante temprano'; // 3m-6m
-        if (ageInMonths > 6 && ageInMonths <= 12) return 'Lactante mayor'; // 6m-12m
-        if (ageInMonths > 12 && ageInMonths <= 36) return 'Niño pequeño'; // 12m-3a
-        if (ageInMonths > 36 && ageInMonths <= 72) return 'Preescolar temprano'; // 3a-6a
-        if (ageInMonths > 72 && ageInMonths <= 168) return 'Preescolar tardío'; // 6a-14a
-        return 'Adulto'; // > 14a
+    const calculateAgeGroup = (fechaNacimiento) => {
+        const ageInMonths = calculateAgeInMonths(fechaNacimiento);
+        if (ageInMonths >= 0 && ageInMonths <= 3) return 'Recién nacido';
+        if (ageInMonths > 3 && ageInMonths <= 6) return 'Lactante temprano';
+        if (ageInMonths > 6 && ageInMonths <= 12) return 'Lactante mayor';
+        if (ageInMonths > 12 && ageInMonths <= 36) return 'Niño pequeño';
+        if (ageInMonths > 36 && ageInMonths <= 72) return 'Preescolar temprano';
+        if (ageInMonths > 72 && ageInMonths <= 168) return 'Preescolar tardío';
+        return 'Adulto';
+    };
+
+    const handleFechaNacimientoChange = (date) => {
+        setFechaNacimiento(date);
+        const age = calculateAge(date);
+        setEdad(age);
+
+        const group = calculateAgeGroup(date);
+        setAgeGroup(group);
     };
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        const ageGroup = calculateAgeGroup(fechaNacimiento); // Calculamos el grupo de edad
 
         try {
             await registerPatient({
@@ -51,13 +76,22 @@ const PatientRegister = () => {
                 tipo_identificacion: tipoIdentificacion,
                 ubicacion,
                 status,
-                age_group: ageGroup // Usamos age_group en lugar de is_pediatric
+                age_group: ageGroup
             });
             toast.success("Paciente registrado exitosamente!");
             navigate("/dashboard");
         } catch (err) {
             console.error("Error en el registro", err);
             toast.error("No se pudo registrar al paciente. Inténtelo nuevamente.");
+        }
+    };
+
+    const displayAge = () => {
+        const ageInMonths = calculateAgeInMonths(fechaNacimiento);
+        if (ageInMonths <= 24) {
+            return `${ageInMonths} meses`;
+        } else {
+            return `${edad} años`;
         }
     };
 
@@ -72,6 +106,7 @@ const PatientRegister = () => {
                     <FaClipboard size={25} /> Registrar paciente
                 </h2>
                 <div className="grid grid-cols-2 gap-4 mb-4">
+                    {/* Campos de texto */}
                     <input
                         type="text"
                         placeholder="Primer nombre"
@@ -119,10 +154,11 @@ const PatientRegister = () => {
                         type="date"
                         placeholder="Fecha de nacimiento"
                         value={fechaNacimiento}
-                        onChange={(e) => setFechaNacimiento(e.target.value)}
+                        onChange={(e) => handleFechaNacimientoChange(e.target.value)}
                         required
                         className="w-full p-3 border border-gray-300 rounded col-span-2"
                     />
+                    
                     <input
                         type="text"
                         placeholder="Ubicación (habitación)"
@@ -140,6 +176,11 @@ const PatientRegister = () => {
                     </select>
                 </div>
                 
+                {/* Mostrar Edad y Tipo de Paciente */}
+                <div className="col-span-2 mb-4">
+                        <p>Edad: {displayAge()}</p>
+                        <p>Tipo de paciente: {ageGroup}</p>
+                    </div>
                 <div className="flex justify-center gap-6 mt-4">
                     <button
                         type="button"

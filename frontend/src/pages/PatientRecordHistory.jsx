@@ -256,7 +256,6 @@ const PatientRecordHistory = () => {
             pdf.addImage(chartDataURL, "PNG", margin, 20, chartWidth, chartHeight); // Ajuste del gráfico con tamaño automático
         }
 
-        // Guardar el PDF
         // Guardar el PDF con el número de identificación en el nombre del archivo
         pdf.save(`Historia_Registro_Paciente_${patientInfo.numero_identificacion}.pdf`);
     };

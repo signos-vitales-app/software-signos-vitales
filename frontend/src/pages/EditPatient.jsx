@@ -227,6 +227,13 @@ const EditPatient = () => {
                         <option value="inactivo">Inactivo</option>
                     </select>
                 </div>
+
+                {/* Mostrar Edad y Tipo de Paciente */}
+                <div className="mb-4">
+                    <p>Edad: {displayAge()}</p>
+                    <p>Tipo de paciente: {ageGroup}</p>
+                </div>
+
                 <div className="flex justify-center gap-6 mt-4">
                     <button
                         type="button"

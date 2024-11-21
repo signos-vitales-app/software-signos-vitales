@@ -18,7 +18,6 @@ function calculateAgeGroup(fechaNacimiento) {
     if (ageInMonths > 72 && ageInMonths <= 168) return 'Preescolar tardío';
     return 'Adulto';
 }
-'Recién nacido','Lactante temprano','Lactante mayor','Niño pequeño','Preescolar temprano','Preescolar tardío','Adulto'// Obtener todos los pacientes
 exports.getPatients = async (req, res) => {
     try {
         const [rows] = await db.query("SELECT * FROM patients");

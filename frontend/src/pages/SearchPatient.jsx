@@ -30,7 +30,25 @@ const SearchPatient = () => {
             handleOpenQRScanner();
         }
     }, [isScanning]);
-
+    useEffect(() => {
+        if (searchId) {
+            const foundPatient = patients.find(patient => patient.numero_identificacion === searchId);
+            if (foundPatient) {
+                // Calcula la página donde se encuentra el paciente
+                const patientIndex = sortedPatients.findIndex(patient => patient.numero_identificacion === searchId);
+                const pageNumber = Math.ceil((patientIndex + 1) / patientsPerPage);
+    
+                // Actualiza el estado para mostrar el paciente en la tabla
+                setCurrentPage(pageNumber);
+                setSelectedIdPaciente(foundPatient.id); // Selecciona al paciente automáticamente
+            } else {
+                setSelectedIdPaciente(null); // Deselecciona si no hay coincidencia
+            }
+        } else {
+            setSelectedIdPaciente(null); // Deselecciona si el campo está vacío
+        }
+    }, [searchId, patients]);
+    
     const loadPatients = async () => {
         const response = await fetchPatients();
         setPatients(response.data);
@@ -89,27 +107,34 @@ const SearchPatient = () => {
 
     const handleScan = (qrCodeMessage) => {
         if (qrCodeMessage && !scanCompleted) {
-            setSearchId(qrCodeMessage);  // Establece el valor de búsqueda
-            setErrorMessage("");         // Borra el mensaje de error si existe
+            setSearchId(qrCodeMessage);  // Actualiza el valor de búsqueda
+            setErrorMessage("");         // Borra mensajes de error previos
             setScanCompleted(true);      // Marca que el escaneo ha sido completado
-            setScanPage(qrCodeMessage);  // Cambia la página si el paciente está en otra página
-        }
-    };
-
-    const setScanPage = (qrCodeMessage) => {
-        // Busca al paciente con el número de identificación del QR
-        const foundPatient = patients.find(patient => patient.numero_identificacion === qrCodeMessage);
-        if (foundPatient) {
-            // Filtra los pacientes que coinciden con el número de identificación
-            const filteredPatient = filteredPatients.find(patient => patient.numero_identificacion === qrCodeMessage);
-            if (filteredPatient) {
-                // Encuentra el índice del paciente en la lista filtrada
-                const patientIndex = filteredPatients.indexOf(filteredPatient);
+    
+            // Busca al paciente con el número de identificación del QR
+            const foundPatient = patients.find(patient => patient.numero_identificacion === qrCodeMessage);
+            if (foundPatient) {
+                // Calcula la página donde se encuentra el paciente
+                const patientIndex = sortedPatients.findIndex(patient => patient.numero_identificacion === qrCodeMessage);
                 const pageNumber = Math.ceil((patientIndex + 1) / patientsPerPage);
-                setCurrentPage(pageNumber); // Cambia a la página donde está el paciente
+    
+                // Actualiza el estado para mostrar el paciente en la tabla
+                setCurrentPage(pageNumber);
+                setSelectedIdPaciente(foundPatient.id); // Selecciona al paciente automáticamente
+            } else {
+                toast.error("Paciente no encontrado.", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
             }
         }
     };
+    
 
 
     const stopScanning = () => {
