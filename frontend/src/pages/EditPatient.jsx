@@ -129,7 +129,7 @@ const EditPatient = () => {
                 fecha_nacimiento: fechaNacimiento,
                 status,
                 edad,
-                age_group: ageGroup, // Enviar age_group en lugar de is_pediatric
+                age_group: ageGroup, 
             });
             toast.success("Paciente actualizado exitosamente");
             navigate("/search-patient");

@@ -12,7 +12,7 @@ const PatientDataForm = () => {
     const currentDate = new Date().toISOString().split("T")[0];
     const currentTime = new Date().toTimeString().split(" ")[0].slice(0, 5);
 
-    const [isPediatric, setIsPediatric] = useState(null); // Inicializar como null
+    const [ageGroup, setAgeGroup] = useState(""); // Usamos ageGroup en lugar de isPediatric
     const [recordDate, setRecordDate] = useState(currentDate);
     const [recordTime, setRecordTime] = useState(currentTime);
     const [pesoAdulto, setPesoAdulto] = useState("");
@@ -32,7 +32,7 @@ const PatientDataForm = () => {
             try {
                 const response = await fetchPatientInfo(idPaciente);
                 const patient = response.data;
-                setIsPediatric(patient.is_pediatric); // Verificar si el paciente es pediátrico
+                setAgeGroup(patient.age_group || ""); // Establecer el grupo de edad desde el backend
             } catch (error) {
                 console.error("Error al recuperar la información del paciente:", error);
                 toast.error("Error al recuperar la información del paciente.");
@@ -44,13 +44,11 @@ const PatientDataForm = () => {
     const calculatePresionMedia = () => {
         if (presionSistolica && presionDiastolica) {
             const tam = (
-                (parseInt(presionDiastolica) + 2*parseInt(presionSistolica)) / 3
+                (parseInt(presionDiastolica) + 2 * parseInt(presionSistolica)) / 3
             ).toFixed(0);
             setPresionMedia(tam);
         }
     };
-
-    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -66,8 +64,8 @@ const PatientDataForm = () => {
                 temperatura,
                 frecuencia_respiratoria: frecuenciaRespiratoria,
                 saturacion_oxigeno: saturacionOxigeno,
-                peso_adulto: isPediatric ? null : pesoAdulto,
-                peso_pediatrico: isPediatric ? pesoPediatrico : null,
+                peso_adulto: ageGroup === "Adulto" ? pesoAdulto : null,
+                peso_pediatrico: ageGroup !== "Adulto" ? pesoPediatrico : null,
                 talla,
                 observaciones,
             });
@@ -81,7 +79,7 @@ const PatientDataForm = () => {
         }
     };
 
-    if (isPediatric === null) {
+    if (!ageGroup) {
         return <div>Cargando información del paciente...</div>;
     }
 
@@ -100,7 +98,7 @@ const PatientDataForm = () => {
                             type="date"
                             value={recordDate}
                             onChange={(e) => setRecordDate(e.target.value)}
-                            max={currentDate} // Limita a no permitir fechas futuras
+                            max={currentDate}
                             required
                             className="w-full p-2 border rounded"
                         />
@@ -120,7 +118,7 @@ const PatientDataForm = () => {
 
                 {/* Peso y talla */}
                 <div className="grid grid-cols-3 gap-4">
-                    {isPediatric ? (
+                    {ageGroup !== "Adulto" ? (
                         <div>
                             <label>Peso Pediátrico (g/kg):</label>
                             <input
@@ -167,9 +165,9 @@ const PatientDataForm = () => {
                         <label>Presión Sistólica (mmHg):</label>
                         <input
                             type="number"
-                            value={presionSistolica} // Antes estaba presionDiastolica
+                            value={presionSistolica}
                             onChange={(e) => {
-                                setPresionSistolica(e.target.value); // Antes estaba setPresionDiastolica
+                                setPresionSistolica(e.target.value);
                                 calculatePresionMedia();
                             }}
                             className="w-full p-2 border rounded"
@@ -179,9 +177,9 @@ const PatientDataForm = () => {
                         <label>Presión Diastólica (mmHg):</label>
                         <input
                             type="number"
-                            value={presionDiastolica} // Antes estaba presionSistolica
+                            value={presionDiastolica}
                             onChange={(e) => {
-                                setPresionDiastolica(e.target.value); // Antes estaba setPresionSistolica
+                                setPresionDiastolica(e.target.value);
                                 calculatePresionMedia();
                             }}
                             className="w-full p-2 border rounded"
@@ -235,9 +233,8 @@ const PatientDataForm = () => {
                     <textarea
                         value={observaciones}
                         onChange={(e) => setObservations(e.target.value)}
-                        maxLength="100"
                         className="w-full p-2 border rounded"
-                    />
+                    ></textarea>
                 </div>
 
 

@@ -1,6 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchPatientRecords } from "../services/patientService";
 import { FiPlusCircle, FiHome, FiFilter, FiDownload } from "react-icons/fi";
@@ -10,6 +8,7 @@ import "jspdf-autotable"; // Importar el complemento para la tabla
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
 import generatePDF from "../services/generatePdf";
+
 const PatientRecordHistory = () => {
     const { idPaciente } = useParams();
     const navigate = useNavigate();
