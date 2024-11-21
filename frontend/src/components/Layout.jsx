@@ -1,14 +1,18 @@
+import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 
 const Layout = ({ children }) => {
-    return (
-        <div className="flex min-h-screen bg-gray-100">
-            <Sidebar />
-            <main className="flex-grow transition-all duration-300 pl-64">
-                {children}
-            </main>
-        </div>
-    );
+  return (
+    <div className="flex min-h-screen bg-gray-100">
+      <Navbar />
+      <div className="flex-1 flex">
+        <Sidebar />
+        <main className="p-6 flex-grow">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
 };
 
-export default Layout; 
+export default Layout;

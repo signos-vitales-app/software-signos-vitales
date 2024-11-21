@@ -1,53 +1,71 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiSearch, FiUserPlus, FiUsers, FiSettings, FiLogOut, FiUser } from 'react-icons/fi';
+import { FiHome, FiSearch, FiUserPlus, FiUsers } from 'react-icons/fi';
 import { getUserInfo } from '../services/authService';
+import axios from 'axios';
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);
     const [userInfo, setUserInfo] = useState(null);
+    const [profileImage, setProfileImage] = useState('/uploads/profile-images/default-avatar.png');
     const navigate = useNavigate();
     const location = useLocation();
     const role = localStorage.getItem('role');
 
+    // Cargar información del usuario
+    const loadUserInfo = async () => {
+        try {
+            const response = await getUserInfo();
+            console.log('Datos de usuario cargados:', response.data); // Verificar los datos recibidos
+            setUserInfo(response.data);
+            localStorage.setItem('is_active', response.data.is_active); // Guardar estado en localStorage
+        } catch (error) {
+            console.error('Error loading user info:', error);
+        }
+    };
+
+    // Llamada inicial para cargar datos del usuario
     useEffect(() => {
-        const loadUserInfo = async () => {
-            try {
-                const response = await getUserInfo();
-                setUserInfo(response.data);
-            } catch (error) {
-                console.error('Error loading user info:', error);
-            }
-        };
         loadUserInfo();
     }, []);
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('role');
-        navigate('/');
+    // Obtener la imagen de perfil
+    useEffect(() => {
+        const fetchProfileImage = async () => {
+            try {
+                const token = localStorage.getItem('token'); // Si usas JWT
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-profile`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setProfileImage(response.data.profileImage || '/uploads/profile-images/default-avatar.png');
+            } catch (error) {
+                console.error('Error al obtener la imagen de perfil:', error);
+            }
+        };
+
+        fetchProfileImage();
+    }, []);
+
+    // Función para manejar el error de carga de la imagen
+    const handleImageError = () => {
+        setProfileImage('/uploads/profile-images/default-avatar.png');
     };
 
-    const getProfileImageUrl = (imageName) => {
-        if (!imageName) return null;
-        return `${import.meta.env.VITE_API_URL}/uploads/profile-images/${imageName}`;
-    };
-
+    // Verificar si la ruta actual es la activa
     const isActive = (path) => location.pathname === path;
 
-    // Función que mapea el rol del usuario a una descripción más amigable
+    // Mapeo del rol del usuario a un nombre más amigable
     const getRoleDescription = (role) => {
         const roleDescriptions = {
             user: 'Enfermero/a',
-            staff: 'Medico/a',
+            staff: 'Médico/a',
             jefe: 'Jefe de Enfermería',
-            // Agrega más roles según tu base de datos
         };
         return roleDescriptions[role] || 'Rol desconocido';
     };
 
     return (
-        <div className={`fixed left-0 h-full bg-white text-gray-700 shadow-lg transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
+        <div className={`fixed left-0 h-full bg-white text-gray-700 shadow-lg transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`} style={{ marginTop: '60px' }}>
             <button 
                 onClick={() => setIsOpen(!isOpen)} 
                 className="absolute right-0 top-4 transform translate-x-full bg-white p-2 rounded-r-md shadow-md"
@@ -56,35 +74,29 @@ const Sidebar = () => {
             </button>
 
             <div className="flex flex-col h-full p-4">
-                {/* Perfil de usuario */}
                 <div className="flex flex-col items-center mb-8 mt-4">
-                    <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-blue-500 mb-2">
-                        {userInfo?.profile_image ? (
-                            <img 
-                                src={getProfileImageUrl(userInfo.profile_image)}
-                                alt="Profile"
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = 'default-avatar.png';
-                                }}
-                            />
-                        ) : (
-                            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                                <FiUser size={40} className="text-gray-500" />
-                            </div>
-                        )}
+                    <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-blue-500 mb-2">
+                        <img 
+                            src={profileImage} 
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                            onError={handleImageError} // Cambia a la imagen predeterminada si hay error
+                        />
                     </div>
+
                     {isOpen && userInfo && (
                         <div className="text-center">
-                            <h3 className="font-bold text-gray-900">{userInfo.username}</h3>
-                            {/* Usamos la función getRoleDescription para mostrar una descripción más amigable del rol */}
+                            <h3 className="font-bold text-xl text-gray-900">{userInfo.username}</h3>
                             <p className="text-sm text-gray-500">{getRoleDescription(userInfo.role)}</p>
+                            <button
+                                className="mt-2 px-3 py-1 rounded-full bg-green-500 text-white text-xs font-semibold"
+                            >
+                                Activo
+                            </button>
                         </div>
                     )}
                 </div>
 
-                {/* Navegación del sidebar */}
                 <div className="flex-grow">
                     <nav className="space-y-4">
                         <button 
@@ -121,25 +133,6 @@ const Sidebar = () => {
                             </button>
                         )}
                     </nav>
-                </div>
-
-                {/* Footer del sidebar */}
-                <div className="pt-4 border-t border-gray-300">
-                    <button 
-                        onClick={() => navigate('/settings')}
-                        className={`flex items-center w-full p-2 rounded ${isActive('/settings') ? 'bg-blue-500 text-white' : 'hover:bg-blue-100 text-gray-700'}`}
-                    >
-                        <FiSettings size={20} className={`${isActive('/settings') ? 'text-white' : 'text-blue-500'}`} />
-                        {isOpen && <span className="ml-3">Configuración</span>}
-                    </button>
-                    
-                    <button 
-                        onClick={handleLogout}
-                        className="flex items-center w-full p-2 hover:bg-red-100 rounded text-red-500"
-                    >
-                        <FiLogOut size={20} className="text-red-500" />
-                        {isOpen && <span className="ml-3">Cerrar Sesión</span>}
-                    </button>
                 </div>
             </div>
         </div>

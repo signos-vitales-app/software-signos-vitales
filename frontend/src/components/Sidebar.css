@@ -1,19 +1,55 @@
-.upload-button {
-    display: inline-block;
-    padding: 8px 16px;
+/* Sidebar container */
+.sidebar {
+    background: linear-gradient(to bottom, #4a5568, #2d3748); /* Degradado suave */
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+    transition: all 0.3s ease; /* Transición suave */
+}
+
+/* Iconos activos y de hover */
+.sidebar .icon-active {
+    color: #fff;
+    background-color: #3182ce;
+    border-radius: 50%;
+    padding: 8px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.sidebar .icon-hover:hover {
+    color: #fff;
+    background-color: #2b6cb0;
+}
+
+/* Imagen de perfil */
+.profile-image-section img {
+    border-radius: 50%;
+    border: 3px solid #3182ce; /* Borde alrededor de la imagen */
+    transition: transform 0.3s ease; /* Efecto de hover */
+}
+
+.profile-image-section img:hover {
+    transform: scale(1.1); /* Efecto de zoom al pasar el ratón */
+}
+
+/* Texto y botones de navegación */
+.sidebar button {
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease;
+}
+
+.sidebar button:hover {
     background-color: #4a5568;
+    transform: scale(1.05); /* Botón ligeramente más grande al pasar el mouse */
+}
+
+/* Perfil y nombre */
+.sidebar .username {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4); /* Sombra sutil */
+}
+
+/* Panel de administración */
+.admin-panel-button {
+    background-color: #3182ce;
     color: white;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.2s;
 }
-
-.upload-button:hover {
-    background-color: #2d3748;
-}
-
-.profile-image-section {
-    margin: 16px 0;
-    text-align: center;
-} 
