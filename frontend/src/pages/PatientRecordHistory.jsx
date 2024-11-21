@@ -57,7 +57,6 @@ const PatientRecordHistory = () => {
             // Establecer los registros ordenados en el estado
             setRecords(records);
             setFilteredRecords(records); // Los registros se mantienen ordenados al inicio (sin filtro)
-
             setPatientInfo(response.data.patient);
 
             // Calcular la edad y si es pediátrico
@@ -107,7 +106,16 @@ const PatientRecordHistory = () => {
         peso_adulto: "Peso Adulto",
         presion_media: "Presión Media"
     };
-
+ // Rangos para adultos y pediátricos
+ const ranges = {
+    pulso: { adulto: [60, 90], pediatrico: [60, 90] },
+    frecuencia_respiratoria: { adulto: [16, 24], pediatrico: [14, 24] },
+    presion_sistolica: { adulto: [100, 140], pediatrico: [86, 120] },
+    presion_diastolica: { adulto: [60, 100], pediatrico: [60, 85] },
+    presion_media: { adulto: [70, 83], pediatrico: [60, 80] },
+    saturacion_oxigeno: { adulto: [95, 100], pediatrico: [95, 100] },
+    temperatura: { adulto: [36.0, 37.9], pediatrico: [36.5, 37.9] }
+};
     const handleFilter = () => {
         // Filtrar los registros según las fechas
         let filtered = records.filter(record => {
@@ -139,6 +147,9 @@ const PatientRecordHistory = () => {
                 ? prev.filter(v => v !== variable)
                 : [...prev, variable]
         );
+    };
+    const getRange = (variable) => {
+        return isPediatric ? ranges[variable].pediatrico : ranges[variable].adulto;
     };
 
     const handleExportPDF = async () => {
@@ -177,32 +188,27 @@ const PatientRecordHistory = () => {
 
         // Prepara los datos de la tabla
         const tableData = filteredRecords.map(record => {
-            const getCellStyle = (value, min, max) => {
+            const getCellStyle = (value, variable) => {
+                const [min, max] = getRange(variable);
                 if (value < min) {
-                    // Valor por debajo del mínimo: color azul
                     return { fillColor: [120, 190, 230] }; // Azul
                 } else if (value > max) {
-                    // Valor por encima del máximo: color rojo
                     return { fillColor: [248, 113, 113] }; // Rojo
                 } else {
-                    // Valor dentro del rango: color verde
                     return { backgroundColor: 'green', color: 'white' }; // Verde
                 }
-                // Valor dentro del rango: sin color
-                return {};
             };
             return [
                 { content: format(new Date(record.record_date), "dd/MM/yyyy"), styles: {} },
                 { content: record.record_time, styles: {} },
-                { content: record.pulso, styles: getCellStyle(record.pulso, 60, 90) },
-                { content: record.temperatura, styles: getCellStyle(record.temperatura, 36.0, 37.9) },
-                { content: record.frecuencia_respiratoria, styles: getCellStyle(record.frecuencia_respiratoria, 16, 24) },
-                { content: record.presion_sistolica, styles: getCellStyle(record.presion_sistolica, 90, 140) },
-                { content: record.presion_diastolica, styles: getCellStyle(record.presion_diastolica, 60, 100) },
-                { content: record.presion_media, styles: getCellStyle(record.presion_media, 70, 83) },
-                { content: record.saturacion_oxigeno, styles: getCellStyle(record.saturacion_oxigeno, 95, 100) },
-                { content: isPediatric ? (record.peso_pediatrico || "No registrado") : (record.peso_adulto || "No registrado"), styles: {} },
-
+                { content: record.pulso, styles: getCellStyle(record.pulso, "pulso") },
+                { content: record.temperatura, styles: getCellStyle(record.temperatura, "temperatura") },
+                { content: record.frecuencia_respiratoria, styles: getCellStyle(record.frecuencia_respiratoria, "frecuencia_respiratoria") },
+                { content: record.presion_sistolica, styles: getCellStyle(record.presion_sistolica, "presion_sistolica") },
+                { content: record.presion_diastolica, styles: getCellStyle(record.presion_diastolica, "presion_diastolica") },
+                { content: record.presion_media, styles: getCellStyle(record.presion_media, "presion_media") },
+                { content: record.saturacion_oxigeno, styles: getCellStyle(record.saturacion_oxigeno, "saturacion_oxigeno") },
+                { content: isPediatric ? record.peso_pediatrico : record.peso_adulto, styles: {} },
                 { content: record.observaciones || "-", styles: {} }
             ];
         });
@@ -272,7 +278,7 @@ const PatientRecordHistory = () => {
                         Paciente {patientInfo.status === "activo" ? "Activo" : "Inactivo"}
                     </span>
                 </div>
-
+    
                 {/* Filtros */}
                 <div className="mb-4">
                     <div className="flex items-center mb-4">
@@ -284,7 +290,7 @@ const PatientRecordHistory = () => {
                             <FiFilter className="mr-2" /> Filtrar
                         </button>
                     </div>
-
+    
                     <div>
                         <h3 className="font-bold">Variables:</h3>
                         <div className="flex space-x-4">
@@ -301,7 +307,7 @@ const PatientRecordHistory = () => {
                         </div>
                     </div>
                 </div>
-
+    
                 {/* Tabla de Registros Filtrados */}
                 <table className="w-full border-collapse">
                     <thead>
@@ -326,31 +332,43 @@ const PatientRecordHistory = () => {
                                 <td className="p-2 border">{format(new Date(record.record_date), "dd/MM/yyyy")}</td>
                                 <td className="p-2 border">{record.record_time}</td>
                                 {/* Pulso */}
-                                <td className={`p-2 border ${record.pulso < 60 ? "bg-[rgb(120,190,230)]" : record.pulso > 90 ? "bg-red-200" : "bg-withe-200"}`}>
+                                <td className={`p-2 border ${isPediatric 
+                                    ? (record.pulso < 60 ? "bg-[rgb(120,190,230)]" : record.pulso > 90 ? "bg-red-200" : "bg-white")
+                                    : (record.pulso < 60 ? "bg-[rgb(120,190,230)]" : record.pulso > 90 ? "bg-red-200" : "bg-white")}`}>
                                     {record.pulso}
                                 </td>
                                 {/* Temperatura */}
-                                <td className={`p-2 border ${record.temperatura < 36.0 ? "bg-[rgb(120,190,230)]" : record.temperatura > 37.9 ? "bg-red-200" : "bg-withe-200"}`}>
+                                <td className={`p-2 border ${isPediatric
+                                    ? (record.temperatura < 36.0 ? "bg-[rgb(120,190,230)]" : record.temperatura > 37.9 ? "bg-red-200" : "bg-white")
+                                    : (record.temperatura < 36.0 ? "bg-[rgb(120,190,230)]" : record.temperatura > 37.9 ? "bg-red-200" : "bg-white")}`}>
                                     {record.temperatura}
                                 </td>
                                 {/* Frecuencia respiratoria */}
-                                <td className={`p-2 border ${record.frecuencia_respiratoria < 16 ? "bg-[rgb(120,190,230)]" : record.frecuencia_respiratoria > 24 ? "bg-red-200" : "bg-withe-200"}`}>
+                                <td className={`p-2 border ${isPediatric
+                                    ? (record.frecuencia_respiratoria < 14 ? "bg-[rgb(120,190,230)]" : record.frecuencia_respiratoria > 24 ? "bg-red-200" : "bg-white")
+                                    : (record.frecuencia_respiratoria < 16 ? "bg-[rgb(120,190,230)]" : record.frecuencia_respiratoria > 24 ? "bg-red-200" : "bg-white")}`}>
                                     {record.frecuencia_respiratoria}
                                 </td>
                                 {/* Presión sistólica */}
-                                <td className={`p-2 border ${record.presion_sistolica < 90 ? "bg-[rgb(120,190,230)]" : record.presion_sistolica > 140 ? "bg-red-200" : "bg-withe-200"}`}>
+                                <td className={`p-2 border ${isPediatric
+                                    ? (record.presion_sistolica <86? "bg-[rgb(120,190,230)]" : record.presion_sistolica > 120 ? "bg-red-200" : "bg-white")
+                                    : (record.presion_sistolica < 100 ? "bg-[rgb(120,190,230)]" : record.presion_sistolica > 140 ? "bg-red-200" : "bg-white")}`}>
                                     {record.presion_sistolica}
                                 </td>
                                 {/* Presión diastólica */}
-                                <td className={`p-2 border ${record.presion_diastolica < 60 ? "bg-[rgb(120,190,230)]" : record.presion_diastolica > 100 ? "bg-red-200" : "bg-withe-200"}`}>
+                                <td className={`p-2 border ${isPediatric
+                                    ? (record.presion_diastolica < 60 ? "bg-[rgb(120,190,230)]" : record.presion_diastolica > 85 ? "bg-red-200" : "bg-white")
+                                    : (record.presion_diastolica < 60 ? "bg-[rgb(120,190,230)]" : record.presion_diastolica > 100 ? "bg-red-200" : "bg-white")}`}>
                                     {record.presion_diastolica}
                                 </td>
                                 {/* Presión media */}
-                                <td className={`p-2 border ${record.presion_media < 70 ? "bg-[rgb(120,190,230)]" : record.presion_media > 83 ? "bg-red-200" : "bg-withe-200"}`}>
+                                <td className={`p-2 border ${isPediatric
+                                    ? (record.presion_media < 60 ? "bg-[rgb(120,190,230)]" : record.presion_media > 80 ? "bg-red-200" : "bg-white")
+                                    : (record.presion_media < 70 ? "bg-[rgb(120,190,230)]" : record.presion_media > 83 ? "bg-red-200" : "bg-white")}`}>
                                     {record.presion_media}
                                 </td>
                                 {/* Saturación de oxígeno */}
-                                <td className={`p-2 border ${record.saturacion_oxigeno < 95 ? "bg-[rgb(120,190,230)]" : record.saturacion_oxigeno > 100 ? "bg-red-200" : "bg-withe-200"}`}>
+                                <td className={`p-2 border ${record.saturacion_oxigeno < 95 ? "bg-[rgb(120,190,230)]" : record.saturacion_oxigeno > 100 ? "bg-red-200" : "bg-white"}`}>
                                     {record.saturacion_oxigeno}
                                 </td>
                                 {/* Mostrar peso dependiendo de si es pediátrico o adulto */}
@@ -386,6 +404,7 @@ const PatientRecordHistory = () => {
             </div>
         </div>
     );
+    
 };
 
 export default PatientRecordHistory;
