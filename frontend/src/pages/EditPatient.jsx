@@ -19,10 +19,11 @@ const EditPatient = () => {
     const [ubicacion, setubicacion] = useState("");
     const [fechaNacimiento, setFechaNacimiento] = useState("");
     const [status, setStatus] = useState("activo");
-    const [edad, setEdad] = useState(null); // Nueva variable para la edad
-    const [isPediatric, setIsPediatric] = useState(false); // Nuevo estado para pediátrico
+    const [edad, setEdad] = useState(null);
+    const [ageGroup, setAgeGroup] = useState(""); // Nueva variable para age_group
     const [loading, setLoading] = useState(true);
 
+    // Función para calcular la edad en años
     const calculateAge = (date) => {
         if (!date) return null;
         const birth = new Date(date);
@@ -35,15 +36,45 @@ const EditPatient = () => {
         return age;
     };
 
+    // Función para calcular la edad en meses
+    const calculateAgeInMonths = (date) => {
+        if (!date) return null;
+        const birth = new Date(date);
+        const today = new Date();
+        const ageInMonths =
+            (today.getFullYear() - birth.getFullYear()) * 12 +
+            (today.getMonth() - birth.getMonth()) -
+            (today.getDate() < birth.getDate() ? 1 : 0);
+        return ageInMonths;
+    };
+
+    // Función para calcular el grupo de edad
+    const calculateAgeGroup = (fechaNacimiento) => {
+        const birth = new Date(fechaNacimiento);
+        const today = new Date();
+        const ageInMonths =
+            (today.getFullYear() - birth.getFullYear()) * 12 +
+            (today.getMonth() - birth.getMonth()) -
+            (today.getDate() < birth.getDate() ? 1 : 0);
+
+        if (ageInMonths >= 0 && ageInMonths <= 3) return 'Recién nacido';
+        if (ageInMonths > 3 && ageInMonths <= 6) return 'Lactante tempranoprano';
+        if (ageInMonths > 6 && ageInMonths <= 12) return 'Lactante mayor';
+        if (ageInMonths > 12 && ageInMonths <= 36) return 'Niño pequeño';
+        if (ageInMonths > 36 && ageInMonths <= 72) return 'Preescolar temprano';
+        if (ageInMonths > 72 && ageInMonths <= 168) return 'Preescolar tardío';
+        return 'Adulto';
+    };
+
     const handleFechaNacimientoChange = (date) => {
         setFechaNacimiento(date);
         const age = calculateAge(date);
         setEdad(age);
-        setIsPediatric(age < 14);
+
+        // Calcular el grupo de edad
+        const group = calculateAgeGroup(date);
+        setAgeGroup(group);
     };
-   
-    
-    
 
     useEffect(() => {
         const loadPatientData = async () => {
@@ -66,9 +97,13 @@ const EditPatient = () => {
                 setubicacion(patient.ubicacion || "");
                 setFechaNacimiento(patient.fecha_nacimiento || "");
                 setStatus(patient.status || "activo");
+
+                // Calcular y asignar el grupo de edad
                 const calculatedAge = calculateAge(patient.fecha_nacimiento);
                 setEdad(calculatedAge);
-                setIsPediatric(calculatedAge < 10);
+                const group = patient.age_group || calculateAgeGroup(patient.fecha_nacimiento); // Usar age_group del backend
+                setAgeGroup(group);
+
                 setLoading(false);
             } catch (error) {
                 toast.error("Error al cargar los datos del paciente");
@@ -81,10 +116,7 @@ const EditPatient = () => {
 
     const handleUpdate = async (e) => {
         e.preventDefault();
-    
-        // Recalcular antes de enviar
-        const recalculatedIsPediatric = edad < 14;
-    
+
         try {
             await updatePatient(idPaciente, {
                 primer_nombre: primerNombre,
@@ -96,8 +128,8 @@ const EditPatient = () => {
                 ubicacion,
                 fecha_nacimiento: fechaNacimiento,
                 status,
-                edad, // La edad calculada ya está en el estado
-                is_pediatric: recalculatedIsPediatric, // Asegurarse de que sea el valor actualizado
+                edad,
+                age_group: ageGroup, // Enviar age_group en lugar de is_pediatric
             });
             toast.success("Paciente actualizado exitosamente");
             navigate("/search-patient");
@@ -105,14 +137,22 @@ const EditPatient = () => {
             toast.error("Error al actualizar el paciente");
         }
     };
-    
-    
 
     const handleGoBack = () => {
         navigate("/search-patient");
     };
 
     if (loading) return <div>Cargando...</div>;
+
+    // Mostrar la edad en meses o años según corresponda
+    const displayAge = () => {
+        const ageInMonths = calculateAgeInMonths(fechaNacimiento);
+        if (ageInMonths <= 24) {
+            return `${ageInMonths} meses`;
+        } else {
+            return `${edad} años`;
+        }
+    };
 
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
@@ -187,7 +227,6 @@ const EditPatient = () => {
                         <option value="inactivo">Inactivo</option>
                     </select>
                 </div>
-                
                 <div className="flex justify-center gap-6 mt-4">
                     <button
                         type="button"
@@ -209,3 +248,5 @@ const EditPatient = () => {
 };
 
 export default EditPatient;
+
+

@@ -18,21 +18,27 @@ const PatientRegister = () => {
     const [ubicacion, setubicacion] = useState("");
     const [status, setStatus] = useState("activo");
 
-    const calculateAge = (date) => {
+    // Calcular el grupo de edad basado en meses
+    const calculateAgeGroup = (date) => {
         const birth = new Date(date);
         const today = new Date();
-        let age = today.getFullYear() - birth.getFullYear();
-        const monthDiff = today.getMonth() - birth.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-            age--;
-        }
-        return age;
+        const ageInMonths =
+            (today.getFullYear() - birth.getFullYear()) * 12 +
+            (today.getMonth() - birth.getMonth()) -
+            (today.getDate() < birth.getDate() ? 1 : 0); // Ajuste si no ha pasado el día del mes
+
+        if (ageInMonths >= 0 && ageInMonths <= 3) return 'Recién nacido'; // 0m-3m
+        if (ageInMonths > 3 && ageInMonths <= 6) return 'Lactante temprano'; // 3m-6m
+        if (ageInMonths > 6 && ageInMonths <= 12) return 'Lactante mayor'; // 6m-12m
+        if (ageInMonths > 12 && ageInMonths <= 36) return 'Niño pequeño'; // 12m-3a
+        if (ageInMonths > 36 && ageInMonths <= 72) return 'Preescolar temprano'; // 3a-6a
+        if (ageInMonths > 72 && ageInMonths <= 168) return 'Preescolar tardío'; // 6a-14a
+        return 'Adulto'; // > 14a
     };
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        const age = calculateAge(fechaNacimiento);
-        const isPediatric = age < 14;
+        const ageGroup = calculateAgeGroup(fechaNacimiento); // Calculamos el grupo de edad
 
         try {
             await registerPatient({
@@ -45,7 +51,7 @@ const PatientRegister = () => {
                 tipo_identificacion: tipoIdentificacion,
                 ubicacion,
                 status,
-                is_pediatric: isPediatric // Información de clasificación pediátrica
+                age_group: ageGroup // Usamos age_group en lugar de is_pediatric
             });
             toast.success("Paciente registrado exitosamente!");
             navigate("/dashboard");
@@ -54,6 +60,7 @@ const PatientRegister = () => {
             toast.error("No se pudo registrar al paciente. Inténtelo nuevamente.");
         }
     };
+
     const handleGoBack = () => {
         navigate("/dashboard");
     };
@@ -107,7 +114,7 @@ const PatientRegister = () => {
                         value={numeroIdentificacion}
                         onChange={(e) => setnumeroIdentificacion(e.target.value)}
                         className="w-full p-3 border border-gray-300 rounded col-span-2"
-                    />Fecha de nacimiento 
+                    />
                     <input
                         type="date"
                         placeholder="Fecha de nacimiento"
@@ -132,10 +139,11 @@ const PatientRegister = () => {
                         <option value="inactivo">Inactivo</option>
                     </select>
                 </div>
+                
                 <div className="flex justify-center gap-6 mt-4">
-                <button
+                    <button
                         type="button"
-                        onClick={() => navigate("/dashboard")}
+                        onClick={handleGoBack}
                         className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
                     >
                         <FiHome size={20} className="mr-2" /> Regresar
@@ -144,9 +152,8 @@ const PatientRegister = () => {
                         type="submit"
                         className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
                     >
-                        <FaUserPlus  size={18} className="mr-2" /> Registrar
+                        <FaUserPlus size={18} className="mr-2" /> Registrar
                     </button>
-                    
                 </div>
             </form>
         </div>
