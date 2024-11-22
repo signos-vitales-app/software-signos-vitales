@@ -49,7 +49,7 @@ const PatientRegister = () => {
         if (ageInMonths > 6 && ageInMonths <= 12) return 'Lactante mayor';
         if (ageInMonths > 12 && ageInMonths <= 36) return 'Niño pequeño';
         if (ageInMonths > 36 && ageInMonths <= 72) return 'Preescolar temprano';
-        if (ageInMonths > 72 && ageInMonths <= 168) return 'Preescolar tardío';
+        if (ageInMonths > 72 && ageInMonths <= 180) return 'Preescolar tardío';
         return 'Adulto';
     };
 

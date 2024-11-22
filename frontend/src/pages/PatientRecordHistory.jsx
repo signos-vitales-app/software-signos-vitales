@@ -7,7 +7,7 @@ import VitalSignsChart from "./VitalSignsChart";
 import "jspdf-autotable"; // Importar el complemento para la tabla
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
-import generatePDF from "../services/generatePdf";
+import generatePDF from "../services/generatePDF";
 
 const PatientRecordHistory = () => {
     const { idPaciente } = useParams();
@@ -66,7 +66,7 @@ const PatientRecordHistory = () => {
         if (ageInMonths > 6 && ageInMonths <= 12) return 'Lactante mayor';
         if (ageInMonths > 12 && ageInMonths <= 36) return 'Niño pequeño';
         if (ageInMonths > 36 && ageInMonths <= 72) return 'Preescolar temprano';
-        if (ageInMonths > 72 && ageInMonths <= 168) return 'Preescolar tardío';
+        if (ageInMonths > 72 && ageInMonths <= 180) return 'Preescolar tardío';
         return 'Adulto';
     };
 
@@ -196,12 +196,17 @@ const PatientRecordHistory = () => {
     };
 
     const handleExportPDF = async () => {
+        if (!chartRef.current) {
+            console.error("El chartRef no está asignado correctamente.");
+            return;
+        }
         try {
-            await generatePDF(patientInfo, edad, ageUnit, ageGroup, filteredRecords, chartRef);
+            await generatePDF(patientInfo, edad, ageUnit, ageGroup, filteredRecords, chartRef.current,chartRef);
         } catch (error) {
             console.error("Error al generar el PDF", error);
         }
     };
+    
 
     if (loading) {
         return <div className="flex justify-center items-center h-screen">Cargando...</div>;
