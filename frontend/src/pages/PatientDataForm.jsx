@@ -12,7 +12,7 @@ const PatientDataForm = () => {
     const currentDate = new Date().toISOString().split("T")[0];
     const currentTime = new Date().toTimeString().split(" ")[0].slice(0, 5);
 
-    const [ageGroup, setAgeGroup] = useState(""); // Usamos ageGroup en lugar de isPediatric
+    const [ageGroup, setAgeGroup] = useState(""); 
     const [recordDate, setRecordDate] = useState(currentDate);
     const [recordTime, setRecordTime] = useState(currentTime);
     const [pesoAdulto, setPesoAdulto] = useState("");

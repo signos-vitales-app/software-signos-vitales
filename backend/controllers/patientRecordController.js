@@ -19,8 +19,8 @@ exports.createPatientRecord = async (req, res) => {
     if (frecuencia_respiratoria > 70 || frecuencia_respiratoria < 10) {
         return res.status(400).json({ message: "Frecuencia respiratoria demasiado alta o baja" });
     }
-    if (saturacion_oxigeno > 100) {
-        return res.status(400).json({ message: "La saturación de oxígeno no puede superar el 100%" });
+    if (saturacion_oxigeno > 100|| saturacion_oxigeno <50) {
+        return res.status(400).json({ message: "La saturación de oxígeno no puede superar el 100% o ser menor de 50%" });
     }
     if (presion_sistolica > 190 || presion_sistolica < 50) {
         return res.status(400).json({ message: "La presion arterial sistolica es demasiado alta o baja" });

@@ -17,12 +17,76 @@ const PatientRecordHistory = () => {
     const [patientInfo, setPatientInfo] = useState({});
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
-    const [selectedVariables, setSelectedVariables] = useState(["pulso", "temperatura", "frecuencia_respiratoria", "presion_sistolica", "presion_diastolica", "saturacion_oxigeno"]);
-    const [isPediatric, setIsPediatric] = useState(false);
-    const [fechaNacimiento, setFechaNacimiento] = useState("");
+    const [selectedVariables, setSelectedVariables] = useState(["pulso", "temperatura", "frecuencia_respiratoria", "presion_sistolica", "presion_diastolica", "saturacion_oxigeno"
+    ]);
+    const [edad, setEdad] = useState(null);
+    const [ageUnit, setAgeUnit] = useState(""); // Unidad de edad: años o meses
+    const [ageGroup, setAgeGroup] = useState(""); // Tipo de paciente
+    const [loading, setLoading] = useState(true);
 
-    const tableRef = useRef(null); // Referencia para la tabla
-    const chartRef = useRef(null); // Referencia para el gráfico
+    const tableRef = useRef(null);
+    const chartRef = useRef(null);
+
+    // Función para calcular la edad en años
+    const calculateAge = (date) => {
+        if (!date) return null;
+        const birth = new Date(date);
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
+    // Función para calcular la edad en meses
+    const calculateAgeInMonths = (date) => {
+        if (!date) return null;
+        const birth = new Date(date);
+        const today = new Date();
+        const ageInMonths =
+            (today.getFullYear() - birth.getFullYear()) * 12 +
+            (today.getMonth() - birth.getMonth()) -
+            (today.getDate() < birth.getDate() ? 1 : 0);
+        return ageInMonths;
+    };
+
+    // Función para calcular el grupo de edad
+    const calculateAgeGroup = (fechaNacimiento) => {
+        const birth = new Date(fechaNacimiento);
+        const today = new Date();
+        const ageInMonths =
+            (today.getFullYear() - birth.getFullYear()) * 12 +
+            (today.getMonth() - birth.getMonth()) -
+            (today.getDate() < birth.getDate() ? 1 : 0);
+
+        if (ageInMonths >= 0 && ageInMonths <= 3) return 'Recién nacido';
+        if (ageInMonths > 3 && ageInMonths <= 6) return 'Lactante temprano';
+        if (ageInMonths > 6 && ageInMonths <= 12) return 'Lactante mayor';
+        if (ageInMonths > 12 && ageInMonths <= 36) return 'Niño pequeño';
+        if (ageInMonths > 36 && ageInMonths <= 72) return 'Preescolar temprano';
+        if (ageInMonths > 72 && ageInMonths <= 168) return 'Preescolar tardío';
+        return 'Adulto';
+    };
+
+    // Maneja el cambio de la fecha de nacimiento
+    const handleFechaNacimientoChange = (date) => {
+        const ageInYears = calculateAge(date);
+        const ageInMonths = calculateAgeInMonths(date);
+
+        if (ageInYears >= 1) {
+            setEdad(ageInYears);
+            setAgeUnit("años");
+        } else {
+            setEdad(ageInMonths);
+            setAgeUnit("meses");
+        }
+
+        // Calcular el grupo de edad
+        const group = calculateAgeGroup(date);
+        setAgeGroup(group);
+    };
 
     useEffect(() => {
         loadPatientRecords();
@@ -35,41 +99,33 @@ const PatientRecordHistory = () => {
 
             // Ordenar los registros por fecha y hora
             records = records.sort((a, b) => {
-                const dateA = new Date(a.record_date);  // Convertir la fecha a un objeto Date
-                const dateB = new Date(b.record_date);  // Convertir la fecha a un objeto Date
+                const dateA = new Date(a.record_date);
+                const dateB = new Date(b.record_date);
 
-                // Si las fechas son iguales, ordenar por hora (record_time)
                 if (dateA.getTime() === dateB.getTime()) {
-                    const timeA = a.record_time.split(':');  // Dividir la hora en horas y minutos
-                    const timeB = b.record_time.split(':');  // Dividir la hora en horas y minutos
+                    const timeA = a.record_time.split(':');
+                    const timeB = b.record_time.split(':');
 
-                    // Convertir horas y minutos en minutos totales para compararlos
                     const minutesA = parseInt(timeA[0]) * 60 + parseInt(timeA[1]);
                     const minutesB = parseInt(timeB[0]) * 60 + parseInt(timeB[1]);
-                    return minutesA - minutesB;  // Ordenar por hora
+                    return minutesA - minutesB;
                 }
 
-                // Si las fechas son diferentes, ordenar por fecha
-                return dateA - dateB;  // Ordenar por fecha
+                return dateA - dateB;
             });
 
-            // Establecer los registros ordenados en el estado
             setRecords(records);
-            setFilteredRecords(records); // Los registros se mantienen ordenados al inicio (sin filtro)
-            setPatientInfo(response.data.patient);
+            setFilteredRecords(records);
+            const patient = response.data.patient;
+            setPatientInfo(patient);
 
-            // Calcular la edad y si es pediátrico
-            const birth = new Date(response.data.patient.fecha_nacimiento);
-            const today = new Date();
-            let age = today.getFullYear() - birth.getFullYear();
-            const monthDiff = today.getMonth() - birth.getMonth();
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-                age--;
-            }
-            setFechaNacimiento(age);
-            setIsPediatric(age < 14);
+            // Calcular la edad y el grupo de edad
+            handleFechaNacimientoChange(patient.fecha_nacimiento);
+
+            setLoading(false);
         } catch (error) {
             console.error("Error al recuperar registros de pacientes", error);
+            setLoading(false);
         }
     };
 
@@ -93,7 +149,7 @@ const PatientRecordHistory = () => {
         navigate("/search-patient");
     };
 
-    //variables bonitas <3
+    // Etiquetas amigables para las variables
     const variableLabels = {
         pulso: "Pulso",
         temperatura: "Temperatura",
@@ -141,11 +197,95 @@ const PatientRecordHistory = () => {
 
     const handleExportPDF = async () => {
         try {
-            await generatePDF(patientInfo, fechaNacimiento, filteredRecords, isPediatric, chartRef);
+            await generatePDF(patientInfo, edad, ageUnit, ageGroup, filteredRecords, chartRef);
         } catch (error) {
             console.error("Error al generar el PDF", error);
         }
     };
+
+    if (loading) {
+        return <div className="flex justify-center items-center h-screen">Cargando...</div>;
+    }
+    // Configuración de rangos de pulso por grupo de edad
+    // Rango de signos vitales por grupo de edad
+    // Rango de signos vitales por grupo de edad
+    const vitalSignRanges = {
+        pulso: {
+            'Recién nacido': { min: 90, max: 180 },
+            'Lactante temprano': { min: 80, max: 160 },
+            'Lactante mayor': { min: 80, max: 140 },
+            'Niño pequeño': { min: 75, max: 110 },
+            'Preescolar temprano': { min: 70, max: 110 },
+            'Preescolar tardío': { min: 60, max: 90 },
+            'Adulto': { min: 60, max: 90 },
+        },
+        temperatura: {
+            'Recién nacido': { min: 36.0, max: 37.5 },
+            'Lactante temprano': { min: 36.0, max: 37.5 },
+            'Lactante mayor': { min: 36.0, max: 37.5 },
+            'Niño pequeño': { min: 36.0, max: 37.5 },
+            'Preescolar temprano': { min: 36.0, max: 37.5 },
+            'Preescolar tardío': { min: 36.0, max: 37.5 },
+            'Adulto': { min: 36.5, max: 37.5 },
+        },
+        frecuencia_respiratoria: {
+            'Recién nacido': { min: 30, max: 60 },
+            'Lactante temprano': { min: 30, max: 60 },
+            'Lactante mayor': { min: 24, max: 40 },
+            'Niño pequeño': { min: 20, max: 30 },
+            'Preescolar temprano': { min: 20, max: 30 },
+            'Preescolar tardío': { min: 16, max: 24 },
+            'Adulto': { min: 12, max: 16 },
+        },
+        presion_sistolica: {
+            'Recién nacido': { min: 60, max: 90 },
+            'Lactante temprano': { min: 80, max: 100 },
+            'Lactante mayor': { min: 90, max: 110 },
+            'Niño pequeño': { min: 95, max: 110 },
+            'Preescolar temprano': { min: 100, max: 120 },
+            'Preescolar tardío': { min: 105, max: 120 },
+            'Adulto': { min: 100, max: 140 },
+        },
+        presion_diastolica: {
+            'Recién nacido': { min: 30, max: 60 },
+            'Lactante temprano': { min: 50, max: 70 },
+            'Lactante mayor': { min: 55, max: 75 },
+            'Niño pequeño': { min: 60, max: 75 },
+            'Preescolar temprano': { min: 65, max: 80 },
+            'Preescolar tardío': { min: 70, max: 85 },
+            'Adulto': { min: 60, max: 90 },
+        },
+        saturacion_oxigeno: {
+            'Recién nacido': { min: 95, max: 100 },
+            'Lactante temprano': { min: 95, max: 100 },
+            'Lactante mayor': { min: 95, max: 100 },
+            'Niño pequeño': { min: 95, max: 100 },
+            'Preescolar temprano': { min: 95, max: 100 },
+            'Preescolar tardío': { min: 95, max: 100 },
+            'Adulto': { min: 95, max: 100 },
+        },
+        presion_media: {
+            'Recién nacido': { min: 50, max: 70 },
+            'Lactante temprano': { min: 60, max: 85 },
+            'Lactante mayor': { min: 70, max: 95 },
+            'Niño pequeño': { min: 75, max: 100 },
+            'Preescolar temprano': { min: 80, max: 105 },
+            'Preescolar tardío': { min: 85, max: 110 },
+            'Adulto': { min: 70, max: 105 },
+        },
+    };
+    // Función para obtener el fondo basado en el valor y el grupo de edad
+    const getVitalSignBackground = (ageGroup, vitalSign, value) => {
+        const range = vitalSignRanges[vitalSign][ageGroup];
+        if (!range) return 'bg-white'; // Si no hay rango definido, se deja en blanco por defecto
+
+        if (value < range.min) return 'bg-[rgb(120,190,230)]'; // Azul si el valor es bajo
+        if (value > range.max) return 'bg-red-200'; // Rojo si el valor es alto
+        return 'bg-white'; // Blanco si el valor está dentro del rango normal
+    };
+
+
+
     return (
         <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6 overflow-auto">
             <h1 className="text-2xl font-bold mb-6">Registro del Paciente</h1>
@@ -157,7 +297,8 @@ const PatientRecordHistory = () => {
                         <p><strong>Tipo de identificación:</strong> {patientInfo.tipo_identificacion}</p>
                         <p><strong>Número de identificación:</strong> {patientInfo.numero_identificacion}</p>
                         <p><strong>Ubicación (habitación):</strong> {patientInfo.ubicacion}</p>
-                        <p><strong>Edad:</strong> {fechaNacimiento} años</p>
+                        <p><strong>Edad:</strong> {edad} {ageUnit}</p>
+                        <p><strong>Tipo de Paciente:</strong> {ageGroup}</p>
                     </div>
                     <span className={`font-bold ${patientInfo.status === "activo" ? "text-green-500" : "text-red-500"}`}>
                         Paciente {patientInfo.status === "activo" ? "Activo" : "Inactivo"}
@@ -168,10 +309,23 @@ const PatientRecordHistory = () => {
                 <div className="mb-4">
                     <div className="flex items-center mb-4">
                         <label className="mr-2">Fecha de inicio:</label>
-                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="p-2 border rounded" />
+                        <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="p-2 border rounded"
+                        />
                         <label className="mx-2">Fecha de fin:</label>
-                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="p-2 border rounded" />
-                        <button onClick={handleFilter} className="ml-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition flex items-center">
+                        <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            className="p-2 border rounded"
+                        />
+                        <button
+                            onClick={handleFilter}
+                            className="ml-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition flex items-center"
+                        >
                             <FiFilter className="mr-2" /> Filtrar
                         </button>
                     </div>
@@ -185,8 +339,9 @@ const PatientRecordHistory = () => {
                                         type="checkbox"
                                         checked={selectedVariables.includes(variable)}
                                         onChange={() => toggleVariable(variable)}
-                                        className="mr-2" />
-                                    {variableLabels[variable]}  {/* Usamos el objeto variableLabels aquí */}
+                                        className="mr-2"
+                                    />
+                                    {variableLabels[variable]}
                                 </label>
                             ))}
                         </div>
@@ -206,8 +361,10 @@ const PatientRecordHistory = () => {
                             <th className="p-2 border">TAD (mmHg)</th>
                             <th className="p-2 border">TAM (mmHg)</th>
                             <th className="p-2 border">SatO2 (%)</th>
-                            {/* Aquí cambiaremos el encabezado */}
-                            <th className="p-2 border">{isPediatric ? "Peso Pediátrico (kg)" : "Peso Adulto (kg)"}</th>
+                            {/* Encabezado dinámico para el peso */}
+                            <th className="p-2 border">
+                                {['Recién nacido', 'Lactante temprano', 'Lactante mayor', 'Niño pequeño', 'Preescolar temprano', 'Preescolar tardío'].includes(ageGroup) ? "Peso Pediátrico (kg)" : "Peso Adulto (kg)"}
+                            </th>
                             <th className="p-2 border">Observaciones</th>
                         </tr>
                     </thead>
@@ -216,49 +373,32 @@ const PatientRecordHistory = () => {
                             <tr key={index} className="text-center">
                                 <td className="p-2 border">{format(new Date(record.record_date), "dd/MM/yyyy")}</td>
                                 <td className="p-2 border">{record.record_time}</td>
-                                {/* Pulso */}
-                                <td className={`p-2 border ${isPediatric
-                                    ? (record.pulso < 60 ? "bg-[rgb(120,190,230)]" : record.pulso > 90 ? "bg-red-200" : "bg-white")
-                                    : (record.pulso < 60 ? "bg-[rgb(120,190,230)]" : record.pulso > 90 ? "bg-red-200" : "bg-white")}`}>
+                                <td className={`p-2 border ${getVitalSignBackground(ageGroup, 'pulso', record.pulso)}`}>
                                     {record.pulso}
                                 </td>
-                                {/* Temperatura */}
-                                <td className={`p-2 border ${isPediatric
-                                    ? (record.temperatura < 36.0 ? "bg-[rgb(120,190,230)]" : record.temperatura > 37.9 ? "bg-red-200" : "bg-white")
-                                    : (record.temperatura < 36.0 ? "bg-[rgb(120,190,230)]" : record.temperatura > 37.9 ? "bg-red-200" : "bg-white")}`}>
+                                <td className={`p-2 border ${getVitalSignBackground(ageGroup, 'temperatura', record.temperatura)}`}>
                                     {record.temperatura}
                                 </td>
-                                {/* Frecuencia respiratoria */}
-                                <td className={`p-2 border ${isPediatric
-                                    ? (record.frecuencia_respiratoria < 14 ? "bg-[rgb(120,190,230)]" : record.frecuencia_respiratoria > 24 ? "bg-red-200" : "bg-white")
-                                    : (record.frecuencia_respiratoria < 16 ? "bg-[rgb(120,190,230)]" : record.frecuencia_respiratoria > 24 ? "bg-red-200" : "bg-white")}`}>
+                                <td className={`p-2 border ${getVitalSignBackground(ageGroup, 'frecuencia_respiratoria', record.frecuencia_respiratoria)}`}>
                                     {record.frecuencia_respiratoria}
                                 </td>
-                                {/* Presión sistólica */}
-                                <td className={`p-2 border ${isPediatric
-                                    ? (record.presion_sistolica < 86 ? "bg-[rgb(120,190,230)]" : record.presion_sistolica > 120 ? "bg-red-200" : "bg-white")
-                                    : (record.presion_sistolica < 100 ? "bg-[rgb(120,190,230)]" : record.presion_sistolica > 140 ? "bg-red-200" : "bg-white")}`}>
+                                <td className={`p-2 border ${getVitalSignBackground(ageGroup, 'presion_sistolica', record.presion_sistolica)}`}>
                                     {record.presion_sistolica}
                                 </td>
-                                {/* Presión diastólica */}
-                                <td className={`p-2 border ${isPediatric
-                                    ? (record.presion_diastolica < 60 ? "bg-[rgb(120,190,230)]" : record.presion_diastolica > 85 ? "bg-red-200" : "bg-white")
-                                    : (record.presion_diastolica < 60 ? "bg-[rgb(120,190,230)]" : record.presion_diastolica > 100 ? "bg-red-200" : "bg-white")}`}>
+                                <td className={`p-2 border ${getVitalSignBackground(ageGroup, 'presion_diastolica', record.presion_diastolica)}`}>
                                     {record.presion_diastolica}
                                 </td>
-                                {/* Presión media */}
-                                <td className={`p-2 border ${isPediatric
-                                    ? (record.presion_media < 60 ? "bg-[rgb(120,190,230)]" : record.presion_media > 80 ? "bg-red-200" : "bg-white")
-                                    : (record.presion_media < 70 ? "bg-[rgb(120,190,230)]" : record.presion_media > 83 ? "bg-red-200" : "bg-white")}`}>
+                                <td className={`p-2 border ${getVitalSignBackground(ageGroup, 'presion_media', record.presion_media)}`}>
                                     {record.presion_media}
                                 </td>
-                                {/* Saturación de oxígeno */}
-                                <td className={`p-2 border ${record.saturacion_oxigeno < 95 ? "bg-[rgb(120,190,230)]" : record.saturacion_oxigeno > 100 ? "bg-red-200" : "bg-white"}`}>
+
+                                <td className={`p-2 border ${getVitalSignBackground(ageGroup, 'saturacion_oxigeno', record.saturacion_oxigeno)}`}>
                                     {record.saturacion_oxigeno}
                                 </td>
+
                                 {/* Mostrar peso dependiendo de si es pediátrico o adulto */}
                                 <td className="p-2 border">
-                                    {isPediatric ? record.peso_pediatrico : record.peso_adulto}
+                                    {['Recién nacido', 'Lactante temprano', 'Lactante mayor', 'Niño pequeño', 'Preescolar temprano', 'Preescolar tardío'].includes(ageGroup) ? record.peso_pediatrico : record.peso_adulto}
                                 </td>
                                 {/* Observaciones */}
                                 <td className="p-2 border">{record.observaciones || "-"}</td>
@@ -267,17 +407,25 @@ const PatientRecordHistory = () => {
                     </tbody>
                 </table>
                 {/* Botones de acción */}
-                <div className="flex justify-between w-full max-w-4xl mt-4"> {/* Añadí mt-4 para mayor separación */}
+                <div className="flex justify-between w-full max-w-4xl mt-4">
                     <button
                         onClick={handleNewRecord}
-                        className={`flex items-center px-4 py-2 ${patientInfo.status !== "activo" ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"} text-white rounded transition flex items-center`}
+                        className={`flex items-center px-4 py-2 ${patientInfo.status !== "activo" ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+                            } text-white rounded transition`}
+                        disabled={patientInfo.status !== "activo"}
                     >
                         <FiPlusCircle className="mr-2" /> Agregar Registro
                     </button>
-                    <button onClick={handleExportPDF} className="flex items-center px-4 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition">
+                    <button
+                        onClick={handleExportPDF}
+                        className="flex items-center px-4 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition"
+                    >
                         <FiDownload className="mr-2" /> Exportar como PDF
                     </button>
-                    <button onClick={handleGoBack} className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition">
+                    <button
+                        onClick={handleGoBack}
+                        className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
+                    >
                         <FiHome className="mr-2" /> Regresar
                     </button>
                 </div>
