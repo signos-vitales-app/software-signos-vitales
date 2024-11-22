@@ -55,3 +55,24 @@ export const getUserInfo = async () => {
 export const deleteUser = async (id) => {
     return await axios.delete(`${API_URL}/users/${id}`);
 };
+
+// Function to fetch user details by ID
+export const fetchUserInfo = async (idUsuario) => {
+    try {
+        const response = await axios.get(`${API_URL}/users/${idUsuario}`);
+        return response; // Return entire response object
+    } catch (error) {
+        console.error("Error al obtener los datos del usuario:", error);
+        throw error;
+    }
+};
+
+// Function to update user details
+export const updateUser = async (idUsuario, updatedData) => {
+    try {
+        const response = await axios.put(`${API_URL}/users/${idUsuario}`, updatedData);
+        return response.data;
+    } catch (error) {
+        throw new Error("Error al actualizar el usuario: " + error.message);
+    }
+};

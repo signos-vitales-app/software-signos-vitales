@@ -54,3 +54,39 @@ exports.deleteUser = async (req, res) => {
         res.status(500).json({ message: "Error al eliminar el usuario" });
     }
 };
+
+// Obtener usuario por ID para edición
+exports.getUserById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [users] = await db.query("SELECT id, username, email, role, numero_identificacion FROM users WHERE id = ?", [id]);
+        if (users.length === 0) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+        res.status(200).json(users[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error en el servidor" });
+    }
+};
+
+// Actualizar información del usuario
+exports.updateUserDetails = async (req, res) => {
+    const { id } = req.params;
+    const { username, email, role, numero_identificacion } = req.body;
+
+    try {
+        const query = `UPDATE users SET username = ?, email = ?, role = ?, numero_identificacion = ? WHERE id = ?`;
+
+        const [result] = await db.query(query, [username, email, role, numero_identificacion, id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+
+        res.status(200).json({ message: "Usuario actualizado exitosamente" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al actualizar el usuario" });
+    }
+};

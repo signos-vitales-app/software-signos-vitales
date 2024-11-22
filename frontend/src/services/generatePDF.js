@@ -21,25 +21,38 @@ const generatePDF = async (patientInfo, edad, ageUnit, ageGroup, filteredRecords
         doc.setFontSize(22);
         doc.text('Historial Médico del Paciente', 20, 20);
 
-        // Información del paciente con formato más atractivo
-        doc.setFont("helvetica", "normal");
+        // Información del paciente
+        doc.setFont("helvetica", "bold");
         doc.setFontSize(12);
-        doc.text(`Nombre: ${patientInfo.primer_nombre} ${patientInfo.segundo_nombre} ${patientInfo.primer_apellido} ${patientInfo.segundo_apellido}`, 20, 30);
-        doc.text(`Edad: ${edad} ${ageUnit}`, 20, 35);
-        doc.text(`Tipo de Paciente: ${ageGroup}`, 20, 40);
-        doc.text(`Número de Identificación: ${patientInfo.numero_identificacion}`, 20, 45);
-        doc.text(`Ubicación: ${patientInfo.ubicacion}`, 20, 50);
-        doc.text(`Estado: ${patientInfo.status === 'activo' ? 'Activo' : 'Inactivo'}`, 20, 55);
+        doc.text("Nombres y apellidos:", 20, 30);
+        doc.text("Tipo de Identificación:", 20, 35);
+        doc.text("Número de Identificación:", 20, 40);
+        doc.text("Edad:", 20, 45);
+        doc.text("Tipo de Paciente:", 20, 50);
+        doc.text("Ubicación (habitación):", 20, 55);
+        doc.text("Estado:", 20, 60);
+
+        doc.setFont("helvetica", "normal");
+        doc.text(`${patientInfo.primer_nombre} ${patientInfo.segundo_nombre} ${patientInfo.primer_apellido} ${patientInfo.segundo_apellido}`, 64, 30);
+        doc.text(patientInfo.tipo_identificacion, 66, 35);
+        doc.text(patientInfo.numero_identificacion, 73, 40);
+        doc.text(`${edad} ${ageUnit}`, 33, 45);
+        doc.text(ageGroup, 56, 50);
+        doc.text(patientInfo.ubicacion, 68, 55);
+
+        if (patientInfo.status === 'activo') {
+            doc.setTextColor(0, 128, 0); // Verde
+            doc.text("Activo", 37, 60);
+        } else {
+            doc.setTextColor(255, 0, 0); // Rojo
+            doc.text("Inactivo",37, 60);
+        }
+        doc.setTextColor(0, 0, 0); // Restablecer color a negro para el resto del documento
 
         // Línea divisoria estilizada
         doc.setLineWidth(0.7);
         doc.setDrawColor(0, 153, 255); // Color azul para la línea
-        doc.line(20, 60, 190, 60);  // Línea divisoria
-
-        // Título de la sección de signos vitales con color y mayor tamaño
-        doc.setFontSize(14);
-        doc.setTextColor(0, 102, 204); // Color azul
-        doc.text('Signos Vitales:', 20, 70);
+        doc.line(20, 65, 190, 65);  // Línea divisoria
 
         // Crear la tabla de signos vitales con colores alternos y bordes suaves
         const tableColumns = ["Fecha", "Hora", "Pulso", "T °C", "FR", "TAS ", "TAD ", "TAM ", "SatO2 (%)", "Peso", "Observaciones"];
