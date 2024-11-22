@@ -1,125 +1,98 @@
-// generatePDF.js
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
-import { format } from "date-fns";  // Si utilizas date-fns
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { toast } from "react-toastify";
 
-// Constantes de configuración de PDF
-const logoUrl = "https://media.sipiapa.org/adjuntos/185/imagenes/001/819/0001819724.jpg";  // URL o base64 del logo
-const logoWidth = 50;  // Ancho del logo en mm
-const logoHeight = 25; // Alto del logo en mm
+const generatePDF = async (patientInfo, edad, ageUnit, ageGroup, filteredRecords, chartRef) => {
+    try {
+        // Crear un nuevo documento PDF
+        const doc = new jsPDF();
+        const canvasElements = chartRef.current.querySelectorAll("canvas");
 
-export const generatePDF = async (patientInfo, fechaNacimiento, filteredRecords, isPediatric, chartRef) => {
-    const pdf = new jsPDF("p", "mm", "a4");
-    pdf.addImage(logoUrl, 'PNG', 10, 10, logoWidth, logoHeight);
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(16);
-    //Titulo 
-    pdf.text(105, 20, "Historial de Registros del Paciente", { align: "center" });
-//info paciente 
-    pdf.setFontSize(12);
-    pdf.setFont("helvetica", "bold");
-    pdf.text(10, 40, "Nombres y apellidos: ");
-    pdf.text(10, 45, "Tipo de identificación: ");
-    pdf.text(10, 50, "Número de identificación: ");
-    pdf.text(10, 55, "Ubicación (habitación): ");
-    pdf.text(10, 60, "Edad: ");
-    pdf.text(10, 65, "Estado: ");
-//info del paciente 
-    pdf.setFont("helvetica", "normal");
-    pdf.text(55, 40, `${patientInfo.primer_nombre} ${patientInfo.segundo_nombre} ${patientInfo.primer_apellido} ${patientInfo.segundo_apellido}`);
-    pdf.text(57, 45, `${patientInfo.tipo_identificacion}`);
-    pdf.text(63, 50, `${patientInfo.numero_identificacion}`);
-    pdf.text(58, 55, `${patientInfo.ubicacion}`);
-    pdf.text(23, 60, `${fechaNacimiento} años`);
-    pdf.text(27, 65, `${patientInfo.status === "activo" ? "Activo" : "Inactivo"}`);
+        // Título del documento
+        doc.setFontSize(18);
+        doc.text('Historial Médico del Paciente', 20, 20);
 
-    // Datos de la tabla para el PDF con los rangos 
-    const tableData = filteredRecords.map(record => {
-        const getCellStyle = (value, variable) => {
-            const [min, max] = getRange(variable, isPediatric);
-            if (value < min) {
-                return { fillColor: [120, 190, 230] }; // Azul
-            } else if (value > max) {
-                return { fillColor: [248, 113, 113] }; // Rojo
-            } else {
-                return { backgroundColor: 'green', color: 'white' }; // Verde
-            }
-        };
-        return [
-            { content: format(new Date(record.record_date), "dd/MM/yyyy"), styles: {} },
-            { content: record.record_time, styles: {} },
-            { content: record.pulso, styles: getCellStyle(record.pulso, "pulso") },
-            { content: record.temperatura, styles: getCellStyle(record.temperatura, "temperatura") },
-            { content: record.frecuencia_respiratoria, styles: getCellStyle(record.frecuencia_respiratoria, "frecuencia_respiratoria") },
-            { content: record.presion_sistolica, styles: getCellStyle(record.presion_sistolica, "presion_sistolica") },
-            { content: record.presion_diastolica, styles: getCellStyle(record.presion_diastolica, "presion_diastolica") },
-            { content: record.presion_media, styles: getCellStyle(record.presion_media, "presion_media") },
-            { content: record.saturacion_oxigeno, styles: getCellStyle(record.saturacion_oxigeno, "saturacion_oxigeno") },
-            { content: isPediatric ? record.peso_pediatrico : record.peso_adulto, styles: {} },
-            { content: record.observaciones || "-", styles: {} }
-        ];
-    });
-//tabla automatica con los datos anteriores
-    pdf.autoTable({
-        head: [["Fecha", "Hora", "Pulso", "T°C", "FR", "TAD", "TAS", "TAM", "SatO2", "Peso", "Observaciones"]],
-        body: tableData,
-        startY: 70,
-        theme: 'striped',
-        headStyles: { fillColor: [54, 162, 235], textColor: 255, fontSize: 11 },
-        bodyStyles: { textColor: 50, fontSize: 10, fillColor: [245, 245, 245] },
-        alternateRowStyles: { fillColor: [255, 255, 255] },
-    });
+        // Información del paciente
+        doc.setFontSize(12);
+        doc.text(`Nombre: ${patientInfo.primer_nombre} ${patientInfo.segundo_nombre} ${patientInfo.primer_apellido} ${patientInfo.segundo_apellido}`, 20, 30);
+        doc.text(`Edad: ${edad} ${ageUnit}`, 20, 35);
+        doc.text(`Tipo de Paciente: ${ageGroup}`, 20, 40);
+        doc.text(`Número de Identificación: ${patientInfo.numero_identificacion}`, 20, 45);
+        doc.text(`Ubicación: ${patientInfo.ubicacion}`, 20, 50);
+        doc.text(`Estado: ${patientInfo.status === 'activo' ? 'Activo' : 'Inactivo'}`, 20, 55);
 
-    // Captura del gráfico de signos vitales
-    const chartCanvas = chartRef.current; // Referencia del gráfico de signos vitales
-    if (chartCanvas) {
-        // Captura el gráfico como una imagen con html2canvas
-        const chartImage = await html2canvas(chartCanvas);
-        const chartDataURL = chartImage.toDataURL("image/png");
+        // Espaciado entre la información del paciente y la tabla
+        doc.setLineWidth(0.5);
+        doc.line(20, 60, 190, 60);  // Línea divisoria
+        doc.text('Signos Vitales:', 20, 65);
 
-        // Obtener el tamaño de la página del PDF
-        const pageWidth = pdf.internal.pageSize.width; // Ancho de la página
-        const pageHeight = pdf.internal.pageSize.height; // Altura de la página
-        const margin = 10; // Margen
-        const maxWidth = pageWidth - 2 * margin; // Ancho máximo del gráfico (menos los márgenes)
-        const maxHeight = pageHeight - 2 * margin; // Altura máxima del gráfico (menos los márgenes)
+        // Crear la tabla de signos vitales
+        const tableColumns = ["Fecha", "Hora", "Pulso (lpm)", "Temperatura (°C)", "FR (RPM)", "TAS (mmHg)", "TAD (mmHg)", "TAM (mmHg)", "SatO2 (%)", "Peso", "Observaciones"];
+        const tableData = filteredRecords.map(record => [
+            record.record_date, 
+            record.record_time,     
+            record.pulso, 
+            record.temperatura, 
+            record.frecuencia_respiratoria, 
+            record.presion_sistolica, 
+            record.presion_diastolica, 
+            record.presion_media, 
+            record.saturacion_oxigeno, 
+            record.peso_pediatrico || record.peso_adulto, 
+            record.observaciones || "-"
+        ]);
 
-        // Calcular la relación de aspecto del gráfico
-        const aspectRatio = chartImage.height / chartImage.width;
+        autoTable(doc, {
+            head: [tableColumns],
+            body: tableData,
+            startY: 70,
+            margin: { horizontal: 20 },
+            theme: 'grid'
+        });
 
-        // Ajuste automático del tamaño para que encaje en la página sin cortar
-        let chartWidth = maxWidth;
-        let chartHeight = chartWidth * aspectRatio;
+        // Espaciado entre la tabla y los gráficos
+        doc.addPage();
 
-        // Verificar si la altura del gráfico excede la altura de la página
-        if (chartHeight > maxHeight) {
-            chartHeight = maxHeight;
-            chartWidth = chartHeight / aspectRatio;
+    // Espaciado antes de los gráficos (puedes ajustar la posición para que no se sobrepongan)
+    let yPosition = 20;
+    const margin = 10;  // Márgenes
+    const maxGraphicsPerPage = 2;  // Número de gráficos por página
+    let graphicsOnCurrentPage = 0;
+
+    // Iterar sobre todos los gráficos y agregarlos al PDF
+    canvasElements.forEach((canvas, index) => {
+        // Si los gráficos no caben en una página, agregamos una nueva página
+        if (graphicsOnCurrentPage === maxGraphicsPerPage) {
+            doc.addPage();
+            yPosition = 20; // Resetea la posición Y al inicio de la nueva página
+            graphicsOnCurrentPage = 0;
         }
-        // Agregar una nueva página al PDF
-        pdf.addPage();
-        // Agregar el texto de título al PDF
-        pdf.setFontSize(12);
-        pdf.text(10, 10, "Gráfico de Signos Vitales:");
-        // Agregar el gráfico al PDF
-        pdf.addImage(chartDataURL, "PNG", margin, 20, chartWidth, chartHeight); // Ajuste del gráfico con tamaño automático
+
+        // Capturar el gráfico como imagen
+        const imgData = canvas.toDataURL("image/png");
+
+        // Ajustar la altura y la posición para los gráficos
+        doc.addImage(imgData, "PNG", margin, yPosition, 180, 90);  // Ajusta el tamaño y la posición según sea necesario
+
+        // Actualizar la posición Y para el siguiente gráfico
+        yPosition += 110;  // Espacio entre gráficos, puedes ajustar si es necesario
+        graphicsOnCurrentPage++;  // Incrementar el contador de gráficos por página
+    });
+
+    // Guardar el PDF generado
+        doc.save(`Historial_Medico_${patientInfo.numero_identificacion}.pdf`);
+    } catch (error) {
+        console.error("Error generando el PDF:", error);
+        toast.error("Hubo un error al generar el PDF.", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+        });
     }
-
-pdf.save(`Historia_Registro_Paciente_${patientInfo.numero_identificacion}.pdf`);
-};
-
-// Función para obtener el rango para una variable seleccionada
-const getRange = (variable, isPediatric) => {
-    const ranges = {
-        pulso: { adulto: [60, 90], pediatrico: [60, 90] },
-        frecuencia_respiratoria: { adulto: [16, 24], pediatrico: [14, 24] },
-        presion_sistolica: { adulto: [100, 140], pediatrico: [86, 120] },
-        presion_diastolica: { adulto: [60, 100], pediatrico: [60, 85] },
-        presion_media: { adulto: [70, 83], pediatrico: [60, 80] },
-        saturacion_oxigeno: { adulto: [95, 100], pediatrico: [95, 100] },
-        temperatura: { adulto: [36.0, 37.9], pediatrico: [36.5, 37.9] }
-    };
-    return isPediatric ? ranges[variable].pediatrico : ranges[variable].adulto;
 };
 
 export default generatePDF;
