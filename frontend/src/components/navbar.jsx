@@ -17,7 +17,7 @@ const Navbar = () => {
     localStorage.removeItem("user");
     toast.success("Sesión cerrada exitosamente"); // Mostrar el toast de éxito
     setShowModal(false); // Cierra el modal
-    navigate("/login"); // Redirige al login
+    navigate("/");
   };
 
   // Función para cambiar foto de perfil y redirigir a la página de perfil

@@ -203,6 +203,8 @@ const tableData = filteredRecords.map((record) => {
     });
         // Espaciado entre la tabla y los gráficos
         doc.addPage();
+        doc.setFontSize(12);
+        doc.text('Grafico de signos vitales:', 20, 20);
 
         // Ajuste de gráficos con márgenes adecuados y espacios
         let yPosition = 20;
@@ -230,7 +232,6 @@ const tableData = filteredRecords.map((record) => {
             yPosition += 110;  // Espacio entre gráficos, puedes ajustar si es necesario
             graphicsOnCurrentPage++;  // Incrementar el contador de gráficos por página
         });
-
         // Guardar el PDF generado
         doc.save(`Historial_Medico_${patientInfo.numero_identificacion}.pdf`);
     } catch (error) {

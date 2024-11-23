@@ -211,8 +211,6 @@ const PatientRecordHistory = () => {
     if (loading) {
         return <div className="flex justify-center items-center h-screen">Cargando...</div>;
     }
-    // Configuración de rangos de pulso por grupo de edad
-    // Rango de signos vitales por grupo de edad
     // Rango de signos vitales por grupo de edad
     const vitalSignRanges = {
         pulso: {
@@ -335,22 +333,7 @@ const PatientRecordHistory = () => {
                         </button>
                     </div>
 
-                    <div>
-                        <h3 className="font-bold">Variables:</h3>
-                        <div className="flex space-x-4">
-                            {["pulso", "temperatura", "frecuencia_respiratoria", "presion_sistolica", "presion_diastolica", "saturacion_oxigeno"].map(variable => (
-                                <label key={variable} className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedVariables.includes(variable)}
-                                        onChange={() => toggleVariable(variable)}
-                                        className="mr-2"
-                                    />
-                                    {variableLabels[variable]}
-                                </label>
-                            ))}
-                        </div>
-                    </div>
+                    
                 </div>
 
                 {/* Tabla de Registros Filtrados */}
@@ -435,9 +418,25 @@ const PatientRecordHistory = () => {
                     </button>
                 </div>
             </div>
+            
             {/* Gráfico de Signos Vitales */}
             <div className="bg-white p-4 rounded shadow-lg w-full max-w-4xl mb-6" ref={chartRef}>
-                <h3 className="font-bold mb-4">Gráfico de Signos Vitales</h3>
+            <div>
+                        <h3 className="font-bold">Variables para graficar:</h3>
+                        <div className="flex space-x-4">
+                            {["pulso", "temperatura", "frecuencia_respiratoria", "presion_sistolica", "presion_diastolica", "saturacion_oxigeno"].map(variable => (
+                                <label key={variable} className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedVariables.includes(variable)}
+                                        onChange={() => toggleVariable(variable)}
+                                        className="mr-2"
+                                    />
+                                    {variableLabels[variable]}
+                                </label>
+                            ))}
+                        </div>
+                    </div>  
                 <VitalSignsChart records={filteredRecords} selectedVariables={selectedVariables} />
             </div>
         </div>

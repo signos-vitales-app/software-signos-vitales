@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 22-11-2024 a las 00:19:27
+-- Tiempo de generación: 23-11-2024 a las 03:00:13
 -- Versión del servidor: 8.0.40
 -- Versión de PHP: 8.2.12
 
@@ -100,7 +100,7 @@ INSERT INTO `patients` (`id`, `primer_nombre`, `segundo_nombre`, `primer_apellid
 (51, 'José', 'Luis', 'Martínez', 'González', '78451392', 'tarjeta de identidad', '152A', 'activo', '2024-02-21 10:00:00', '2006-12-15', 'Recién nacido'),
 (52, 'Marcela', 'Andrea', 'Rodríguez', 'Gómez', '258963752', 'tarjeta de identidad', '153B', 'activo', '2024-02-22 10:00:00', '2007-07-19', 'Recién nacido'),
 (53, 'Tomás', 'Antonio', 'Gómez', 'Martínez', '123574689', 'cédula de ciudadanía', '154C', 'activo', '2024-02-23 10:00:00', '1996-05-12', ''),
-(54, 'Ana', 'Isabel', 'Sánchez', 'González', '963852748', 'cédula de ciudadanía', '155A', 'activo', '2024-02-24 10:00:00', '2024-11-21', 'Recién nacido'),
+(54, 'Ana', 'Isabel', 'Sánchez', 'González', '963852748', 'cédula de ciudadanía', '155A', 'activo', '2024-02-24 10:00:00', '2024-07-10', 'Lactante temprano'),
 (55, 'Fernando', 'Gabriel', 'Martínez', 'Gómez', '258741562', 'cédula de ciudadanía', '156B', 'activo', '2024-02-25 10:00:00', '1987-03-23', ''),
 (56, 'Raúl', 'José', 'Sánchez', 'Martínez', '7458623', 'cédula de ciudadanía', '157C', 'activo', '2024-02-26 10:00:00', '1992-02-06', ''),
 (57, 'Marta', 'Patricia', 'Rodríguez', 'Fernández', '7456921', 'cédula de ciudadanía', '158A', 'activo', '2024-02-27 10:00:00', '2004-06-18', 'Recién nacido'),
@@ -122,7 +122,9 @@ INSERT INTO `patients` (`id`, `primer_nombre`, `segundo_nombre`, `primer_apellid
 (1079049, 'hola', 'bkj', 'bhmn ', 'bb', '1234568523', 'cédula de ciudadanía', '45', 'activo', '2024-11-19 23:44:18', '2024-11-19', 'Recién nacido'),
 (1079050, 'qweq', 'adas', 'asd', 'dsa', '7894652', 'cédula de ciudadanía', '56', 'activo', '2024-11-20 04:23:53', '2024-11-19', 'Recién nacido'),
 (1079051, 'aesfdgf', 'sadb', 'szdxc', 'asfgf', '4865123152', 'cédula de ciudadanía', '562', 'activo', '2024-11-21 03:01:46', '2002-12-26', 'Adulto'),
-(1079052, 'eweqw', 'qeqwe', 'eqweqwe', 'qweqewqwe', '465123', 'cédula de ciudadanía', '12', 'activo', '2024-11-21 03:16:03', '2017-01-19', 'Preescolar tardío');
+(1079052, 'eweqw', 'qeqwe', 'eqweqwe', 'qweqewqwe', '465123', 'cédula de ciudadanía', '12', 'activo', '2024-11-21 03:16:03', '2017-01-19', 'Preescolar tardío'),
+(1079053, 'adads', 'fvjhbm', 'vjhmvhjbm', 'vhjm nvjhm n', '22222', 'cédula de ciudadanía', '15', 'activo', '2024-11-22 21:29:22', '2010-04-27', 'Adulto'),
+(1079054, 'eqdas', 'vjhbmn ', 'vgjhb mn', 'hjbmn ', '33333', 'cédula de ciudadanía', '512', 'activo', '2024-11-22 21:30:37', '2010-04-27', 'Adulto');
 
 -- --------------------------------------------------------
 
@@ -188,7 +190,16 @@ INSERT INTO `registros_paciente` (`id`, `id_paciente`, `record_date`, `record_ti
 (44, 47, '2024-09-15', '18:00:00', 120, 80, 83.00, 50, 35.0, 25, 100, NULL, 20.0, 150, '', '2024-11-20 23:00:49'),
 (45, 47, '2024-09-03', '22:02:00', 120, 80, 83.00, 50, 25.0, 50, 100, NULL, 20.0, 120, '', '2024-11-20 23:02:29'),
 (46, 54, '2024-11-21', '17:31:00', 120, 80, 83.00, 52, 35.0, 52, 100, 20.000, NULL, 120, '', '2024-11-21 22:31:17'),
-(47, 54, '2024-11-21', '17:40:00', 120, 80, 83.00, 50, 35.0, 50, 100, NULL, 20.0, 20, '', '2024-11-21 22:40:47');
+(47, 54, '2024-11-21', '17:40:00', 120, 80, 83.00, 50, 35.0, 50, 100, NULL, 20.0, 20, '', '2024-11-21 22:40:47'),
+(48, 54, '2024-11-22', '23:29:00', 120, 80, 83.00, 88, 35.0, 50, 100, NULL, 20.0, 120, '', '2024-11-22 04:30:22'),
+(49, 54, '2024-11-22', '23:39:00', 120, 80, 83.00, 50, 50.0, 50, 10, NULL, 20.0, 120, '', '2024-11-22 04:39:47'),
+(50, 54, '2024-11-22', '23:44:00', 120, 80, 83.00, 50, 35.0, 55, 10, NULL, 20.0, 120, '', '2024-11-22 04:44:40'),
+(51, 54, '2024-11-22', '23:45:00', 120, 80, 83.00, 55, 55.0, 12, 40, NULL, 20.0, 120, '', '2024-11-22 04:46:02'),
+(52, 54, '2024-11-22', '23:46:00', 120, 80, 83.00, 55, 35.0, 12, 100, NULL, 20.0, 120, '', '2024-11-22 04:46:41'),
+(53, 54, '2024-11-22', '10:25:00', 120, 80, 83.00, 40, 35.0, 50, 100, NULL, 20.0, 120, '', '2024-11-22 15:26:15'),
+(54, 47, '2024-11-22', '10:27:00', 120, 80, 83.00, 45, 35.0, 50, 100, NULL, 20.0, 120, '', '2024-11-22 15:27:28'),
+(55, 54, '2024-11-22', '16:26:00', 120, 80, 83.00, 50, 35.0, 50, 100, NULL, 20.0, 120, '', '2024-11-22 21:26:49'),
+(56, 1079054, '2024-11-22', '16:30:00', 120, 80, 83.00, 50, 35.0, 50, 100, 25.000, NULL, 120, '', '2024-11-22 21:30:57');
 
 -- --------------------------------------------------------
 
@@ -216,10 +227,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `username`, `password`, `email`, `role`, `created_at`, `reset_token`, `reset_token_expiration`, `is_active`, `profile_image`, `numero_identificacion`) VALUES
 (23, 'Alejandra26', '$2a$10$7Fdcdtgi14GCxSlMtZbrG.HbmK64PD8X/PGzjlZ3d.y.2nJcxa7yK', 'alejandra.hdez.2616@gmial.com', 'jefe', '2024-11-16 17:41:07', NULL, NULL, 1, 'profile-1731778867152-593037909.jpg', '1091967574'),
-(24, 'laura quintero', '$2a$10$4QjKIOQOj3a8.raQBl.3FO.JcIcrmp7em6L1NqOkPOk3sZQEg8Fde', 'lauraquintero881120@gmail.com', 'jefe', '2024-11-16 19:33:09', 'bf8d8b908a3f116abad05b935b6e2f0286db3eb204e034185ffc84059d3a1b22', '2024-11-18 12:39:58', 1, NULL, '1005542019'),
-(28, 'Laura Solares', '$2a$10$fOX4eqp2J5Xg2awPrgEWFeL3oAIPzy3LFEbYp.ZtwwHybim0Siwsm', 'lsolares@unab.edu.co', 'user', '2024-11-18 19:20:40', NULL, NULL, 1, NULL, '10967574569'),
-(29, 'qwe', '$2a$10$AKv8alf6bnJ9gVB7Vu8yBe1tsCijcX2xzrUnb4HnUL2XnIc66Goiu', 'sdasdwef8435@gmail.com', 'user', '2024-11-20 03:49:27', NULL, NULL, 1, 'profile-1732074566900-928359821.png', '123456789'),
-(30, 'qeqweqweas', '$2a$10$h6SKknz5xLobXQitbrehi.DekqGFsQ.mOTAYtAMDshd/Oz5hqNSl2', 'asdasfwfsdc541@gmail.com', 'user', '2024-11-20 04:22:31', NULL, NULL, 1, 'profile-1732076551197-224064163.png', '451245312');
+(24, 'Laura Quintero', '$2a$10$4QjKIOQOj3a8.raQBl.3FO.JcIcrmp7em6L1NqOkPOk3sZQEg8Fde', 'lauraquintero881120@gmail.com', 'jefe', '2024-11-16 19:33:09', 'bf8d8b908a3f116abad05b935b6e2f0286db3eb204e034185ffc84059d3a1b22', '2024-11-18 12:39:58', 1, NULL, '1005542019'),
+(28, 'Laura Solares', '$2a$10$fOX4eqp2J5Xg2awPrgEWFeL3oAIPzy3LFEbYp.ZtwwHybim0Siwsm', 'lsolares@unab.edu.co', 'user', '2024-11-18 19:20:40', NULL, NULL, 1, 'profile-1731219618162-263993875.jpg', '10967574569');
 
 --
 -- Índices para tablas volcadas
@@ -256,19 +265,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT de la tabla `patients`
 --
 ALTER TABLE `patients`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1079053;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1079055;
 
 --
 -- AUTO_INCREMENT de la tabla `registros_paciente`
 --
 ALTER TABLE `registros_paciente`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT de la tabla `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- Restricciones para tablas volcadas
