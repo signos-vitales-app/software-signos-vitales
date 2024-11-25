@@ -30,22 +30,55 @@ exports.getPatients = async (req, res) => {
 
 // Registrar un nuevo paciente
 exports.registerPatient = async (req, res) => {
-    const { primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, fecha_nacimiento, tipo_identificacion, ubicacion, status } = req.body;
+    const {
+        primer_nombre,
+        segundo_nombre,
+        primer_apellido,
+        segundo_apellido,
+        numero_identificacion,
+        fecha_nacimiento,
+        tipo_identificacion,
+        ubicacion,
+        status,
+    } = req.body;
 
     // Calcular el grupo de edad
     const age_group = calculateAgeGroup(fecha_nacimiento);
 
     try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: 'Usuario no autenticado o token inválido' });
+        }
+        // Asegurarte de que el usuario autenticado está disponible en req.user
+        const responsable_id = req.user.id;
+
         await db.query(
-            "INSERT INTO patients (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, fecha_nacimiento, tipo_identificacion, ubicacion, status, age_group) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            [primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, fecha_nacimiento, tipo_identificacion, ubicacion, status || 'activo', age_group]
+            `INSERT INTO patients 
+            (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, 
+            fecha_nacimiento, tipo_identificacion, ubicacion, status, age_group, responsable_id) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                primer_nombre,
+                segundo_nombre,
+                primer_apellido,
+                segundo_apellido,
+                numero_identificacion,
+                fecha_nacimiento,
+                tipo_identificacion,
+                ubicacion,
+                status || 'activo',
+                age_group,
+                responsable_id, // Aquí guardamos al usuario que registró al paciente
+            ]
         );
-        res.status(201).json({ message: "Paciente registrado exitosamente" });
+
+        res.status(201).json({ message: 'Paciente registrado exitosamente' });
     } catch (error) {
-        console.error("Error al registrar paciente:", error);
-        res.status(500).json({ message: "Error al registrar paciente" });
+        console.error('Error al registrar paciente:', error);
+        res.status(500).json({ message: 'Error al registrar paciente' });
     }
 };
+
 
 // Actualizar información de un paciente
 exports.updatePatient = async (req, res) => {

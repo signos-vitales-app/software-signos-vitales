@@ -2,11 +2,17 @@ import axios from 'axios';
 
 // Modificar la URL base para que use variables de entorno
 const API_URL = "http://localhost:5000/api";
-
-export const registerPatient = async (patientData) => {
-    return await axios.post(`${API_URL}/patients`, patientData);
+export const registerPatient = async (patientData, token) => {
+    return await axios.post(
+        `${API_URL}/patients`,
+        patientData,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`, // Envía el token en el encabezado
+            },
+        }
+    );
 };
-
 export const fetchPatients = async () => {
     return await axios.get(`${API_URL}/patients`);
 };

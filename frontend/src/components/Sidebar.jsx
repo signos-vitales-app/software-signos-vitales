@@ -17,7 +17,6 @@ const Sidebar = () => {
     const loadUserInfo = async () => {
         try {
             const response = await getUserInfo();
-            console.log('Datos de usuario cargados:', response.data); // Verificar los datos recibidos
             setUserInfo(response.data);
             localStorage.setItem('is_active', response.data.is_active); // Guardar estado en localStorage
         } catch (error) {

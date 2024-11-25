@@ -66,6 +66,13 @@ const PatientRegister = () => {
         e.preventDefault();
 
         try {
+            const token = localStorage.getItem('token'); // Asegúrate de guardar el token al iniciar sesión
+
+            if (!token) {
+                toast.error("No se encontró un token. Por favor, inicia sesión.");
+                return;
+            }
+    
             await registerPatient({
                 primer_nombre: primerNombre,
                 segundo_nombre: segundoNombre,
@@ -77,7 +84,9 @@ const PatientRegister = () => {
                 ubicacion,
                 status,
                 age_group: ageGroup
-            });
+            },
+            token // Pasa el token al servicio
+        );
             toast.success("Paciente registrado exitosamente!");
             navigate("/dashboard");
         } catch (err) {
