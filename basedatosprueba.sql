@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-11-2024 a las 17:59:23
+-- Tiempo de generación: 26-11-2024 a las 00:56:11
 -- Versión del servidor: 8.0.40
 -- Versión de PHP: 8.2.12
 
@@ -40,14 +40,14 @@ CREATE TABLE `patients` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_nacimiento` date NOT NULL DEFAULT '1900-01-01',
   `age_group` enum('Recién nacido','Lactante temprano','Lactante mayor','Niño pequeño','Preescolar temprano','Preescolar tardío','Adulto') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `responsable_id` int DEFAULT NULL
+  `responsable_username` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `patients`
 --
 
-INSERT INTO `patients` (`id`, `primer_nombre`, `segundo_nombre`, `primer_apellido`, `segundo_apellido`, `numero_identificacion`, `tipo_identificacion`, `ubicacion`, `status`, `created_at`, `fecha_nacimiento`, `age_group`, `responsable_id`) VALUES
+INSERT INTO `patients` (`id`, `primer_nombre`, `segundo_nombre`, `primer_apellido`, `segundo_apellido`, `numero_identificacion`, `tipo_identificacion`, `ubicacion`, `status`, `created_at`, `fecha_nacimiento`, `age_group`, `responsable_username`) VALUES
 (1, 'María', 'Luisa', 'Sánchez', 'Torres', '12354661', 'tarjeta de identidad', '102B', 'activo', '2024-01-02 10:00:00', '2007-04-20', 'Adulto', NULL),
 (2, 'Pedro', 'Antonio', 'Gómez', 'Rodríguez', '123987456', 'tarjeta de identidad', '103C', 'activo', '2024-01-03 10:00:00', '2010-05-30', 'Adulto', NULL),
 (3, 'Maria', 'Isabel', 'Martínez', 'López', '456123789', 'cédula de ciudadanía', '104A', 'activo', '2024-01-04 10:00:00', '2024-11-19', 'Recién nacido', NULL),
@@ -101,7 +101,7 @@ INSERT INTO `patients` (`id`, `primer_nombre`, `segundo_nombre`, `primer_apellid
 (51, 'José', 'Luis', 'Martínez', 'González', '78451392', 'tarjeta de identidad', '152A', 'activo', '2024-02-21 10:00:00', '2006-12-15', 'Recién nacido', NULL),
 (52, 'Marcela', 'Andrea', 'Rodríguez', 'Gómez', '258963752', 'tarjeta de identidad', '153B', 'activo', '2024-02-22 10:00:00', '2007-07-19', 'Recién nacido', NULL),
 (53, 'Tomás', 'Antonio', 'Gómez', 'Martínez', '123574689', 'cédula de ciudadanía', '154C', 'activo', '2024-02-23 10:00:00', '1996-05-12', '', NULL),
-(54, 'Ana', 'Isabel', 'Sánchez', 'González', '963852748', 'cédula de ciudadanía', '155A', 'activo', '2024-02-24 10:00:00', '2024-07-10', 'Lactante temprano', NULL),
+(54, 'Ana', 'Isabel', 'Sánchez', 'González', '963852748', 'cédula de ciudadanía', '155A', 'activo', '2024-02-24 10:00:00', '2024-07-10', 'Lactante temprano', 'Laura Quintero'),
 (55, 'Fernando', 'Gabriel', 'Martínez', 'Gómez', '258741562', 'cédula de ciudadanía', '156B', 'activo', '2024-02-25 10:00:00', '1987-03-23', '', NULL),
 (56, 'Raúl', 'José', 'Sánchez', 'Martínez', '7458623', 'cédula de ciudadanía', '157C', 'activo', '2024-02-26 10:00:00', '1992-02-06', '', NULL),
 (57, 'Marta', 'Patricia', 'Rodríguez', 'Fernández', '7456921', 'cédula de ciudadanía', '158A', 'activo', '2024-02-27 10:00:00', '2004-06-18', 'Recién nacido', NULL),
@@ -127,9 +127,7 @@ INSERT INTO `patients` (`id`, `primer_nombre`, `segundo_nombre`, `primer_apellid
 (1079053, 'adads', 'fvjhbm', 'vjhmvhjbm', 'vhjm nvjhm n', '22222', 'cédula de ciudadanía', '15', 'activo', '2024-11-22 21:29:22', '2010-04-27', 'Adulto', NULL),
 (1079054, 'eqdas', 'vjhbmn ', 'vgjhb mn', 'hjbmn ', '33333', 'cédula de ciudadanía', '512', 'activo', '2024-11-22 21:30:37', '2010-04-27', 'Adulto', NULL),
 (1079055, 'qsa', 'q', 'qqq', 'q', '55555', 'cédula de ciudadanía', '1235', 'activo', '2024-11-23 02:13:49', '2024-11-22', 'Recién nacido', NULL),
-(1079056, 'hbj', 'uhkjbnm', 'hbjnm ', 'bjn', '45132', 'cédula de ciudadanía', '65', 'activo', '2024-11-23 21:54:31', '2202-02-22', 'Adulto', 28),
-(1079057, 'hiuj', 'uihbkjn', 'huijkn', 'hujnk', '86532', 'cédula de ciudadanía', '562', 'activo', '2024-11-23 21:56:30', '2222-02-22', 'Adulto', 24),
-(1079058, 'aaaaaa', 'aaaaaaa', 'aaaaaaaaaa', 'aaaaaaaaa', '84512', 'cédula de ciudadanía', '2', 'activo', '2024-11-25 16:57:55', '2222-02-22', 'Adulto', 24);
+(1079059, 'w', 'w', 'w', 'w', '74512', 'cédula de ciudadanía', '5', 'activo', '2024-11-25 17:13:26', '2020-02-22', 'Preescolar temprano', 'Laura Quintero');
 
 -- --------------------------------------------------------
 
@@ -204,7 +202,8 @@ INSERT INTO `registros_paciente` (`id`, `id_paciente`, `record_date`, `record_ti
 (53, 54, '2024-11-22', '10:25:00', 120, 80, 83.00, 40, 35.0, 50, 100, NULL, 20.0, 120, '', '2024-11-22 15:26:15'),
 (54, 47, '2024-11-22', '10:27:00', 120, 80, 83.00, 45, 35.0, 50, 100, NULL, 20.0, 120, '', '2024-11-22 15:27:28'),
 (55, 54, '2024-11-22', '16:26:00', 120, 80, 83.00, 50, 35.0, 50, 100, NULL, 20.0, 120, '', '2024-11-22 21:26:49'),
-(56, 1079054, '2024-11-22', '16:30:00', 120, 80, 83.00, 50, 35.0, 50, 100, 25.000, NULL, 120, '', '2024-11-22 21:30:57');
+(56, 1079054, '2024-11-22', '16:30:00', 120, 80, 83.00, 50, 35.0, 50, 100, 25.000, NULL, 120, '', '2024-11-22 21:30:57'),
+(57, 54, '2024-11-25', '15:01:00', 120, 80, 83.00, 50, 25.0, 50, 100, NULL, 20.0, 120, '', '2024-11-25 20:01:36');
 
 -- --------------------------------------------------------
 
@@ -245,7 +244,7 @@ INSERT INTO `users` (`id`, `username`, `password`, `email`, `role`, `created_at`
 ALTER TABLE `patients`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `numero_identificacion` (`numero_identificacion`),
-  ADD KEY `fk_responsable` (`responsable_id`);
+  ADD KEY `fk_responsable_username` (`responsable_username`);
 
 --
 -- Indices de la tabla `registros_paciente`
@@ -271,13 +270,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT de la tabla `patients`
 --
 ALTER TABLE `patients`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1079059;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1079060;
 
 --
 -- AUTO_INCREMENT de la tabla `registros_paciente`
 --
 ALTER TABLE `registros_paciente`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 
 --
 -- AUTO_INCREMENT de la tabla `users`
@@ -293,7 +292,7 @@ ALTER TABLE `users`
 -- Filtros para la tabla `patients`
 --
 ALTER TABLE `patients`
-  ADD CONSTRAINT `fk_responsable` FOREIGN KEY (`responsable_id`) REFERENCES `users` (`id`);
+  ADD CONSTRAINT `fk_responsable_username` FOREIGN KEY (`responsable_username`) REFERENCES `users` (`username`);
 
 --
 -- Filtros para la tabla `registros_paciente`
