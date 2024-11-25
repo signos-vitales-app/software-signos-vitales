@@ -46,16 +46,17 @@ exports.registerPatient = async (req, res) => {
     const age_group = calculateAgeGroup(fecha_nacimiento);
 
     try {
-        if (!req.user || !req.user.id) {
+        if (!req.user || !req.user.username) {
             return res.status(401).json({ message: 'Usuario no autenticado o token inválido' });
         }
         // Asegurarte de que el usuario autenticado está disponible en req.user
         const responsable_id = req.user.id;
+        const responsable_username = req.user.username;
 
         await db.query(
             `INSERT INTO patients 
             (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, 
-            fecha_nacimiento, tipo_identificacion, ubicacion, status, age_group, responsable_id) 
+            fecha_nacimiento, tipo_identificacion, ubicacion, status, age_group, responsable_username) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 primer_nombre,
@@ -68,7 +69,7 @@ exports.registerPatient = async (req, res) => {
                 ubicacion,
                 status || 'activo',
                 age_group,
-                responsable_id, // Aquí guardamos al usuario que registró al paciente
+                responsable_username, // Aquí guardamos al usuario que registró al paciente
             ]
         );
 
@@ -85,13 +86,36 @@ exports.updatePatient = async (req, res) => {
     const { id } = req.params;
     const { primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, tipo_identificacion, ubicacion, status, fecha_nacimiento } = req.body;
 
+    if (!req.user || !req.user.username) {
+        return res.status(401).json({ message: 'Usuario no autenticado o token inválido' });
+    }
+
+    const responsable_username = req.user.username; // Usuario actual
+
     // Calcular el grupo de edad
     const age_group = calculateAgeGroup(fecha_nacimiento);
 
     try {
         const [result] = await db.query(
-            "UPDATE patients SET primer_nombre = ?, segundo_nombre = ?, primer_apellido = ?, segundo_apellido = ?, numero_identificacion = ?, tipo_identificacion = ?, ubicacion = ?, status = ?, fecha_nacimiento = ?, age_group = ? WHERE id = ?",
-            [primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, tipo_identificacion, ubicacion, status, fecha_nacimiento, age_group, id]
+            `UPDATE patients 
+             SET primer_nombre = ?, segundo_nombre = ?, primer_apellido = ?, segundo_apellido = ?, 
+                 numero_identificacion = ?, tipo_identificacion = ?, ubicacion = ?, status = ?, 
+                 fecha_nacimiento = ?, age_group = ?, responsable_username = ? 
+             WHERE id = ?`,
+            [
+                primer_nombre,
+                segundo_nombre,
+                primer_apellido,
+                segundo_apellido,
+                numero_identificacion,
+                tipo_identificacion,
+                ubicacion,
+                status,
+                fecha_nacimiento,
+                age_group,
+                responsable_username, // Usuario logueado como responsable
+                id
+            ]
         );
 
         if (result.affectedRows === 0) {
@@ -104,6 +128,53 @@ exports.updatePatient = async (req, res) => {
         res.status(500).json({ message: "Error al actualizar paciente" });
     }
 };
+exports.updatePatient = async (req, res) => {
+    const { id } = req.params;
+    const { primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, tipo_identificacion, ubicacion, status, fecha_nacimiento } = req.body;
+
+    if (!req.user || !req.user.username) {
+        return res.status(401).json({ message: 'Usuario no autenticado o token inválido' });
+    }
+
+    const responsable_username = req.user.username; // Usuario actual
+
+    // Calcular el grupo de edad
+    const age_group = calculateAgeGroup(fecha_nacimiento);
+
+    try {
+        const [result] = await db.query(
+            `UPDATE patients 
+             SET primer_nombre = ?, segundo_nombre = ?, primer_apellido = ?, segundo_apellido = ?, 
+                 numero_identificacion = ?, tipo_identificacion = ?, ubicacion = ?, status = ?, 
+                 fecha_nacimiento = ?, age_group = ?, responsable_username = ? 
+             WHERE id = ?`,
+            [
+                primer_nombre,
+                segundo_nombre,
+                primer_apellido,
+                segundo_apellido,
+                numero_identificacion,
+                tipo_identificacion,
+                ubicacion,
+                status,
+                fecha_nacimiento,
+                age_group,
+                responsable_username, // Usuario logueado como responsable
+                id
+            ]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Paciente no encontrado" });
+        }
+
+        res.json({ message: "Paciente actualizado exitosamente" });
+    } catch (error) {
+        console.error("Error al actualizar paciente:", error);
+        res.status(500).json({ message: "Error al actualizar paciente" });
+    }
+};
+
 
 // Actualizar estado de un paciente
 exports.updatePatientStatus = async (req, res) => {

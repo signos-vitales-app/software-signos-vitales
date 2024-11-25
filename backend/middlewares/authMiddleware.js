@@ -11,9 +11,11 @@ const authMiddleware = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         console.log('Token decodificado:', decoded); // <-- Inspeccionar contenido del token
-
-        req.user = decoded;
-
+        // Asegurarte de incluir el username en req.user
+        req.user = {
+            id: decoded.id,
+            username: decoded.username, // Asegúrate de que el token incluye el username
+        };
         next();
     } catch (error) {
         console.error('Auth middleware error:', error);

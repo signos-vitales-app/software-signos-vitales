@@ -118,6 +118,13 @@ const EditPatient = () => {
         e.preventDefault();
 
         try {
+            const token = localStorage.getItem('token'); // Asegúrate de guardar el token al iniciar sesión
+
+            if (!token) {
+                toast.error("No se encontró un token. Por favor, inicia sesión.");
+                return;
+            }
+    
             await updatePatient(idPaciente, {
                 primer_nombre: primerNombre,
                 segundo_nombre: segundoNombre,
@@ -130,7 +137,9 @@ const EditPatient = () => {
                 status,
                 edad,
                 age_group: ageGroup, 
-            });
+            }, token // Pasa el token al servicio
+
+        );
             toast.success("Paciente actualizado exitosamente");
             navigate("/search-patient");
         } catch (error) {

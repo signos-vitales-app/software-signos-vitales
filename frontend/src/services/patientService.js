@@ -35,6 +35,15 @@ export const fetchPatientRecords = async (idPaciente) => {
     return await axios.get(`${API_URL}/patient-records/${idPaciente}`);
 };
 // Función para editar paciente
-export const updatePatient = async (idPaciente, updatedData) => {
-    return await axios.put(`${API_URL}/patients/${idPaciente}`, updatedData);
+export const updatePatient = async (idPaciente, updatedData, token) => {
+    return await axios.put(
+        `${API_URL}/patients/${idPaciente}`,
+        updatedData,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`, // Envía el token en el encabezado
+            },
+        }
+    );
 };
+

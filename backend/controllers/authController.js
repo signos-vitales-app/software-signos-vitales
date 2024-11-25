@@ -92,7 +92,7 @@ exports.login = async (req, res) => {
         const { numero_identificacion, password } = req.body;
 
         const [rows] = await db.query(
-            "SELECT id, numero_identificacion, password, role, is_active FROM users WHERE numero_identificacion = ?",
+            "SELECT id, username, numero_identificacion, password, role, is_active FROM users WHERE numero_identificacion = ?",
             [numero_identificacion]
         );
 
@@ -127,6 +127,7 @@ exports.login = async (req, res) => {
         res.json({
             token,
             role: user.role,
+            username:user.username,
             numero_identificacion: user.numero_identificacion,
             id: user.id
         });
