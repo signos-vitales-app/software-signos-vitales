@@ -292,9 +292,10 @@ const PatientRecordHistory = () => {
     return (
         <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6 overflow-auto">
             <h1 className="text-2xl font-bold mb-6">Registro del Paciente</h1>
-            <div className="bg-white p-4 rounded shadow-lg w-full max-w-4xl mb-6 overflow-x-auto" ref={tableRef}>
+            <div className="bg-white p-4 rounded shadow-lg w-full max-w-5xl mb-6 overflow-x-auto" ref={tableRef}>
                 {/* Información del paciente */}
                 <div className="flex justify-between mb-4">
+                    
                     <div>
                         <p><strong>Nombre:</strong> {patientInfo.primer_nombre} {patientInfo.segundo_nombre} {patientInfo.primer_apellido} {patientInfo.segundo_apellido}</p>
                         <p><strong>Tipo de identificación:</strong> {patientInfo.tipo_identificacion}</p>
@@ -337,7 +338,7 @@ const PatientRecordHistory = () => {
                 </div>
 
                 {/* Tabla de Registros Filtrados */}
-                <table className="w-full border-collapse">
+                <table className="w-full border-collapse table-auto">
                     <thead>
                         <tr className="bg-blue-100">
                             <th className="p-2 border">Fecha</th>
@@ -354,6 +355,8 @@ const PatientRecordHistory = () => {
                                 {['Recién nacido', 'Lactante temprano', 'Lactante mayor', 'Niño pequeño', 'Preescolar temprano', 'Preescolar tardío'].includes(ageGroup) ? "Peso Pediátrico (kg)" : "Peso Adulto (kg)"}
                             </th>
                             <th className="p-2 border">Observaciones</th>
+                            <th className="p-2 border">Registrado por</th> 
+
                         </tr>
                     </thead>
                     <tbody>
@@ -390,6 +393,8 @@ const PatientRecordHistory = () => {
                                 </td>
                                 {/* Observaciones */}
                                 <td className="p-2 border">{record.observaciones || "-"}</td>
+                                <td className="p-2 border">{record.responsable_signos || "No disponible"}</td> {/* Aquí se muestra el responsable */}
+
                             </tr>
                         ))}
                     </tbody>
@@ -420,10 +425,10 @@ const PatientRecordHistory = () => {
             </div>
             
             {/* Gráfico de Signos Vitales */}
-            <div className="bg-white p-4 rounded shadow-lg w-full max-w-4xl mb-6" ref={chartRef}>
+            <div className="bg-white p-4 rounded shadow-lg w-full max-w-5xl mb-6" ref={chartRef}>
             <div>
                         <h3 className="font-bold">Variables para graficar:</h3>
-                        <div className="flex space-x-4">
+                        <div className="flex space-x-5">
                             {["pulso", "temperatura", "frecuencia_respiratoria", "presion_sistolica", "presion_diastolica", "saturacion_oxigeno"].map(variable => (
                                 <label key={variable} className="flex items-center">
                                     <input

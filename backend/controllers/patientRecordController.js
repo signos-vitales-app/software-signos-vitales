@@ -9,6 +9,11 @@ exports.createPatientRecord = async (req, res) => {
         pulso, temperatura, frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones
     } = req.body;
 
+    const responsable_signos = req.user?.username; // Asegúrate de que el middleware authMiddleware adjunte el usuario a req.user
+
+    if (!responsable_signos) {
+        return res.status(401).json({ message: "Usuario no autorizado para realizar esta acción" });
+    }
     // Verifica si los valores de entradas son reales, es decir que verifica si ese dato es posible o no, ya que pueden haber errores en el ingreso de la informaicon 
     if (talla > 250) {
         return res.status(400).json({ message: "La altura excede el valor máximo realista" });
@@ -34,8 +39,8 @@ exports.createPatientRecord = async (req, res) => {
     try {
         // Insertar el nuevo registro en la base de datos del paciente
         await db.query(
-            "INSERT INTO registros_paciente (id_paciente, record_date, record_time, presion_sistolica, presion_diastolica, presion_media, pulso, temperatura, frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            [id_paciente, record_date, record_time, presion_sistolica, presion_diastolica, presion_media, pulso, temperatura, frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones]
+            "INSERT INTO registros_paciente (id_paciente, record_date, record_time, presion_sistolica, presion_diastolica, presion_media, pulso, temperatura, frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones, responsable_signos) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [id_paciente, record_date, record_time, presion_sistolica, presion_diastolica, presion_media, pulso, temperatura, frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones, responsable_signos]
         );
 
         res.status(201).json({ message: "Registro del paciente creado exitosamente" });
@@ -44,7 +49,7 @@ exports.createPatientRecord = async (req, res) => {
         // Guardar los datos localmente si falla la conexión a la base de datos
         const offlineRecord = {
             id_paciente, record_date, record_time, presion_sistolica, presion_diastolica, presion_media,
-            pulso, temperatura, frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones
+            pulso, temperatura, frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones, responsable_signos
         };
 
         saveOfflineRecord(offlineRecord);

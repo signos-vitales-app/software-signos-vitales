@@ -52,6 +52,12 @@ const PatientDataForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const token = localStorage.getItem("token");
+
+    if (!token) {
+        toast.error("Token no encontrado. Por favor inicia sesión nuevamente.");
+        return;
+    }
         try {
             await createPatientRecord({
                 id_paciente: idPaciente,
@@ -68,7 +74,9 @@ const PatientDataForm = () => {
                 peso_pediatrico: ageGroup !== "Adulto" ? pesoPediatrico : null,
                 talla,
                 observaciones,
-            });
+            },
+            token
+        );
             toast.success("¡Los datos del paciente se guardaron correctamente!");
             navigate(`/patient/${idPaciente}/records`);
         } catch (error) {

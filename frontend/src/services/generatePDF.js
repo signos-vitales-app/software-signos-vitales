@@ -57,9 +57,9 @@ const generatePDF = async (patientInfo, edad, ageUnit, ageGroup, filteredRecords
         // Datos de la tabla
         const tableColumns = [
             "Fecha", "Hora", "Pulso", "T °C", "FR",
-            "TAS", "TAD", "TAM",
-            "SatO2 %", "Peso", "Observaciones"
+            "TAS", "TAD", "TAM", "SatO2 %", "Peso", "Observaciones", "Responsable"
         ];
+        
 
         // Definir los rangos específicos
         const vitalSignRanges = {
@@ -186,6 +186,8 @@ const tableData = filteredRecords.map((record) => {
         },
         { content: record.peso_pediatrico || record.peso_adulto, styles: {} },
         { content: record.observaciones || "-", styles: {} },
+        { content: record.responsable_signos || "No disponible", styles: {} },  // Nueva columna para el responsable
+
     ];
 });
 
@@ -194,13 +196,24 @@ const tableData = filteredRecords.map((record) => {
         autoTable(doc, {
             head: [tableColumns],
             body: tableData,
-        startY: 70,
-        theme: 'striped',
-        headStyles: { fillColor: [54, 162, 235], textColor: 255, fontSize: 11 },
-        bodyStyles: { textColor: 50, fontSize: 10, fillColor: [255, 255, 255] },
-        alternateRowStyles: { fillColor: [255, 255, 255] },
-
-    });
+            startY: 70,
+            theme: 'striped',
+            headStyles: { 
+                fillColor: [54, 162, 235], 
+                textColor: 255, 
+                fontSize: 9,   // Tamaño de la fuente de los encabezados
+            },
+            bodyStyles: { 
+                textColor: 50, 
+                fontSize: 8,   // Tamaño de la fuente de las celdas
+                fillColor: [255, 255, 255] 
+            },
+            alternateRowStyles: { 
+                fillColor: [255, 255, 255] 
+            },
+        });
+        
+        
         // Espaciado entre la tabla y los gráficos
         doc.addPage();
         doc.setFontSize(12);
