@@ -10,6 +10,7 @@ import "jspdf-autotable"; // Importar el complemento para la tabla
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
 import generatePDF from "../services/generatePDF";
+import { getUserInfo } from '../services/authService';
 
 const PatientRecordHistory = () => {
     const { idPaciente } = useParams();
@@ -28,6 +29,7 @@ const PatientRecordHistory = () => {
 
     const tableRef = useRef(null);
     const chartRef = useRef(null);
+    const role = localStorage.getItem('role');
 
     // Función para calcular la edad en años
     const calculateAge = (date) => {
@@ -89,7 +91,6 @@ const PatientRecordHistory = () => {
         const group = calculateAgeGroup(date);
         setAgeGroup(group);
     };
-
     useEffect(() => {
         loadPatientRecords();
     }, []); // Se ejecuta una sola vez cuando la página se carga
@@ -421,10 +422,15 @@ const PatientRecordHistory = () => {
                         <FiDownload className="mr-2" /> Exportar como PDF
                     </button>
                    
-                        <button onClick={handleRedirect} className="flex items-center px-4 py-2 bg-red-500 text-white font-bold rounded hover:bg-red-600 transition"
-                    >
-                        <MdOutlinePublishedWithChanges className="mr-2" />Ver Historial de cambios</button>
-                 
+                    {role === "jefe" && (
+                <button
+                    onClick={handleRedirect}
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+                >
+                    <MdOutlinePublishedWithChanges className="inline mr-2" />
+                    Ver Historial de Cambios
+                </button>
+            )}
                     <button
                         onClick={handleGoBack}
                         className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
