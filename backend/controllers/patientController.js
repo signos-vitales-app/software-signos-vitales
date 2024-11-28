@@ -80,41 +80,56 @@ exports.registerPatient = async (req, res) => {
     }
 };
 
-
 // Actualizar información de un paciente
 exports.updatePatient = async (req, res) => {
     const { id } = req.params;
-    const { primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, tipo_identificacion, ubicacion, status, fecha_nacimiento } = req.body;
+    const {
+        primer_nombre,
+        segundo_nombre,
+        primer_apellido,
+        segundo_apellido,
+        numero_identificacion,
+        tipo_identificacion,
+        ubicacion,
+        status,
+        fecha_nacimiento,
+    } = req.body;
 
     if (!req.user || !req.user.username) {
         return res.status(401).json({ message: 'Usuario no autenticado o token inválido' });
     }
 
-    const responsable_username = req.user.username; // Usuario actual
-
-    // Calcular el grupo de edad
-    const age_group = calculateAgeGroup(fecha_nacimiento);
+    const responsable_registro = req.user.username; // Usuario que realiza el cambio
 
     try {
+        // Obtén los datos actuales del paciente
+        const [currentData] = await db.query("SELECT * FROM patients WHERE id = ?", [id]);
+        if (currentData.length === 0) {
+            return res.status(404).json({ message: "Paciente no encontrado" });
+        }
+
+        const pacienteActual = currentData[0];
+
+        // Actualiza los datos en la tabla principal con soporte para valores eliminados
         const [result] = await db.query(
             `UPDATE patients 
-             SET primer_nombre = ?, segundo_nombre = ?, primer_apellido = ?, segundo_apellido = ?, 
-                 numero_identificacion = ?, tipo_identificacion = ?, ubicacion = ?, status = ?, 
-                 fecha_nacimiento = ?, age_group = ?, responsable_username = ? 
-             WHERE id = ?`,
+            SET primer_nombre = ?, segundo_nombre = ?, primer_apellido = ?, segundo_apellido = ?, 
+                numero_identificacion = ?, tipo_identificacion = ?, ubicacion = ?, status = ?, 
+                fecha_nacimiento = ?, age_group = ?, responsable_username = ? 
+            WHERE id = ?`,
             [
-                primer_nombre,
-                segundo_nombre,
-                primer_apellido,
-                segundo_apellido,
-                numero_identificacion,
-                tipo_identificacion,
-                ubicacion,
-                status,
-                fecha_nacimiento,
-                age_group,
-                responsable_username, // Usuario logueado como responsable
-                id
+                primer_nombre !== undefined ? primer_nombre : pacienteActual.primer_nombre,
+                segundo_nombre !== undefined ? segundo_nombre : pacienteActual.segundo_nombre,
+                primer_apellido !== undefined ? primer_apellido : pacienteActual.primer_apellido,
+                segundo_apellido !== undefined ? segundo_apellido : pacienteActual.segundo_apellido,
+                numero_identificacion !== undefined ? numero_identificacion : pacienteActual.numero_identificacion,
+                tipo_identificacion !== undefined ? tipo_identificacion : pacienteActual.tipo_identificacion,
+                ubicacion !== undefined ? ubicacion : pacienteActual.ubicacion,
+                status !== undefined ? status : pacienteActual.status,
+                fecha_nacimiento !== undefined ? fecha_nacimiento : pacienteActual.fecha_nacimiento,
+                calculateAgeGroup(fecha_nacimiento || pacienteActual.fecha_nacimiento),
+                responsable_registro,
+                id,
             ]
         );
 
@@ -122,59 +137,35 @@ exports.updatePatient = async (req, res) => {
             return res.status(404).json({ message: "Paciente no encontrado" });
         }
 
-        res.json({ message: "Paciente actualizado exitosamente" });
-    } catch (error) {
-        console.error("Error al actualizar paciente:", error);
-        res.status(500).json({ message: "Error al actualizar paciente" });
-    }
-};
-exports.updatePatient = async (req, res) => {
-    const { id } = req.params;
-    const { primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, numero_identificacion, tipo_identificacion, ubicacion, status, fecha_nacimiento } = req.body;
-
-    if (!req.user || !req.user.username) {
-        return res.status(401).json({ message: 'Usuario no autenticado o token inválido' });
-    }
-
-    const responsable_username = req.user.username; // Usuario actual
-
-    // Calcular el grupo de edad
-    const age_group = calculateAgeGroup(fecha_nacimiento);
-
-    try {
-        const [result] = await db.query(
-            `UPDATE patients 
-             SET primer_nombre = ?, segundo_nombre = ?, primer_apellido = ?, segundo_apellido = ?, 
-                 numero_identificacion = ?, tipo_identificacion = ?, ubicacion = ?, status = ?, 
-                 fecha_nacimiento = ?, age_group = ?, responsable_username = ? 
-             WHERE id = ?`,
+        // Registra el cambio en el historial con soporte para valores eliminados
+        await db.query(
+            `INSERT INTO historial_paciente
+            (id_paciente, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido,
+            numero_identificacion, tipo_identificacion, ubicacion, status, fecha_nacimiento,
+            age_group, responsable_registro, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
             [
-                primer_nombre,
-                segundo_nombre,
-                primer_apellido,
-                segundo_apellido,
-                numero_identificacion,
-                tipo_identificacion,
-                ubicacion,
-                status,
-                fecha_nacimiento,
-                age_group,
-                responsable_username, // Usuario logueado como responsable
-                id
+                pacienteActual.id,
+                primer_nombre !== undefined ? primer_nombre : pacienteActual.primer_nombre,
+                segundo_nombre !== undefined ? segundo_nombre : pacienteActual.segundo_nombre,
+                primer_apellido !== undefined ? primer_apellido : pacienteActual.primer_apellido,
+                segundo_apellido !== undefined ? segundo_apellido : pacienteActual.segundo_apellido,
+                numero_identificacion !== undefined ? numero_identificacion : pacienteActual.numero_identificacion,
+                tipo_identificacion !== undefined ? tipo_identificacion : pacienteActual.tipo_identificacion,
+                ubicacion !== undefined ? ubicacion : pacienteActual.ubicacion,
+                status !== undefined ? status : pacienteActual.status,
+                fecha_nacimiento !== undefined ? fecha_nacimiento : pacienteActual.fecha_nacimiento,
+                calculateAgeGroup(fecha_nacimiento || pacienteActual.fecha_nacimiento),
+                responsable_registro,
             ]
         );
 
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Paciente no encontrado" });
-        }
-
-        res.json({ message: "Paciente actualizado exitosamente" });
+        res.json({ message: "Paciente actualizado exitosamente y registrado en el historial" });
     } catch (error) {
         console.error("Error al actualizar paciente:", error);
         res.status(500).json({ message: "Error al actualizar paciente" });
     }
 };
-
 
 // Actualizar estado de un paciente
 exports.updatePatientStatus = async (req, res) => {
@@ -205,3 +196,4 @@ exports.getPatientInfo = async (req, res) => {
         res.status(500).json({ message: "Error al recuperar la información del paciente" });
     }
 };
+
