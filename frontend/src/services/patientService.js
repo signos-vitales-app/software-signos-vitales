@@ -60,3 +60,27 @@ export const updatePatient = async (idPaciente, updatedData, token) => {
     );
 };
 
+// Obtener el historial de cambios de un paciente
+export const fetchPatientHistory = async (idPaciente, token) => {
+    try {
+        const response = await axios.get(
+            `${API_URL}/patient-records/history/${idPaciente}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        console.log("Respuesta del historial del paciente:", response.data); // Verifica que los datos llegan
+        return response;
+    } catch (error) {
+        console.error("Error al obtener el historial del paciente:", error);
+        throw error;
+    }
+};
+
+
+
+
+
+

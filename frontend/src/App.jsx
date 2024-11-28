@@ -19,6 +19,7 @@ import RegisterUser from './pages/RegisterUser'; // Importamos el nuevo componen
 import SearchUsers from './pages/SearchUsers'; // Importamos el nuevo componente de tabla de usuarios
 import EditPatient from './pages/EditPatient';
 import EditUser from './pages/EditUser';
+import PatientHistoryPage from "./pages/PatientHistoryTable";
 
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
                 <Route path="/patient/:idPaciente/graphs" element={<ProtectedRoute><Layout><PatientGraphs /></Layout></ProtectedRoute>} />
                 <Route path="/search-patient" element={<ProtectedRoute><Layout><SearchPatient /></Layout></ProtectedRoute>} />
                 <Route path="/admin-panel" element={<ProtectedRoute><Layout><AdminPanel /></Layout></ProtectedRoute>} />
+                <Route path="/patient-history/:idPaciente" element={<ProtectedRoute><Layout><PatientHistoryPage/></Layout> /</ProtectedRoute>}/>
 
                 {/* Nuevas rutas para registro y búsqueda de usuarios */}
                 <Route path="/register-user" element={<ProtectedRoute><Layout><RegisterUser /></Layout></ProtectedRoute>} />

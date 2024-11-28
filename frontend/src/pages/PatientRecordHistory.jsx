@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchPatientRecords } from "../services/patientService";
 import { FiPlusCircle, FiHome, FiFilter, FiDownload } from "react-icons/fi";
+import { MdOutlinePublishedWithChanges } from "react-icons/md";
+
 import { format } from "date-fns";
 import VitalSignsChart from "./VitalSignsChart";
 import "jspdf-autotable"; // Importar el complemento para la tabla
@@ -201,12 +203,12 @@ const PatientRecordHistory = () => {
             return;
         }
         try {
-            await generatePDF(patientInfo, edad, ageUnit, ageGroup, filteredRecords, chartRef.current,chartRef);
+            await generatePDF(patientInfo, edad, ageUnit, ageGroup, filteredRecords, chartRef.current, chartRef);
         } catch (error) {
             console.error("Error al generar el PDF", error);
         }
     };
-    
+
 
     if (loading) {
         return <div className="flex justify-center items-center h-screen">Cargando...</div>;
@@ -287,6 +289,9 @@ const PatientRecordHistory = () => {
         return 'bg-white'; // Blanco si el valor está dentro del rango normal
     };
 
+    const handleRedirect = () => {
+        navigate(`/patient-history/${idPaciente}`); // Incluye el idPaciente en la ruta
+    };
 
 
     return (
@@ -295,7 +300,7 @@ const PatientRecordHistory = () => {
             <div className="bg-white p-4 rounded shadow-lg w-full max-w-5xl mb-6 overflow-x-auto" ref={tableRef}>
                 {/* Información del paciente */}
                 <div className="flex justify-between mb-4">
-                    
+
                     <div>
                         <p><strong>Nombre:</strong> {patientInfo.primer_nombre} {patientInfo.segundo_nombre} {patientInfo.primer_apellido} {patientInfo.segundo_apellido}</p>
                         <p><strong>Tipo de identificación:</strong> {patientInfo.tipo_identificacion}</p>
@@ -334,7 +339,7 @@ const PatientRecordHistory = () => {
                         </button>
                     </div>
 
-                    
+
                 </div>
 
                 {/* Tabla de Registros Filtrados */}
@@ -355,7 +360,7 @@ const PatientRecordHistory = () => {
                                 {['Recién nacido', 'Lactante temprano', 'Lactante mayor', 'Niño pequeño', 'Preescolar temprano', 'Preescolar tardío'].includes(ageGroup) ? "Peso Pediátrico (kg)" : "Peso Adulto (kg)"}
                             </th>
                             <th className="p-2 border">Observaciones</th>
-                            <th className="p-2 border">Registrado por</th> 
+                            <th className="p-2 border">Registrado por</th>
 
                         </tr>
                     </thead>
@@ -415,6 +420,11 @@ const PatientRecordHistory = () => {
                     >
                         <FiDownload className="mr-2" /> Exportar como PDF
                     </button>
+                   
+                        <button onClick={handleRedirect} className="flex items-center px-4 py-2 bg-red-500 text-white font-bold rounded hover:bg-red-600 transition"
+                    >
+                        <MdOutlinePublishedWithChanges className="mr-2" />Ver Historial de cambios</button>
+                 
                     <button
                         onClick={handleGoBack}
                         className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
@@ -423,25 +433,25 @@ const PatientRecordHistory = () => {
                     </button>
                 </div>
             </div>
-            
+
             {/* Gráfico de Signos Vitales */}
             <div className="bg-white p-4 rounded shadow-lg w-full max-w-5xl mb-6" ref={chartRef}>
-            <div>
-                        <h3 className="font-bold">Variables para graficar:</h3>
-                        <div className="flex space-x-5">
-                            {["pulso", "temperatura", "frecuencia_respiratoria", "presion_sistolica", "presion_diastolica", "saturacion_oxigeno"].map(variable => (
-                                <label key={variable} className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedVariables.includes(variable)}
-                                        onChange={() => toggleVariable(variable)}
-                                        className="mr-2"
-                                    />
-                                    {variableLabels[variable]}
-                                </label>
-                            ))}
-                        </div>
-                    </div>  
+                <div>
+                    <h3 className="font-bold">Variables para graficar:</h3>
+                    <div className="flex space-x-5">
+                        {["pulso", "temperatura", "frecuencia_respiratoria", "presion_sistolica", "presion_diastolica", "saturacion_oxigeno"].map(variable => (
+                            <label key={variable} className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    checked={selectedVariables.includes(variable)}
+                                    onChange={() => toggleVariable(variable)}
+                                    className="mr-2"
+                                />
+                                {variableLabels[variable]}
+                            </label>
+                        ))}
+                    </div>
+                </div>
                 <VitalSignsChart records={filteredRecords} selectedVariables={selectedVariables} />
             </div>
         </div>

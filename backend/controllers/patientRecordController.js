@@ -114,3 +114,24 @@ exports.getPatientRecords = async (req, res) => {
         res.status(500).json({ message: "Error al recuperar el registro del pacientes" });
     }
 };
+
+exports.getPatientHistory = async (req, res) => {
+    const { idPaciente } = req.params; // Asegúrate de que el idPaciente llega desde los parámetros de la URL
+    try {
+        const [rows] = await db.query(
+            `SELECT * FROM historial_paciente WHERE id_paciente = ? ORDER BY created_at DESC`,
+            [idPaciente]
+        );
+        console.log("ID del Paciente:", idPaciente);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "No se encontraron registros para este paciente" });
+        }
+
+        res.json(rows); // Devuelve los registros encontrados
+    } catch (error) {
+        console.error("Error al obtener el historial del paciente:", error);
+        res.status(500).json({ message: "Error al obtener el historial del paciente" });
+    }
+};
+
