@@ -47,6 +47,7 @@ export const createPatientRecord = async (recordData, token) => {
 export const fetchPatientRecords = async (idPaciente) => {
     return await axios.get(`${API_URL}/patient-records/${idPaciente}`);
 };
+
 // Función para editar paciente
 export const updatePatient = async (idPaciente, updatedData, token) => {
     return await axios.put(
@@ -77,6 +78,25 @@ export const fetchPatientHistory = async (idPaciente, token) => {
         console.error("Error al obtener el historial del paciente:", error);
         throw error;
     }
+};
+
+export const updatePatientRecord = async (recordId, updatedData, token) => {
+    return await axios.put(
+        `${API_URL}/patient-records/${recordId}`,
+        updatedData,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`, // Envía el token en el encabezado
+            },
+        }
+    );
+};
+export const fetchRecordById = async (recordId, token) => {
+    return await axios.get(`${API_URL}/patient-records/${recordId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`, // Envía el token en el encabezado si es necesario
+        },
+    });
 };
 
 

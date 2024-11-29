@@ -400,7 +400,14 @@ const PatientRecordHistory = () => {
                                 {/* Observaciones */}
                                 <td className="p-2 border">{record.observaciones || "-"}</td>
                                 <td className="p-2 border">{record.responsable_signos || "No disponible"}</td> {/* Aquí se muestra el responsable */}
-
+                                <td className="p-2 border">
+                                    <button
+                                        onClick={() => navigate(`/edit-record/${record.id}`)} // Asegúrate de que `record.id` sea el ID correcto
+                                        className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
+                                    >
+                                        Editar
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
@@ -421,16 +428,16 @@ const PatientRecordHistory = () => {
                     >
                         <FiDownload className="mr-2" /> Exportar como PDF
                     </button>
-                   
+
                     {role === "jefe" && (
-                <button
-                    onClick={handleRedirect}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-                >
-                    <MdOutlinePublishedWithChanges className="inline mr-2" />
-                    Ver Historial de Cambios
-                </button>
-            )}
+                        <button
+                            onClick={handleRedirect}
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+                        >
+                            <MdOutlinePublishedWithChanges className="inline mr-2" />
+                            Ver Historial de Cambios
+                        </button>
+                    )}
                     <button
                         onClick={handleGoBack}
                         className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
