@@ -136,40 +136,134 @@
     };
 
     exports.updatePatientRecord = async (req, res) => {
-        const { recordId } = req.params; // Suponiendo que estás pasando el ID del registro en la URL
+        const { recordId } = req.params; // ID del registro a actualizar
         const {
             record_date, record_time, presion_sistolica, presion_diastolica, presion_media,
             pulso, temperatura, frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones
         } = req.body;
     
+        const responsable_signos = req.user?.username; // Usuario que realiza la actualización
+
+        if (!responsable_signos) {
+            return res.status(401).json({ message: "Usuario no autorizado para realizar esta acción" });
+        }
+    
+        // Verifica si los valores de entradas son reales, es decir que verifica si ese dato es posible o no, ya que pueden haber errores en el ingreso de la informaicon 
+        if (talla > 250) {
+            return res.status(400).json({ message: "La altura excede el valor máximo realista" });
+        }
+        if (pulso > 200 || pulso < 40) {
+            return res.status(400).json({ message: "Valor de pulso fuera de rango" });
+        }
+        if (frecuencia_respiratoria > 70 || frecuencia_respiratoria < 10) {
+            return res.status(400).json({ message: "Frecuencia respiratoria demasiado alta o baja" });
+        }
+        if (saturacion_oxigeno > 100|| saturacion_oxigeno <50) {
+            return res.status(400).json({ message: "La saturación de oxígeno no puede superar el 100% o ser menor de 50%" });
+        }
+        if (presion_sistolica > 190 || presion_sistolica < 50) {
+            return res.status(400).json({ message: "La presion arterial sistolica es demasiado alta o baja" });
+        }
+        if (presion_diastolica > 130 || presion_diastolica < 40) {
+            return res.status(400).json({ message: "La presion arterial diastolica demasiado alta o baja" });
+        }
+        if (temperatura > 55 || temperatura < 15) {
+            return res.status(400).json({ message: "La temperatura demasiado alta o baja" });
+        }
         try {
+            // Obtén el estado actual del registro
+            const [currentData] = await db.query("SELECT * FROM registros_paciente WHERE id = ?", [recordId]);
+            if (currentData.length === 0) {
+                return res.status(404).json({ message: "Registro no encontrado" });
+            }
+    
+            const registroActual = currentData[0];
+    
             // Actualiza el registro en la base de datos
-            await db.query(
-                "UPDATE registros_paciente SET record_date = ?, record_time = ?, presion_sistolica = ?, presion_diastolica = ?, presion_media = ?, pulso = ?, temperatura = ?, frecuencia_respiratoria = ?, saturacion_oxigeno = ?, peso_adulto = ?, peso_pediatrico = ?, talla = ?, observaciones = ? WHERE id = ?",
-                [record_date, record_time, presion_sistolica, presion_diastolica, presion_media, pulso, temperatura, frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones, recordId]
+            const [result] = await db.query(
+                `UPDATE registros_paciente 
+                SET record_date = ?, record_time = ?, presion_sistolica = ?, presion_diastolica = ?, presion_media = ?, 
+                    pulso = ?, temperatura = ?, frecuencia_respiratoria = ?, saturacion_oxigeno = ?, peso_adulto = ?, 
+                    peso_pediatrico = ?, talla = ?, observaciones = ?, responsable_signos = ? 
+                WHERE id = ?`,
+                [record_date || registroActual.record_date, 
+                 record_time || registroActual.record_time, 
+                 presion_sistolica || registroActual.presion_sistolica, 
+                 presion_diastolica || registroActual.presion_diastolica, 
+                 presion_media || registroActual.presion_media, 
+                 pulso || registroActual.pulso, 
+                 temperatura || registroActual.temperatura, 
+                 frecuencia_respiratoria || registroActual.frecuencia_respiratoria, 
+                 saturacion_oxigeno || registroActual.saturacion_oxigeno, 
+                 peso_adulto || registroActual.peso_adulto, 
+                 peso_pediatrico || registroActual.peso_pediatrico, 
+                 talla || registroActual.talla, 
+                 observaciones || registroActual.observaciones, 
+                 responsable_signos, 
+                 recordId]
             );
     
-            res.status(200).json({ message: "Registro actualizado exitosamente" });
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ message: "No se pudo actualizar el registro" });
+            }
+    
+            // Registra los cambios en el historial
+            await db.query(
+                `INSERT INTO historial_registros_paciente
+                (id_registro, record_date, record_time, presion_sistolica, presion_diastolica, presion_media, pulso, temperatura, 
+                frecuencia_respiratoria, saturacion_oxigeno, peso_adulto, peso_pediatrico, talla, observaciones, responsable_signos, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+                [
+                    recordId,
+                    registroActual.record_date,
+                    registroActual.record_time,
+                    registroActual.presion_sistolica,
+                    registroActual.presion_diastolica,
+                    registroActual.presion_media,
+                    registroActual.pulso,
+                    registroActual.temperatura,
+                    registroActual.frecuencia_respiratoria,
+                    registroActual.saturacion_oxigeno,
+                    registroActual.peso_adulto,
+                    registroActual.peso_pediatrico,
+                    registroActual.talla,
+                    registroActual.observaciones,
+                    responsable_signos,
+                ]
+            );
+    
+            res.status(200).json({ message: "Registro actualizado exitosamente y cambios registrados en el historial" });
         } catch (error) {
             console.error("Error al actualizar el registro del paciente:", error);
             res.status(500).json({ message: "Error al actualizar el registro del paciente" });
         }
     };
+    
+    
     exports.getPatientRecordById = async (req, res) => {
         const { idPaciente, recordId } = req.params;
-    
+        console.log(req.params);  // Agrega esta línea para verificar la estructura
         try {
-            // Obtener el registro específico del paciente
-            const [record] = await db.query("SELECT * FROM registros_paciente WHERE id_paciente = ? AND id = ?", [idPaciente, recordId]);
+            // Realiza la consulta para obtener el registro específico
+            const [rows] = await db.query(
+                "SELECT * FROM registros_paciente WHERE id_paciente = ? AND id = ?",
+                [idPaciente, recordId]
+            );
     
-            if (!record.length) {
+            console.log("ID del Paciente:", idPaciente);
+            console.log("ID del Registro:", recordId);
+    
+            // Comprueba si el registro existe
+            if (rows.length === 0) {
                 return res.status(404).json({ message: "Registro no encontrado" });
             }
     
-            res.json(record[0]);
+            res.json(rows[0]); // Envía el primer registro encontrado
         } catch (error) {
             console.error("Error al recuperar el registro específico del paciente:", error);
             res.status(500).json({ message: "Error al recuperar el registro específico del paciente" });
         }
     };
+    
+    
     

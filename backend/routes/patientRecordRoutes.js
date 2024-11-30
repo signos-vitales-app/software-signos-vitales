@@ -6,6 +6,6 @@ const  authMiddleware = require('../middlewares/authMiddleware');
 router.post('/', authMiddleware,createPatientRecord); // Ruta para crear un registro de paciente
 router.get('/:idPaciente',getPatientRecords); // Ruta para obtener registros de un paciente específico
 router.get('/history/:idPaciente', getPatientHistory); // Nueva ruta
-router.put('/:recordId' ,updatePatientRecord); // Asegúrate de que `recordId` sea el ID del registro
+router.put('/:recordId' ,authMiddleware,updatePatientRecord); // Asegúrate de que `recordId` sea el ID del registro
 
 module.exports = router;

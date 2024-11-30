@@ -70,7 +70,13 @@ const EditVitalSignRecord = () => {
         e.preventDefault();
 
         try {
-            await updatePatientRecord(recordId, record);
+            const token = localStorage.getItem('token'); // Asegúrate de guardar el token al iniciar sesión
+
+            if (!token) {
+                toast.error("No se encontró un token. Por favor, inicia sesión.");
+                return;
+            }
+            await updatePatientRecord(recordId, record,token);
             toast.success("¡Los datos se guardaron correctamente!");
             navigate(-1); // Regresar a la página anterior
         } catch (error) {
