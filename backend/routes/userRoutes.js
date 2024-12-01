@@ -8,5 +8,4 @@ router.put('/:id', updateUserDetails);
 router.patch('/:id', updateUserRole);
 router.patch('/:id/status', toggleUserStatus); // Nueva ruta para habilitar/inhabilitar usuario
 router.delete('/:id', deleteUser); // Nueva ruta para eliminar usuarios
-
 module.exports = router;
