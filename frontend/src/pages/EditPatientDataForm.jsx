@@ -9,6 +9,9 @@ const EditPatientDataForm = () => {
     const { idRegistro,idPaciente } = useParams();
     const navigate = useNavigate();
 
+    const currentDate = new Date().toISOString().split("T")[0];
+    const currentTime = new Date().toTimeString().split(" ")[0].slice(0, 5);
+
     const [formData, setFormData] = useState({
         record_date: "",
         record_time: "",
@@ -117,6 +120,8 @@ const EditPatientDataForm = () => {
                             name="record_date"
                             value={formData.record_date}
                             onChange={handleInputChange}
+                            max={currentDate}
+
                             required
                             className="w-full p-2 border rounded"
                         />
@@ -128,6 +133,8 @@ const EditPatientDataForm = () => {
                             name="record_time"
                             value={formData.record_time}
                             onChange={handleInputChange}
+                            max={currentTime}
+
                             required
                             className="w-full p-2 border rounded"
                         />

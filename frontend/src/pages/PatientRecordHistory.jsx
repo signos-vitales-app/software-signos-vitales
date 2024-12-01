@@ -332,6 +332,7 @@ const PatientRecordHistory = () => {
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
                             className="p-2 border rounded"
+                            
                         />
                         <button
                             onClick={handleFilter}

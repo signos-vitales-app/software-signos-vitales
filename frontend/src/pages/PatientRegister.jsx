@@ -18,6 +18,7 @@ const PatientRegister = () => {
     const [status, setStatus] = useState("activo");
     const [edad, setEdad] = useState(null);
     const [ageGroup, setAgeGroup] = useState("");
+    const currentDate = new Date().toISOString().split("T")[0]; // Fecha actual en formato YYYY-MM-DD
 
     const calculateAge = (date) => {
         if (!date) return null;
@@ -60,6 +61,10 @@ const PatientRegister = () => {
 
         const group = calculateAgeGroup(date);
         setAgeGroup(group);
+        // Cambiar tipo de identificación según la edad
+    if (age !== null) {
+        settipoIdentificacion(age > 20 ? "cédula de ciudadanía" : "tarjeta de identidad");
+    }
     };
 
     const handleRegister = async (e) => {
@@ -166,6 +171,7 @@ const PatientRegister = () => {
                         onChange={(e) => handleFechaNacimientoChange(e.target.value)}
                         required
                         className="w-full p-3 border border-gray-300 rounded col-span-2"
+                        max={currentDate} // Limitar a la fecha actual
                     />
                     
                     <input

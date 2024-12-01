@@ -22,6 +22,7 @@ const EditPatient = () => {
     const [edad, setEdad] = useState(null);
     const [ageGroup, setAgeGroup] = useState(""); // Nueva variable para age_group
     const [loading, setLoading] = useState(true);
+    const currentDate = new Date().toISOString().split("T")[0]; // Fecha actual en formato YYYY-MM-DD
 
     // Función para calcular la edad en años
     const calculateAge = (date) => {
@@ -74,6 +75,9 @@ const EditPatient = () => {
         // Calcular el grupo de edad
         const group = calculateAgeGroup(date);
         setAgeGroup(group);
+        if (age !== null) {
+            settipoIdentificacion(age > 20 ? "cédula de ciudadanía" : "tarjeta de identidad");
+        }
     };
 
     useEffect(() => {
@@ -219,6 +223,7 @@ const EditPatient = () => {
                         value={fechaNacimiento}
                         onChange={(e) => handleFechaNacimientoChange(e.target.value)}
                         className="w-full p-3 border border-gray-300 rounded col-span-2"
+                        max={currentDate} // Limitar a la fecha actual
                     />
                     <input
                         type="text"
