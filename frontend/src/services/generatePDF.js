@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { toast } from "react-toastify";
 
-const generatePDF = async (patientInfo, edad, ageUnit, ageGroup, filteredRecords, rangos, chartRef) => {
+const generatePDF = async (patientInfo, edad, ageUnit, ageGroup, filteredRecords, rangos, chartRef, role) => {
     try {
         // Crear un nuevo documento PDF
         const doc = new jsPDF();
@@ -54,12 +54,12 @@ const generatePDF = async (patientInfo, edad, ageUnit, ageGroup, filteredRecords
         doc.setDrawColor(0, 153, 255); // Azul
         doc.line(20, 65, 190, 65);
 
-        // Datos de la tabla
-        const tableColumns = [
-            "Fecha", "Hora", "Pulso", "T °C", "FR",
-            "TAS", "TAD", "TAM", "SatO2 %", "Peso", "Observaciones", "Responsable"
-        ];
-        
+        // Definir las columnas de la tabla según el rol
+        const tableColumns = role === "jefe"
+            ? ["Fecha", "Hora", "Pulso", "T °C", "FR", "TAS", "TAD", "TAM", "SatO2 %", "Peso", "Talla", "Observaciones", "Responsable"]
+            : ["Fecha", "Hora", "Pulso", "T °C", "FR", "TAS", "TAD", "TAM", "SatO2 %", "Peso", "Talla", "Observaciones"];
+
+
 
         // Definir los rangos específicos
         const vitalSignRanges = {
@@ -130,66 +130,73 @@ const generatePDF = async (patientInfo, edad, ageUnit, ageGroup, filteredRecords
 
         // Calcular el color según los rangos
         // Calcular el color según los rangos
-const calculateColor = (value, range) => {
-    if (value < range.min) return [120, 190, 230]; // Azul
-    if (value > range.max) return [255, 200, 200]; // Rojo
-    return null; // Conservar el color actual
-};
+        const calculateColor = (value, range) => {
+            if (value < range.min) return [120, 190, 230]; // Azul
+            if (value > range.max) return [255, 200, 200]; // Rojo
+            return null; // Conservar el color actual
+        };
 
-// Crear los datos de la tabla
-const tableData = filteredRecords.map((record) => {
-    const group = record.ageGroup || ageGroup; // Si no se tiene en el registro, usar el `ageGroup` pasado
-    return [
-        formatDate(record.record_date),
-        record.record_time,
-        {
-            content: record.pulso,
-            styles: {
-                fillColor: calculateColor(record.pulso, vitalSignRanges.pulso[group]),
-            },
-        },
-        {
-            content: record.temperatura,
-            styles: {
-                fillColor: calculateColor(record.temperatura, vitalSignRanges.temperatura[group]),
-            },
-        },
-        {
-            content: record.frecuencia_respiratoria,
-            styles: {
-                fillColor: calculateColor(record.frecuencia_respiratoria, vitalSignRanges.frecuencia_respiratoria[group]),
-            },
-        },
-        {
-            content: record.presion_sistolica,
-            styles: {
-                fillColor: calculateColor(record.presion_sistolica, vitalSignRanges.presion_sistolica[group]),
-            },
-        },
-        {
-            content: record.presion_diastolica,
-            styles: {
-                fillColor: calculateColor(record.presion_diastolica, vitalSignRanges.presion_diastolica[group]),
-            },
-        },
-        {
-            content: record.presion_media,
-            styles: {
-                fillColor: calculateColor(record.presion_media, vitalSignRanges.presion_media[group]),
-            },
-        },
-        {
-            content: record.saturacion_oxigeno,
-            styles: {
-                fillColor: calculateColor(record.saturacion_oxigeno, vitalSignRanges.saturacion_oxigeno[group]),
-            },
-        },
-        { content: record.peso_pediatrico || record.peso_adulto, styles: {} },
-        { content: record.observaciones || "-", styles: {} },
-        { content: record.responsable_signos || "No disponible", styles: {} },  // Nueva columna para el responsable
+        // Crear los datos de la tabla
+        const tableData = filteredRecords.map((record) => {
+            const group = record.ageGroup || ageGroup; // Si no se tiene en el registro, usar el `ageGroup` pasado
+            const row = [
+                formatDate(record.record_date),
+                record.record_time,
+                {
+                    content: record.pulso,
+                    styles: {
+                        fillColor: calculateColor(record.pulso, vitalSignRanges.pulso[group]),
+                    },
+                },
+                {
+                    content: record.temperatura,
+                    styles: {
+                        fillColor: calculateColor(record.temperatura, vitalSignRanges.temperatura[group]),
+                    },
+                },
+                {
+                    content: record.frecuencia_respiratoria,
+                    styles: {
+                        fillColor: calculateColor(record.frecuencia_respiratoria, vitalSignRanges.frecuencia_respiratoria[group]),
+                    },
+                },
+                {
+                    content: record.presion_sistolica,
+                    styles: {
+                        fillColor: calculateColor(record.presion_sistolica, vitalSignRanges.presion_sistolica[group]),
+                    },
+                },
+                {
+                    content: record.presion_diastolica,
+                    styles: {
+                        fillColor: calculateColor(record.presion_diastolica, vitalSignRanges.presion_diastolica[group]),
+                    },
+                },
+                {
+                    content: record.presion_media,
+                    styles: {
+                        fillColor: calculateColor(record.presion_media, vitalSignRanges.presion_media[group]),
+                    },
+                },
+                {
+                    content: record.saturacion_oxigeno,
+                    styles: {
+                        fillColor: calculateColor(record.saturacion_oxigeno, vitalSignRanges.saturacion_oxigeno[group]),
+                    },
+                },
+                { content: record.peso_pediatrico || record.peso_adulto, styles: {} },
+                { content: record.talla || "-", styles: {} },
+                { content: record.observaciones || "-", styles: {} },
 
-    ];
-});
+            ];
+
+            // Agregar la columna de Responsable solo si el rol es de jefe
+            if (role === "jefe") {
+                row.push({ content: record.responsable_signos || "No disponible", styles: {} });
+            }
+
+            return row;
+        });
 
 
         // Agregar tabla al PDF
@@ -198,22 +205,22 @@ const tableData = filteredRecords.map((record) => {
             body: tableData,
             startY: 70,
             theme: 'striped',
-            headStyles: { 
-                fillColor: [54, 162, 235], 
-                textColor: 255, 
+            headStyles: {
+                fillColor: [54, 162, 235],
+                textColor: 255,
                 fontSize: 9,   // Tamaño de la fuente de los encabezados
             },
-            bodyStyles: { 
-                textColor: 50, 
+            bodyStyles: {
+                textColor: 50,
                 fontSize: 8,   // Tamaño de la fuente de las celdas
-                fillColor: [255, 255, 255] 
+                fillColor: [255, 255, 255]
             },
-            alternateRowStyles: { 
-                fillColor: [255, 255, 255] 
+            alternateRowStyles: {
+                fillColor: [255, 255, 255]
             },
         });
-        
-        
+
+
         // Espaciado entre la tabla y los gráficos
         doc.addPage();
         doc.setFontSize(12);

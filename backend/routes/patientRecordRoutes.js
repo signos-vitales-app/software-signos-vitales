@@ -1,11 +1,13 @@
 const express = require('express');
-const { getPatientRecords, createPatientRecord,getPatientHistory,updatePatientRecord } = require('../controllers/patientRecordController');
+const { getPatientRecords, createPatientRecord,getPatientHistory,getPatientRecord,updatePatientRecord } = require('../controllers/patientRecordController');
 const router = express.Router();
 const  authMiddleware = require('../middlewares/authMiddleware');
 
-router.post('/', authMiddleware,createPatientRecord); // Ruta para crear un registro de paciente
+// Coloca las rutas más específicas antes de las generales
+router.get('/patient-record/:idRegistro', getPatientRecord); // Obtener un registro específico
+router.put('/patient-record/:idRegistro',authMiddleware, updatePatientRecord); // Actualizar un registro
 router.get('/:idPaciente',getPatientRecords); // Ruta para obtener registros de un paciente específico
-router.get('/history/:idPaciente', getPatientHistory); // Nueva ruta
-router.put('/:recordId' ,authMiddleware,updatePatientRecord); // Asegúrate de que `recordId` sea el ID del registro
+router.get('/history/:idPaciente', getPatientHistory); // Obtener historial completo
+router.post('/', authMiddleware,createPatientRecord); // Ruta para crear un registro de paciente
 
 module.exports = router;

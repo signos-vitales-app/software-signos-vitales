@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchPatientRecords } from "../services/patientService";
-import { FiPlusCircle, FiHome, FiFilter, FiDownload } from "react-icons/fi";
+import { FiPlusCircle, FiHome, FiFilter, FiDownload,FiEdit } from "react-icons/fi";
 import { MdOutlinePublishedWithChanges } from "react-icons/md";
-
 import { format } from "date-fns";
 import VitalSignsChart from "./VitalSignsChart";
 import "jspdf-autotable"; // Importar el complemento para la tabla
@@ -13,6 +12,7 @@ import generatePDF from "../services/generatePDF";
 import { getUserInfo } from '../services/authService';
 
 const PatientRecordHistory = () => {
+    //Datos del paciente
     const { idPaciente } = useParams();
     const navigate = useNavigate();
     const [records, setRecords] = useState([]);
@@ -26,10 +26,14 @@ const PatientRecordHistory = () => {
     const [ageUnit, setAgeUnit] = useState(""); // Unidad de edad: años o meses
     const [ageGroup, setAgeGroup] = useState(""); // Tipo de paciente
     const [loading, setLoading] = useState(true);
-
+    //Tabla y grafico de signos
     const tableRef = useRef(null);
     const chartRef = useRef(null);
+    //Solo permitir el rol del jefe 
     const role = localStorage.getItem('role');
+    useEffect(() => {
+        loadPatientRecords();
+    }, []); // Se ejecuta una sola vez cuando la página se carga
 
     // Función para calcular la edad en años
     const calculateAge = (date) => {
@@ -91,9 +95,7 @@ const PatientRecordHistory = () => {
         const group = calculateAgeGroup(date);
         setAgeGroup(group);
     };
-    useEffect(() => {
-        loadPatientRecords();
-    }, []); // Se ejecuta una sola vez cuando la página se carga
+    // Cargar los registros del paciente
 
     const loadPatientRecords = async () => {
         try {
@@ -131,6 +133,37 @@ const PatientRecordHistory = () => {
             setLoading(false);
         }
     };
+    const handleFilter = () => {
+        // Filtrar los registros según las fechas
+        let filtered = records.filter(record => {
+            const recordDate = new Date(record.record_date);
+            const start = startDate ? new Date(startDate) : null;
+            const end = endDate ? new Date(endDate) : null;
+            return (!start || recordDate >= start) && (!end || recordDate <= end);
+        });
+
+        // Ordenar los registros filtrados por fecha
+        filtered = filtered.sort((a, b) => new Date(a.record_date) - new Date(b.record_date));
+
+        // Filtrar las variables seleccionadas
+        const filteredWithVariables = filtered.map(record => {
+            const filteredRecord = {};
+            selectedVariables.forEach(variable => {
+                filteredRecord[variable] = record[variable];
+            });
+            return { ...record, ...filteredRecord };
+        });
+
+        // Actualizar el estado de los registros filtrados
+        setFilteredRecords(filteredWithVariables);
+    };
+    const toggleVariable = (variable) => {
+        setSelectedVariables(prev =>
+            prev.includes(variable)
+                ? prev.filter(v => v !== variable)
+                : [...prev, variable]
+        );
+    };
 
     const handleNewRecord = () => {
         if (patientInfo.status !== "activo") {
@@ -165,55 +198,6 @@ const PatientRecordHistory = () => {
         presion_media: "Presión Media"
     };
 
-    const handleFilter = () => {
-        // Filtrar los registros según las fechas
-        let filtered = records.filter(record => {
-            const recordDate = new Date(record.record_date);
-            const start = startDate ? new Date(startDate) : null;
-            const end = endDate ? new Date(endDate) : null;
-            return (!start || recordDate >= start) && (!end || recordDate <= end);
-        });
-
-        // Ordenar los registros filtrados por fecha
-        filtered = filtered.sort((a, b) => new Date(a.record_date) - new Date(b.record_date));
-
-        // Filtrar las variables seleccionadas
-        const filteredWithVariables = filtered.map(record => {
-            const filteredRecord = {};
-            selectedVariables.forEach(variable => {
-                filteredRecord[variable] = record[variable];
-            });
-            return { ...record, ...filteredRecord };
-        });
-
-        // Actualizar el estado de los registros filtrados
-        setFilteredRecords(filteredWithVariables);
-    };
-
-    const toggleVariable = (variable) => {
-        setSelectedVariables(prev =>
-            prev.includes(variable)
-                ? prev.filter(v => v !== variable)
-                : [...prev, variable]
-        );
-    };
-
-    const handleExportPDF = async () => {
-        if (!chartRef.current) {
-            console.error("El chartRef no está asignado correctamente.");
-            return;
-        }
-        try {
-            await generatePDF(patientInfo, edad, ageUnit, ageGroup, filteredRecords, chartRef.current, chartRef);
-        } catch (error) {
-            console.error("Error al generar el PDF", error);
-        }
-    };
-
-
-    if (loading) {
-        return <div className="flex justify-center items-center h-screen">Cargando...</div>;
-    }
     // Rango de signos vitales por grupo de edad
     const vitalSignRanges = {
         pulso: {
@@ -280,6 +264,19 @@ const PatientRecordHistory = () => {
             'Adulto': { min: 70, max: 105 },
         },
     };
+
+    const handleExportPDF = async () => {
+        if (!chartRef.current) {
+            console.error("El chartRef no está asignado correctamente.");
+            return;
+        }
+        try {
+            await generatePDF(patientInfo, edad, ageUnit, ageGroup, filteredRecords, chartRef.current, chartRef,role);
+        } catch (error) {
+            console.error("Error al generar el PDF", error);
+        }
+    };
+
     // Función para obtener el fondo basado en el valor y el grupo de edad
     const getVitalSignBackground = (ageGroup, vitalSign, value) => {
         const range = vitalSignRanges[vitalSign][ageGroup];
@@ -293,12 +290,16 @@ const PatientRecordHistory = () => {
     const handleRedirect = () => {
         navigate(`/patient-history/${idPaciente}`); // Incluye el idPaciente en la ruta
     };
-
-
+    const handleEditRecord = (idRegistro) => {
+        navigate(`/patient/${idPaciente}/edit-record/${idRegistro}`);
+    };
+    if (loading) {
+        return <div className="flex justify-center items-center h-screen">Cargando...</div>;
+    }
     return (
         <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6 overflow-auto">
             <h1 className="text-2xl font-bold mb-6">Registro del Paciente</h1>
-            <div className="bg-white p-4 rounded shadow-lg w-full max-w-5xl mb-6 overflow-x-auto" ref={tableRef}>
+            <div className="bg-white p-4 rounded shadow-lg w-full max-w-7xl mb-6 overflow-x-auto" ref={tableRef}>
                 {/* Información del paciente */}
                 <div className="flex justify-between mb-4">
 
@@ -342,7 +343,22 @@ const PatientRecordHistory = () => {
 
 
                 </div>
-
+                <div>
+                    <h3 className="font-bold">Variables para graficar:</h3>
+                    <div className="flex space-x-7">
+                        {["pulso", "temperatura", "frecuencia_respiratoria", "presion_sistolica", "presion_diastolica", "saturacion_oxigeno"].map(variable => (
+                            <label key={variable} className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    checked={selectedVariables.includes(variable)}
+                                    onChange={() => toggleVariable(variable)}
+                                    className="mr-2"
+                                />
+                                {variableLabels[variable]}
+                            </label>
+                        ))}
+                    </div>
+                </div>
                 {/* Tabla de Registros Filtrados */}
                 <table className="w-full border-collapse table-auto">
                     <thead>
@@ -360,9 +376,13 @@ const PatientRecordHistory = () => {
                             <th className="p-2 border">
                                 {['Recién nacido', 'Lactante temprano', 'Lactante mayor', 'Niño pequeño', 'Preescolar temprano', 'Preescolar tardío'].includes(ageGroup) ? "Peso Pediátrico (kg)" : "Peso Adulto (kg)"}
                             </th>
-                            <th className="p-2 border">Observaciones</th>
-                            <th className="p-2 border">Registrado por</th>
+                            <th className="p-2 border">Talla (cm) </th>
 
+                            <th className="p-2 border">Observaciones</th>
+                            {role === "jefe" && (
+                            <th className="p-2 border">Registrado por</th>
+                            )}
+                            <th className="p-2 border">Editar</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -398,14 +418,17 @@ const PatientRecordHistory = () => {
                                     {['Recién nacido', 'Lactante temprano', 'Lactante mayor', 'Niño pequeño', 'Preescolar temprano', 'Preescolar tardío'].includes(ageGroup) ? record.peso_pediatrico : record.peso_adulto}
                                 </td>
                                 {/* Observaciones */}
+                                <td className="p-2 border">{record.talla || "-"}</td>
                                 <td className="p-2 border">{record.observaciones || "-"}</td>
-                                <td className="p-2 border">{record.responsable_signos || "No disponible"}</td> {/* Aquí se muestra el responsable */}
+                                {role === "jefe" && (
+                                <td className="p-2 border">{record.responsable_signos || "No disponible"}</td>)}
+                                {/* Botón de editar */}
                                 <td className="p-2 border">
                                     <button
-                                        onClick={() => navigate(`/edit-record/${record.id}`)} // Asegúrate de que `record.id` sea el ID correcto
-                                        className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
+                                        onClick={() => handleEditRecord(record.id)}
+                                        className="flex items-center px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
                                     >
-                                        Editar
+                                        <FiEdit className="mr-1" /> 
                                     </button>
                                 </td>
                             </tr>
@@ -413,7 +436,7 @@ const PatientRecordHistory = () => {
                     </tbody>
                 </table>
                 {/* Botones de acción */}
-                <div className="flex justify-between w-full max-w-4xl mt-4">
+                <div className="flex justify-between w-full max-w-7xl mt-4">
                     <button
                         onClick={handleNewRecord}
                         className={`flex items-center px-4 py-2 ${patientInfo.status !== "activo" ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
@@ -448,28 +471,12 @@ const PatientRecordHistory = () => {
             </div>
 
             {/* Gráfico de Signos Vitales */}
-            <div className="bg-white p-4 rounded shadow-lg w-full max-w-5xl mb-6" ref={chartRef}>
-                <div>
-                    <h3 className="font-bold">Variables para graficar:</h3>
-                    <div className="flex space-x-5">
-                        {["pulso", "temperatura", "frecuencia_respiratoria", "presion_sistolica", "presion_diastolica", "saturacion_oxigeno"].map(variable => (
-                            <label key={variable} className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedVariables.includes(variable)}
-                                    onChange={() => toggleVariable(variable)}
-                                    className="mr-2"
-                                />
-                                {variableLabels[variable]}
-                            </label>
-                        ))}
-                    </div>
-                </div>
+            <div className="bg-white p-4 rounded shadow-lg w-full max-w-7xl mb-6" ref={chartRef}>
+                
                 <VitalSignsChart records={filteredRecords} selectedVariables={selectedVariables} />
             </div>
         </div>
     );
-
 };
 
 export default PatientRecordHistory;

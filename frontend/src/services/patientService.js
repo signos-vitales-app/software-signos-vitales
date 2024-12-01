@@ -42,7 +42,6 @@ export const createPatientRecord = async (recordData, token) => {
     );
 };
 
-
 // Función para obtener el historial de un paciente específico
 export const fetchPatientRecords = async (idPaciente) => {
     return await axios.get(`${API_URL}/patient-records/${idPaciente}`);
@@ -80,27 +79,29 @@ export const fetchPatientHistory = async (idPaciente, token) => {
     }
 };
 
-export const updatePatientRecord = async (recordId, updatedData, token) => {
-    return await axios.put(
-        `${API_URL}/patient-records/${recordId}`,
-        updatedData,
-        {
+// Obtener un registro de paciente por ID
+export const fetchPatientRecord = async (idRegistro) => {
+    try {
+        const response = await axios.get(`${API_URL}/patient-records/patient-record/${idRegistro}`);
+        return response.data; // Devuelve solo los datos
+    } catch (error) {
+        console.error("Error al obtener el registro del paciente:", error);
+        throw error;
+    }
+};
+
+// Actualizar un registro de paciente
+export const updatePatientRecord = async (idRegistro, updatedData,token) => {
+    try {
+        const response = await axios.put(`${API_URL}/patient-records/patient-record/${idRegistro}`, updatedData,
+            {
             headers: {
-                Authorization: `Bearer ${token}`, // Envía el token en el encabezado
+                Authorization: `Bearer ${token}`,
             },
-        }
-    );
+        });
+        return response.data; // Devuelve solo los datos
+    } catch (error) {
+        console.error("Error al actualizar el registro del paciente:", error);
+        throw error;
+    }
 };
-export const fetchRecordById = async (recordId, token) => {
-    return await axios.get(`${API_URL}/patient-records/${recordId}`, {
-        headers: {
-            Authorization: `Bearer ${token}`, // Envía el token en el encabezado si es necesario
-        },
-    });
-};
-
-
-
-
-
-

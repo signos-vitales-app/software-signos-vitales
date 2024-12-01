@@ -20,8 +20,7 @@ import SearchUsers from './pages/SearchUsers'; // Importamos el nuevo componente
 import EditPatient from './pages/EditPatient';
 import EditUser from './pages/EditUser';
 import PatientHistoryPage from "./pages/PatientHistoryTable";
-import EditVitalSignRecord from './pages/EditVitalSignRecord'; // Asegúrate de que la ruta sea correcta
-
+import EditPatientDataForm from "./pages/EditPatientDataForm"
 
 function App() {
     return (
@@ -44,8 +43,8 @@ function App() {
                 <Route path="/search-patient" element={<ProtectedRoute><Layout><SearchPatient /></Layout></ProtectedRoute>} />
                 <Route path="/admin-panel" element={<ProtectedRoute><Layout><AdminPanel /></Layout></ProtectedRoute>} />
                 <Route path="/patient-history/:idPaciente" element={<ProtectedRoute><Layout><PatientHistoryPage/></Layout> /</ProtectedRoute>}/>
-                <Route path="/edit-record/:recordId" element={<EditVitalSignRecord />} />
-
+                <Route path="/patient/:idPaciente/edit-record/:idRegistro" element={<ProtectedRoute><Layout><EditPatientDataForm /></Layout></ProtectedRoute>}/>
+                
                 {/* Nuevas rutas para registro y búsqueda de usuarios */}
                 <Route path="/register-user" element={<ProtectedRoute><Layout><RegisterUser /></Layout></ProtectedRoute>} />
                 <Route path="/search-user" element={<ProtectedRoute><Layout><SearchUsers /></Layout></ProtectedRoute>} />
