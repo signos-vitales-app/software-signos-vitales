@@ -79,6 +79,8 @@ export const fetchPatientHistory = async (idPaciente, token) => {
     }
 };
 
+
+
 // Obtener un registro de paciente por ID
 export const fetchPatientRecord = async (idRegistro) => {
     try {
@@ -102,6 +104,17 @@ export const updatePatientRecord = async (idRegistro, updatedData,token) => {
         return response.data; // Devuelve solo los datos
     } catch (error) {
         console.error("Error al actualizar el registro del paciente:", error);
+        throw error;
+    }
+};
+
+// Obtener el historial de signos vitales de un paciente
+export const fetchPatientHistoryRecords = async (idPaciente) => {
+    try {
+        const response = await axios.get(`${API_URL}/patient-records/patient-history/${idPaciente}`);
+        return response.data; // Devuelve los datos históricos
+    } catch (error) {
+        console.error("Error al obtener el historial del paciente:", error);
         throw error;
     }
 };

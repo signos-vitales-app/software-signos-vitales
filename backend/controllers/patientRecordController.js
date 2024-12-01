@@ -198,6 +198,31 @@ exports.updatePatientRecord = async (req, res) => {
     updatedData.created_at = formatDateForMySQL(updatedData.created_at);
 
     try {
+         // Guardar los valores actuales en historial antes de la actualización
+    const [currentRecord] = await db.query("SELECT * FROM registros_paciente WHERE id = ?", [idRegistro]);
+
+    const historial = {
+        id_paciente: currentRecord[0].id_paciente,
+        id_registro: currentRecord[0].id,
+        record_date: currentRecord[0].record_date,
+        record_time: currentRecord[0].record_time,
+        presion_sistolica: currentRecord[0].presion_sistolica,
+        presion_diastolica: currentRecord[0].presion_diastolica,
+        presion_media: currentRecord[0].presion_media,
+        pulso: currentRecord[0].pulso,
+        temperatura: currentRecord[0].temperatura,
+        frecuencia_respiratoria: currentRecord[0].frecuencia_respiratoria,
+        saturacion_oxigeno: currentRecord[0].saturacion_oxigeno,
+        peso_adulto: currentRecord[0].peso_adulto,
+        peso_pediatrico: currentRecord[0].peso_pediatrico,
+        talla: currentRecord[0].talla,
+        observaciones: currentRecord[0].observaciones,
+        responsable_signos: currentRecord[0].responsable_signos,
+    };
+
+    // Insertar el historial antes de actualizar
+    await db.query("INSERT INTO historial_signos_pacientes SET ?", [historial]);
+
         await db.query("UPDATE registros_paciente SET ? WHERE id = ?", [updatedData, idRegistro]);
         res.json({ message: "Registro actualizado correctamente." });
     } catch (error) {
@@ -214,4 +239,25 @@ const formatDateForMySQL = (dateString) => {
     const mi = String(date.getMinutes()).padStart(2, '0');
     const ss = String(date.getSeconds()).padStart(2, '0');
     return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+};
+
+// Obtener historial de signos vitales de un paciente
+exports.getPatientHistoryRecords = async (req, res) => {
+    const { idPaciente } = req.params; // ID del paciente desde los parámetros de la URL
+
+    try {
+        const [history] = await db.query(
+            "SELECT * FROM historial_signos_pacientes WHERE id_paciente = ? ORDER BY record_date DESC, record_time DESC",
+            [idPaciente]
+        );
+
+        if (!history.length) {
+            return res.status(404).json({ message: "No se encontraron registros históricos." });
+        }
+
+        res.json(history);
+    } catch (error) {
+        console.error("Error al obtener el historial:", error);
+        res.status(500).json({ message: "Error al obtener el historial." });
+    }
 };

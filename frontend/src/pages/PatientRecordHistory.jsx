@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchPatientRecords } from "../services/patientService";
-import { FiPlusCircle, FiHome, FiFilter, FiDownload,FiEdit } from "react-icons/fi";
+import { FiPlusCircle, FiHome, FiFilter, FiDownload, FiEdit } from "react-icons/fi";
 import { MdOutlinePublishedWithChanges } from "react-icons/md";
 import { format } from "date-fns";
 import VitalSignsChart from "./VitalSignsChart";
@@ -271,7 +271,7 @@ const PatientRecordHistory = () => {
             return;
         }
         try {
-            await generatePDF(patientInfo, edad, ageUnit, ageGroup, filteredRecords, chartRef.current, chartRef,role);
+            await generatePDF(patientInfo, edad, ageUnit, ageGroup, filteredRecords, chartRef.current, chartRef, role);
         } catch (error) {
             console.error("Error al generar el PDF", error);
         }
@@ -363,6 +363,7 @@ const PatientRecordHistory = () => {
                 <table className="w-full border-collapse table-auto">
                     <thead>
                         <tr className="bg-blue-100">
+                            <th className="p-2 border">Id</th>
                             <th className="p-2 border">Fecha</th>
                             <th className="p-2 border">Hora</th>
                             <th className="p-2 border">Pulso (lpm)</th>
@@ -380,7 +381,7 @@ const PatientRecordHistory = () => {
 
                             <th className="p-2 border">Observaciones</th>
                             {role === "jefe" && (
-                            <th className="p-2 border">Registrado por</th>
+                                <th className="p-2 border">Registrado por</th>
                             )}
                             <th className="p-2 border">Editar</th>
                         </tr>
@@ -388,6 +389,8 @@ const PatientRecordHistory = () => {
                     <tbody>
                         {filteredRecords.map((record, index) => (
                             <tr key={index} className="text-center">
+                                <td className="p-2 border">{record.id}</td>
+
                                 <td className="p-2 border">{format(new Date(record.record_date), "dd/MM/yyyy")}</td>
                                 <td className="p-2 border">{record.record_time}</td>
                                 <td className={`p-2 border ${getVitalSignBackground(ageGroup, 'pulso', record.pulso)}`}>
@@ -421,14 +424,14 @@ const PatientRecordHistory = () => {
                                 <td className="p-2 border">{record.talla || "-"}</td>
                                 <td className="p-2 border">{record.observaciones || "-"}</td>
                                 {role === "jefe" && (
-                                <td className="p-2 border">{record.responsable_signos || "No disponible"}</td>)}
+                                    <td className="p-2 border">{record.responsable_signos || "No disponible"}</td>)}
                                 {/* Botón de editar */}
                                 <td className="p-2 border">
                                     <button
                                         onClick={() => handleEditRecord(record.id)}
                                         className="flex items-center px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
                                     >
-                                        <FiEdit className="mr-1" /> 
+                                        <FiEdit className="mr-1" />
                                     </button>
                                 </td>
                             </tr>
@@ -472,7 +475,7 @@ const PatientRecordHistory = () => {
 
             {/* Gráfico de Signos Vitales */}
             <div className="bg-white p-4 rounded shadow-lg w-full max-w-7xl mb-6" ref={chartRef}>
-                
+
                 <VitalSignsChart records={filteredRecords} selectedVariables={selectedVariables} />
             </div>
         </div>

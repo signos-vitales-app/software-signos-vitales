@@ -21,7 +21,7 @@ import EditPatient from './pages/EditPatient';
 import EditUser from './pages/EditUser';
 import PatientHistoryPage from "./pages/PatientHistoryTable";
 import EditPatientDataForm from "./pages/EditPatientDataForm"
-
+import PatientPage from './pages/PatientHistoryTableSignos';
 function App() {
     return (
         <Router>
@@ -44,7 +44,8 @@ function App() {
                 <Route path="/admin-panel" element={<ProtectedRoute><Layout><AdminPanel /></Layout></ProtectedRoute>} />
                 <Route path="/patient-history/:idPaciente" element={<ProtectedRoute><Layout><PatientHistoryPage/></Layout> /</ProtectedRoute>}/>
                 <Route path="/patient/:idPaciente/edit-record/:idRegistro" element={<ProtectedRoute><Layout><EditPatientDataForm /></Layout></ProtectedRoute>}/>
-                
+                <Route path="/patient/:idPaciente" element={<ProtectedRoute><Layout><PatientPage /></Layout></ProtectedRoute>} />
+
                 {/* Nuevas rutas para registro y búsqueda de usuarios */}
                 <Route path="/register-user" element={<ProtectedRoute><Layout><RegisterUser /></Layout></ProtectedRoute>} />
                 <Route path="/search-user" element={<ProtectedRoute><Layout><SearchUsers /></Layout></ProtectedRoute>} />

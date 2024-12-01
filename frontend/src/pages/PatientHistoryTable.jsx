@@ -38,6 +38,9 @@ const PatientHistoryPage = ({ token }) => {
         navigate(-1); // Redirige a la página de búsqueda
     };
 
+    const handleGoToPatientPage = () => {
+        navigate(`/patient/${idPaciente}`); // Redirige a la página de detalles del paciente
+    };
     const isModified = (currentValue, nextValue) => {
         // Si no hay un valor siguiente, no resaltar
         if (nextValue === undefined || nextValue === null) {
@@ -93,7 +96,7 @@ const PatientHistoryPage = ({ token }) => {
                                         <td
                                             className={`p-3 border ${
                                                 isModified(record.responsable_registro, nextRecord.responsable_registro)
-                                                    ? "bg-red-100"
+                                                    ? "bg-green-300"
                                                     : ""
                                             }`}
                                         >
@@ -102,7 +105,7 @@ const PatientHistoryPage = ({ token }) => {
                                         <td
                                             className={`p-3 border ${
                                                 isModified(record.primer_nombre, nextRecord.primer_nombre)
-                                                    ? "bg-red-100"
+                                                    ? "bg-green-300"
                                                     : ""
                                             }`}
                                         >
@@ -111,7 +114,7 @@ const PatientHistoryPage = ({ token }) => {
                                         <td
                                             className={`p-3 border ${
                                                 isModified(record.segundo_nombre, nextRecord.segundo_nombre)
-                                                    ? "bg-red-100"
+                                                    ? "bg-green-300"
                                                     : ""
                                             }`}
                                         >
@@ -120,7 +123,7 @@ const PatientHistoryPage = ({ token }) => {
                                         <td
                                             className={`p-3 border ${
                                                 isModified(record.primer_apellido, nextRecord.primer_apellido)
-                                                    ? "bg-red-100"
+                                                    ? "bg-green-300"
                                                     : ""
                                             }`}
                                         >
@@ -129,7 +132,7 @@ const PatientHistoryPage = ({ token }) => {
                                         <td
                                             className={`p-3 border ${
                                                 isModified(record.segundo_apellido, nextRecord.segundo_apellido)
-                                                    ? "bg-red-100"
+                                                    ? "bg-green-300"
                                                     : ""
                                             }`}
                                         >
@@ -138,7 +141,7 @@ const PatientHistoryPage = ({ token }) => {
                                         <td
                                             className={`p-3 border ${
                                                 isModified(record.tipo_identificacion, nextRecord.tipo_identificacion)
-                                                    ? "bg-red-100"
+                                                    ? "bg-green-300"
                                                     : ""
                                             }`}
                                         >
@@ -147,7 +150,7 @@ const PatientHistoryPage = ({ token }) => {
                                         <td
                                             className={`p-3 border ${
                                                 isModified(record.numero_identificacion, nextRecord.numero_identificacion)
-                                                    ? "bg-red-100"
+                                                    ? "bg-green-300"
                                                     : ""
                                             }`}
                                         >
@@ -156,7 +159,7 @@ const PatientHistoryPage = ({ token }) => {
                                         <td
                                             className={`p-3 border ${
                                                 isModified(record.ubicacion, nextRecord.ubicacion)
-                                                    ? "bg-red-100"
+                                                    ? "bg-green-300"
                                                     : ""
                                             }`}
                                         >
@@ -165,7 +168,7 @@ const PatientHistoryPage = ({ token }) => {
                                         <td
                                             className={`p-3 border ${
                                                 isModified(record.fecha_nacimiento, nextRecord.fecha_nacimiento)
-                                                    ? "bg-red-100"
+                                                    ? "bg-green-300"
                                                     : ""
                                             }`}
                                         >
@@ -193,6 +196,8 @@ const PatientHistoryPage = ({ token }) => {
                 </table>
             </div>
             
+                {/* Botones de acción */}
+                <div className="flex justify-between w-full max-w-4xl mt-4">
             {/* Botón de regresar */}
             <button
                 onClick={handleGoBack}
@@ -200,6 +205,14 @@ const PatientHistoryPage = ({ token }) => {
             >
                 <FiHome className="mr-2" /> Regresar
             </button>
+            {/* Botón para ir a la página del paciente */}
+            <button
+                onClick={handleGoToPatientPage}
+                className="mt-4 px-4 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition"
+            >
+                Ver Detalles del Paciente
+            </button>
+            </div>
         </div>
     );
 };
