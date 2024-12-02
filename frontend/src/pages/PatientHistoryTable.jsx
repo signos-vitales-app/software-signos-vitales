@@ -108,12 +108,12 @@ const PatientHistoryPage = ({ token }) => {
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6 overflow-auto">
-            <h1 className="text-2xl font-bold mb-6">Historial del Paciente y Signos Vitales</h1>
+            <h1 className="text-2xl font-bold mb-6">Trazabilidad del paciente </h1>
             {/* Contenedor para capturar en PDF */}
             <div id="pdf-content">
                 {/* Historial del Paciente */}
                 <div className="bg-white p-6 rounded shadow-lg w-full max-w-7xl mb-6 overflow-x-auto">
-                    <h2 className="text-lg font-bold mb-4">Historial del Paciente</h2>
+                    <h2 className="text-lg font-bold mb-4">Historial de cambios del paciente</h2>
                     {history.length > 0 ? (
 
                         <table className="w-full border-collapse table-auto text-sm">
@@ -121,7 +121,6 @@ const PatientHistoryPage = ({ token }) => {
                                 <tr className="bg-blue-100 text-left">
                                     <th className="p-3 border-b-2">Fecha de Registro</th>
                                     <th className="p-3 border-b-2">Hora de Registro</th>
-                                    <th className="p-3 border-b-2">Responsable</th>
                                     <th className="p-3 border-b-2">Primer Nombre</th>
                                     <th className="p-3 border-b-2">Segundo Nombre</th>
                                     <th className="p-3 border-b-2">Primer Apellido</th>
@@ -131,7 +130,10 @@ const PatientHistoryPage = ({ token }) => {
                                     <th className="p-3 border-b-2">Ubicación</th>
                                     <th className="p-3 border-b-2">Fecha de Nacimiento</th>
                                     <th className="p-3 border-b-2">Estado</th>
-                                    <th className="p-3 border-b-2">Grupo de Edad</th>                        </tr>
+                                    <th className="p-3 border-b-2">Grupo de Edad</th>               
+                                    <th className="p-3 border-b-2">Responsable</th>
+         
+                                    </tr>
                             </thead>
                             <tbody>
 
@@ -142,7 +144,6 @@ const PatientHistoryPage = ({ token }) => {
                                         <tr key={index} className={`text-center ${index % 2 === 0 ? "bg-gray-50" : "bg-white"}`}>
                                             <td className="p-3 border">{date}</td>
                                             <td className="p-3 border">{time}</td>
-                                            <td className={`p-3 border ${isModified(record.responsable_registro, nextRecord.responsable_registro) ? "bg-green-300" : ""}`}>{record.responsable_registro}</td>
 
                                             <td className={`p-3 border ${isModified(record.primer_nombre, nextRecord.primer_nombre) ? "bg-green-300" : ""}`}>{record.primer_nombre}</td>
 
@@ -154,7 +155,9 @@ const PatientHistoryPage = ({ token }) => {
                                             <td className={`p-3 border ${isModified(record.ubicacion, nextRecord.ubicacion) ? "bg-green-300" : ""}`}>{record.ubicacion}</td>
                                             <td className={`p-3 border ${isModified(record.fecha_nacimiento, nextRecord.fecha_nacimiento) ? "bg-green-300" : ""}`}>{formatDate(record.fecha_nacimiento)}</td>
                                             <td className={`p-3 border font-bold ${record.status === "activo" ? "text-green-500" : "text-red-500"}`}>{record.status}</td>
-                                            <td className={`p-3 border${isModified(record.age_group, nextRecord.age_group) ? "bg-green-300" : ""}`}>{record.age_group}</td>
+                                            <td className={`p-3 border ${isModified(record.age_group, nextRecord.age_group) ? "bg-green-300" : ""}`}>{record.age_group}</td>
+                                            <td className={`p-3 border ${isModified(record.responsable_registro, nextRecord.responsable_registro) ? "bg-green-300" : ""}`}>{record.responsable_registro}</td>
+
                                         </tr>
                                     );
                                 })}
@@ -169,7 +172,7 @@ const PatientHistoryPage = ({ token }) => {
 
                 {/* Signos Vitales */}
                 <div className="bg-white p-6 rounded shadow-lg w-full max-w-7xl mb-6 overflow-x-auto">
-                    <h2 className="text-lg font-bold mb-4">Historial de Signos Vitales</h2>
+                    <h2 className="text-lg font-bold mb-4">Historial cambios de Signos Vitales</h2>
                     {patientHistory.length > 0 ? (
 
                         <table className="w-full border-collapse table-auto text-sm">
@@ -239,11 +242,12 @@ const PatientHistoryPage = ({ token }) => {
                     <FiHome className="mr-2" /> Regresar
                 </button>
                 <button
-                    onClick={exportPDF}
-                    className="flex items-center px-4 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition"
+                    onClick={() => generatePatientPDF(history, patientHistory, patientInfo, isPediatric)}
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                 >
-                    Exportar PDF
+                    Exportar a PDF
                 </button>
+
             </div>
         </div>
     );

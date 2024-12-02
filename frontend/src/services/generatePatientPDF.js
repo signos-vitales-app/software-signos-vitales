@@ -1,122 +1,104 @@
-import jsPDF from "jspdf";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
-export const generatePatientPDF = (history, vitalSigns) => {
-    const doc = new jsPDF("l", "mm", "a4");
+export const generatePatientPDF = (history, patientHistory, patientInfo, isPediatric) => {
+    const doc = new jsPDF("l");
+    console.log(patientInfo);  // Asegúrate de que `patientInfo` tenga los datos correctos.
 
     // Título del documento
     doc.setFontSize(16);
-    doc.text("Historial del Paciente y Signos Vitales", 10, 10);
-
-    // Historial del paciente
+    doc.text('Trazabilidad del paciente', 14, 20);
+  
+    // Helper para dar formato a las fechas
+    const formatDate = (dateStr) => {
+      const date = new Date(dateStr);
+      return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    };
+  
+    // Tabla: Historial del Paciente
     if (history.length > 0) {
-        doc.setFontSize(14);
-        doc.text("Historial del Paciente", 10, 20);
+      doc.setFontSize(12);
+      doc.text('Historial cambios del Paciente', 14, 30);
+  
+      const historyTableData = history.map((record, index) => {
+        const nextRecord = history[index + 1] || {};
+        return [
+          formatDate(record.created_at.split('T')[0]), // Fecha
+          record.created_at.split('T')[1].slice(0, 5), // Hora
+          { content: record.primer_nombre, styles: { fillColor: isModified(record.primer_nombre, nextRecord.primer_nombre) ? [144, 238, 144] : null } },
+          { content: record.segundo_nombre, styles: { fillColor: isModified(record.segundo_nombre, nextRecord.segundo_nombre) ? [144, 238, 144] : null } },
+          { content: record.primer_apellido, styles: { fillColor: isModified(record.primer_apellido, nextRecord.primer_apellido) ? [144, 238, 144] : null } },
+          { content: record.segundo_apellido, styles: { fillColor: isModified(record.segundo_apellido, nextRecord.segundo_apellido) ? [144, 238, 144] : null } },
+          { content: record.tipo_identificacion, styles: { fillColor: isModified(record.tipo_identificacion, nextRecord.tipo_identificacion) ? [144, 238, 144] : null } },
+          { content: record.numero_identificacion, styles: { fillColor: isModified(record.numero_identificacion, nextRecord.numero_identificacion) ? [144, 238, 144] : null } },
+          { content: record.ubicacion, styles: { fillColor: isModified(record.ubicacion, nextRecord.ubicacion) ? [144, 238, 144] : null } },
+          { content: formatDate(record.fecha_nacimiento), styles: { fillColor: isModified(record.fecha_nacimiento, nextRecord.fecha_nacimiento) ? [144, 238, 144] : null } },
+          { content: record.status, styles: { textColor: record.status === 'activo' ? [0, 128, 0] : [255, 0, 0] } },
+          { content: record.age_group, styles: { fillColor: isModified(record.age_group, nextRecord.age_group) ? [144, 238, 144] : null } },
+          { content: record.responsable_registro, styles: { fillColor: isModified(record.responsable_registro, nextRecord.responsable_registro) ? [144, 238, 144] : null } },
 
-        // Tabla del historial del paciente
-        const patientHeaders = [
-            "Fecha", "Hora", "Responsable", "Primer nombre", "Segundo nombre","Primer spellido" ,"Segundo apellido","Tipo identificacion", "Numero de identificacion", "Ubicación", "Fecha de nacimiento", "Estado", "Grupo Edad"
         ];
-
-        const patientData = history.map((record, index) => {
-            const nextRecord = history[index + 1] || {};
-            return [
-                new Date(record.created_at).toLocaleDateString(),
-                new Date(record.created_at).toLocaleTimeString(),
-                record.responsable_registro,
-                record.primer_nombre,
-                record.segundo_nombre || "",
-                record.primer_apellido,
-                record.segundo_apellido || "",
-                record.tipo_identificacion,
-                record.numero_identificacion,
-                record.ubicacion,
-                new Date(record.fecha_nacimiento).toLocaleDateString(),
-                record.status,
-                record.age_group
-            ];
-        });
-
-        doc.autoTable({
-            head: [patientHeaders],
-            body: patientData,
-            startY: 25,
-            didParseCell: (data) => {
-                const { row, column } = data;
-                const currentRecord = history[row.index];
-                const nextRecord = history[row.index + 1] || {};
-
-                const fieldsToCheck = [
-                    'responsable_registro', 'primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido',
-                    'tipo_identificacion', 'numero_identificacion', 'ubicacion', 'fecha_nacimiento','status','age_group'
-                ];
-
-                fieldsToCheck.forEach((field, index) => {
-                    if (currentRecord[field] !== nextRecord[field]) {
-                        if (data.column.index === index) {
-                            data.cell.styles.fillColor = [0, 255, 0]; // Verde para resaltar el cambio
-                        }
-                    }
-                });
-            }
-        });
+      });
+  
+      autoTable(doc, {
+        startY: 35,
+        head: [['Fecha', 'Hora', 'Primer Nombre', 'Segundo Nombre', 'Primer Apellido', 'Segundo Apellido', 'Tipo identidicacion', 'Número identificación', 'Ubicación', 'Fecha Nacimiento', 'Estado', 'Tipo de paciente', 'Responsable']],
+        body: historyTableData,
+      });
     }
-
-    // Historial de signos vitales
-    if (vitalSigns.length > 0) {
-        const startY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 25;
-
-        doc.setFontSize(14);
-        doc.text("Historial de Signos Vitales", 10, startY);
-
-        const vitalSignsHeaders = [
-            "Id del registro", "Fecha", "Hora", "Pulso", "Temperatura", "FR", "TAS", "TAD", "TAM", "SatO2", "Peso", "Talla", "Observaciones", "Responsable"
+  
+    // Tabla: Historial de Signos Vitales
+    if (patientHistory.length > 0) {
+      const startY = doc.lastAutoTable.finalY + 10; // Ajustar el inicio de la siguiente tabla
+      doc.text('Historial cambios de Signos Vitales', 14, startY);
+  
+      const patientHistoryTableData = patientHistory.map((currentRecord, index) => {
+        const prevRecord = index > 0 ? patientHistory[index - 1] : null;
+        return [
+          currentRecord.id_registro,
+          formatDate(currentRecord.record_date.split('T')[0]), // Fecha
+          currentRecord.record_time, // Hora
+          { content: currentRecord.pulso, styles: { fillColor: getChangedClass('pulso', currentRecord, prevRecord) ? [144, 238, 144] : null } },
+          { content: currentRecord.temperatura, styles: { fillColor: getChangedClass('temperatura', currentRecord, prevRecord) ? [144, 238, 144] : null } },
+          { content: currentRecord.frecuencia_respiratoria, styles: { fillColor: getChangedClass('frecuencia_respiratoria', currentRecord, prevRecord) ? [144, 238, 144] : null } },
+          { content: currentRecord.presion_sistolica, styles: { fillColor: getChangedClass('presion_sistolica', currentRecord, prevRecord) ? [144, 238, 144] : null } },
+          { content: currentRecord.presion_diastolica, styles: { fillColor: getChangedClass('presion_diastolica', currentRecord, prevRecord) ? [144, 238, 144] : null } },
+          { content: currentRecord.presion_media, styles: { fillColor: getChangedClass('presion_media', currentRecord, prevRecord) ? [144, 238, 144] : null } },
+          { content: currentRecord.saturacion_oxigeno, styles: { fillColor: getChangedClass('saturacion_oxigeno', currentRecord, prevRecord) ? [144, 238, 144] : null } },
+          { content: isPediatric ? currentRecord.peso_pediatrico : currentRecord.peso_adulto, styles: { fillColor: getChangedClass(isPediatric ? 'peso_pediatrico' : 'peso_adulto', currentRecord, prevRecord) ? [144, 238, 144] : null } },
+          { content: currentRecord.talla, styles: { fillColor: getChangedClass('talla', currentRecord, prevRecord) ? [144, 238, 144] : null } },
+          { content: currentRecord.observaciones, styles: { fillColor: getChangedClass('observaciones', currentRecord, prevRecord) ? [144, 238, 144] : null } },
+          { content: currentRecord.responsable_signos, styles: { fillColor: getChangedClass('responsable_signos', currentRecord, prevRecord) ? [144, 238, 144] : null } },
         ];
-
-        const vitalSignsData = vitalSigns.map((currentRecord, index) => {
-            const prevRecord = index > 0 ? vitalSigns[index - 1] : null;
-            return [
-                currentRecord.id_registro,
-                new Date(currentRecord.created_at).toLocaleDateString(),
-                new Date(currentRecord.created_at).toLocaleTimeString(),
-                currentRecord.pulso,
-                currentRecord.temperatura,
-                currentRecord.frecuencia_respiratoria,
-                currentRecord.presion_sistolica,
-                currentRecord.presion_diastolica,
-                currentRecord.presion_media,
-                currentRecord.saturacion_oxigeno,
-                currentRecord.peso_aulto || currentRecord.peso_pediatrico,
-                currentRecord.talla,
-                currentRecord.observaciones,
-                currentRecord.responsable_signos
-            ];
-        });
-
-        doc.autoTable({
-            head: [vitalSignsHeaders],
-            body: vitalSignsData,
-            startY: startY + 10,
-            didParseCell: (data) => {
-                const { row, column } = data;
-                const currentRecord = vitalSigns[row.index];
-                const prevRecord = row.index > 0 ? vitalSigns[row.index - 1] : null;
-
-                const fieldsToCheck = [
-                    'pulso', 'temperatura', 'frecuencia_respiratoria', 'presion_sistolica', 'presion_diastolica', 'presion_media',
-                    'saturacion_oxigeno', 'peso_aulto', 'peso_pediatrico', 'talla', 'observaciones', 'responsable_signos'
-                ];
-
-                fieldsToCheck.forEach((field, index) => {
-                    if (prevRecord && currentRecord[field] !== prevRecord[field]) {
-                        if (data.column.index === index) {
-                            data.cell.styles.fillColor = [0, 255, 0]; // Verde para resaltar el cambio
-                        }
-                    }
-                });
-            }
-        });
+      });
+  
+      autoTable(doc, {
+        startY: startY + 5,
+        head: [['ID Registro', 'Fecha', 'Hora', 'Pulso', 'T °C', 'FR', 'TAS', 'TAD', 'TAM', 'SatO2 %', isPediatric ? 'Peso Pediátrico' : 'Peso Adulto', 'Talla', 'Observaciones', 'Responsable']],
+        body: patientHistoryTableData,
+      });
     }
+  // Obtener el número de identificación desde la propiedad data
+const patientId = patientInfo.data ? patientInfo.data.numero_identificacion : 'Sin_Identificacion';
+doc.save(`Historial_Cambios_Paciente_${patientId}.pdf`);
 
-    // Guardar el PDF
-    doc.save("Patient_History.pdf");
+  };
+  
+
+// Helper function para verificar si un campo fue modificado
+const isModified = (currentValue, nextValue) => {
+  if (nextValue === undefined || nextValue === null) {
+    return false;
+  }
+  const normalizedCurrent = currentValue ? currentValue.toString().trim() : '';
+  const normalizedNext = nextValue ? nextValue.toString().trim() : '';
+  return normalizedCurrent !== normalizedNext;
+};
+
+// Helper function para detectar cambios en signos vitales
+const getChangedClass = (field, currentRecord, prevRecord) => {
+  if (prevRecord && currentRecord.id_registro === prevRecord.id_registro) {
+    return currentRecord[field] !== prevRecord[field];
+  }
+  return false;
 };
