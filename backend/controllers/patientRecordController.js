@@ -255,12 +255,13 @@ const formatDateForMySQL = (dateString) => {
 
 
 // Obtener historial de signos vitales de un paciente
+// Obtener historial de signos vitales de un paciente
 exports.getPatientHistoryRecords = async (req, res) => {
     const { idPaciente } = req.params; // ID del paciente desde los parámetros de la URL
 
     try {
         const [history] = await db.query(
-            "SELECT * FROM historial_signos_pacientes WHERE id_paciente = ? ORDER BY record_date DESC, record_time DESC",
+            "SELECT * FROM historial_signos_pacientes WHERE id_paciente = ? ORDER BY id_registro ASC, record_date DESC, record_time DESC",
             [idPaciente]
         );
 
@@ -274,3 +275,4 @@ exports.getPatientHistoryRecords = async (req, res) => {
         res.status(500).json({ message: "Error al obtener el historial." });
     }
 };
+

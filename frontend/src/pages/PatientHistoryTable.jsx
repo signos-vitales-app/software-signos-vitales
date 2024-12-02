@@ -7,13 +7,21 @@ import { generatePatientPDF } from "../services/generatePatientPDF";
 
 const PatientHistoryPage = ({ token }) => {
     const [history, setHistory] = useState([]);
+    const [filteredHistory, setFilteredHistory] = useState([]); // Estado para el historial filtrado
     const [patientInfo, setPatientInfo] = useState(null);
     const [patientHistory, setPatientHistory] = useState([]);
+    const [filteredVitalSigns, setFilteredVitalSigns] = useState([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { idPaciente } = useParams();
     const navigate = useNavigate();
     const role = localStorage.getItem('role');
+    // Filtros
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [searchId, setSearchId] = useState("");
+
 
     useEffect(() => {
         const loadPatientData = async () => {
@@ -33,6 +41,8 @@ const PatientHistoryPage = ({ token }) => {
                 // Manejar respuesta del historial del paciente
                 if (historyResponse.status === "fulfilled") {
                     setHistory(historyResponse.value?.data || []); // Vacío si no hay datos
+                    setFilteredHistory(historyResponse.value?.data || []); // Inicializar el historial filtrado
+
                 } else if (historyResponse.reason?.response?.status === 404) {
                     setHistory([]); // Sin historial (404 no es error crítico)
                 } else {
@@ -42,6 +52,8 @@ const PatientHistoryPage = ({ token }) => {
                 // Manejar respuesta del historial de signos vitales
                 if (vitalSignsResponse.status === "fulfilled") {
                     setPatientHistory(vitalSignsResponse.value || []); // Vacío si no hay datos
+                    setFilteredVitalSigns(vitalSignsResponse.value || []);
+
                 } else if (vitalSignsResponse.reason?.response?.status === 404) {
                     setPatientHistory([]); // Sin signos vitales (404 no es error crítico)
                 } else {
@@ -70,6 +82,35 @@ const PatientHistoryPage = ({ token }) => {
             date: date.toLocaleDateString(), // Solo la fecha
             time: date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) // Solo la hora (hh:mm)
         };
+    };
+
+    const handleFilterHistory = () => {
+        let filtered = history;
+        if (startDate) {
+            filtered = filtered.filter(record => new Date(record.created_at) >= new Date(startDate));
+        }
+        if (endDate) {
+            filtered = filtered.filter(record => new Date(record.created_at) <= new Date(endDate));
+        }
+        setFilteredHistory(filtered);
+    };
+
+    const handleFilterVitalSigns = () => {
+        if (searchId.trim() === "") {
+            setFilteredVitalSigns(patientHistory);
+        } else {
+            const filtered = patientHistory.filter(record =>
+                record.id_registro.toString().includes(searchId.trim())
+            );
+            setFilteredVitalSigns(filtered);
+        }
+    };
+
+    const handleSearchIdChange = (e) => {
+        setSearchId(e.target.value);
+        if (e.target.value.trim() === "") {
+            setFilteredVitalSigns(patientHistory);
+        }
     };
 
     const handleGoBack = () => {
@@ -111,10 +152,26 @@ const PatientHistoryPage = ({ token }) => {
             <h1 className="text-2xl font-bold mb-6">Trazabilidad del paciente </h1>
             {/* Contenedor para capturar en PDF */}
             <div id="pdf-content">
+                {/* Filtros para el historial de cambios del paciente */}
+                <div className="mb-4">
+                    <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="mr-2 p-2 border rounded"
+                    />
+                    <input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className="mr-2 p-2 border rounded"
+                    />
+                    <button onClick={handleFilterHistory} className="p-2 bg-blue-500 text-white rounded">Filtrar por Fecha</button>
+                </div>
                 {/* Historial del Paciente */}
                 <div className="bg-white p-6 rounded shadow-lg w-full max-w-7xl mb-6 overflow-x-auto">
                     <h2 className="text-lg font-bold mb-4">Historial de cambios del paciente</h2>
-                    {history.length > 0 ? (
+                    {filteredHistory.length > 0 ? (
 
                         <table className="w-full border-collapse table-auto text-sm">
                             <thead>
@@ -130,14 +187,14 @@ const PatientHistoryPage = ({ token }) => {
                                     <th className="p-3 border-b-2">Ubicación</th>
                                     <th className="p-3 border-b-2">Fecha de Nacimiento</th>
                                     <th className="p-3 border-b-2">Estado</th>
-                                    <th className="p-3 border-b-2">Grupo de Edad</th>               
+                                    <th className="p-3 border-b-2">Grupo de Edad</th>
                                     <th className="p-3 border-b-2">Responsable</th>
-         
-                                    </tr>
+
+                                </tr>
                             </thead>
                             <tbody>
 
-                                {history.map((record, index) => {
+                                {filteredHistory.map((record, index) => {
                                     const { date, time } = formatDateTime(record.created_at);
                                     const nextRecord = history[index + 1] || {};
                                     return (
@@ -169,11 +226,22 @@ const PatientHistoryPage = ({ token }) => {
                     )}
 
                 </div>
-
+                <div className="mb-4">
+                    <input
+                        type="text"
+                        placeholder="Buscar por ID de Registro"
+                        value={searchId}
+                        onChange={handleSearchIdChange}
+                        className="mr-2 p-2 border rounded"
+                    />
+                    <button onClick={handleFilterVitalSigns} className="p-2 bg-blue-500 text-white rounded">
+                        Filtrar por ID
+                    </button>
+                </div>
                 {/* Signos Vitales */}
                 <div className="bg-white p-6 rounded shadow-lg w-full max-w-7xl mb-6 overflow-x-auto">
                     <h2 className="text-lg font-bold mb-4">Historial cambios de Signos Vitales</h2>
-                    {patientHistory.length > 0 ? (
+                    {filteredVitalSigns.length > 0 ? (
 
                         <table className="w-full border-collapse table-auto text-sm">
                             <thead>
@@ -200,9 +268,10 @@ const PatientHistoryPage = ({ token }) => {
                             </thead>
                             <tbody>
 
-                                {patientHistory.map((currentRecord, index) => {
-                                    const prevRecord = index > 0 ? patientHistory[index - 1] : null;
+                            {filteredVitalSigns.map((currentRecord, index) => {
+                                    const prevRecord = index > 0 ? filteredVitalSigns[index - 1] : null;
                                     return (
+
                                         <tr key={currentRecord.id_registro} className="text-center">
                                             <td className="p-3 border">{currentRecord.id_registro}</td>
                                             <td className="p-3 border">{formatDate(currentRecord.record_date)}</td>
