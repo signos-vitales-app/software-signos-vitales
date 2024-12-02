@@ -161,16 +161,13 @@ exports.updatePatientRecord = async (req, res) => {
     const { idRegistro } = req.params;
     const updatedData = req.body;
 
-    // Si `created_at` está presente, conviértelo al formato MySQL
-    if (updatedData.created_at) {
-        updatedData.created_at = formatDateForMySQL(updatedData.created_at);
-    }
-
+    // Validar si el usuario está autorizado
     const responsable_signos = req.user?.username; // Asegúrate de que el middleware authMiddleware adjunte el usuario a req.user
-
     if (!responsable_signos) {
         return res.status(401).json({ message: "Usuario no autorizado para realizar esta acción" });
     }
+    updatedData.created_at = formatDateForMySQL(updatedData.created_at);
+
     updatedData.responsable_signos = responsable_signos;
 
     // Validaciones
@@ -195,41 +192,56 @@ exports.updatePatientRecord = async (req, res) => {
     if (updatedData.temperatura && (updatedData.temperatura > 55 || updatedData.temperatura < 15)) {
         return res.status(400).json({ message: "La temperatura es demasiado alta o baja" });
     }
-    updatedData.created_at = formatDateForMySQL(updatedData.created_at);
 
     try {
-         // Guardar los valores actuales en historial antes de la actualización
-    const [currentRecord] = await db.query("SELECT * FROM registros_paciente WHERE id = ?", [idRegistro]);
+        // 1. Verificar los datos antes de hacer cualquier operación
+        console.log("Datos a actualizar:", updatedData);
 
-    const historial = {
-        id_paciente: currentRecord[0].id_paciente,
-        id_registro: currentRecord[0].id,
-        record_date: currentRecord[0].record_date,
-        record_time: currentRecord[0].record_time,
-        presion_sistolica: currentRecord[0].presion_sistolica,
-        presion_diastolica: currentRecord[0].presion_diastolica,
-        presion_media: currentRecord[0].presion_media,
-        pulso: currentRecord[0].pulso,
-        temperatura: currentRecord[0].temperatura,
-        frecuencia_respiratoria: currentRecord[0].frecuencia_respiratoria,
-        saturacion_oxigeno: currentRecord[0].saturacion_oxigeno,
-        peso_adulto: currentRecord[0].peso_adulto,
-        peso_pediatrico: currentRecord[0].peso_pediatrico,
-        talla: currentRecord[0].talla,
-        observaciones: currentRecord[0].observaciones,
-        responsable_signos: currentRecord[0].responsable_signos,
-    };
+        // 2. Actualizar el registro en la tabla `registros_paciente` con los nuevos datos
+        const result = await db.query("UPDATE registros_paciente SET ? WHERE id = ?", [updatedData, idRegistro]);
 
-    // Insertar el historial antes de actualizar
-    await db.query("INSERT INTO historial_signos_pacientes SET ?", [historial]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Registro no encontrado para actualizar" });
+        }
 
-        await db.query("UPDATE registros_paciente SET ? WHERE id = ?", [updatedData, idRegistro]);
-        res.json({ message: "Registro actualizado correctamente." });
+        // 3. Crear el objeto para insertar en `historial_signos_pacientes`
+        const historial = {
+            id_paciente: updatedData.id_paciente,  // Usar el id del paciente del nuevo registro
+            id_registro: idRegistro,               // El mismo id de registro
+            record_date: updatedData.record_date,
+            record_time: updatedData.record_time,
+            presion_sistolica: updatedData.presion_sistolica,
+            presion_diastolica: updatedData.presion_diastolica,
+            presion_media: updatedData.presion_media,
+            pulso: updatedData.pulso,
+            temperatura: updatedData.temperatura,
+            frecuencia_respiratoria: updatedData.frecuencia_respiratoria,
+            saturacion_oxigeno: updatedData.saturacion_oxigeno,
+            peso_adulto: updatedData.peso_adulto,
+            peso_pediatrico: updatedData.peso_pediatrico,
+            talla: updatedData.talla,
+            observaciones: updatedData.observaciones,
+            responsable_signos: updatedData.responsable_signos,
+        };
+
+        console.log("Datos a insertar en historial_signos_pacientes:", historial);
+
+        // 4. Insertar los nuevos datos en `historial_signos_pacientes`
+        const historialResult = await db.query("INSERT INTO historial_signos_pacientes SET ?", [historial]);
+
+        // Verificar si la inserción fue exitosa
+        if (!historialResult || historialResult.affectedRows === 0) {
+            return res.status(500).json({ message: "Error al registrar el historial de signos vitales" });
+        }
+
+        res.json({ message: "Registro actualizado y registrado en el historial correctamente." });
     } catch (error) {
         console.error("Error al actualizar el registro:", error);
         res.status(500).json({ message: "Error al actualizar el registro." });
     }
 };
+
+
 const formatDateForMySQL = (dateString) => {
     const date = new Date(dateString);
     const yyyy = date.getFullYear();
@@ -238,8 +250,9 @@ const formatDateForMySQL = (dateString) => {
     const hh = String(date.getHours()).padStart(2, '0');
     const mi = String(date.getMinutes()).padStart(2, '0');
     const ss = String(date.getSeconds()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+    return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`; // Formato MySQL DATETIME
 };
+
 
 // Obtener historial de signos vitales de un paciente
 exports.getPatientHistoryRecords = async (req, res) => {

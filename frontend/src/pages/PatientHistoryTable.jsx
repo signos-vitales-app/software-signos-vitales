@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { fetchPatientHistory, fetchPatientInfo, fetchPatientHistoryRecords } from "../services/patientService";
 import { useParams, useNavigate } from "react-router-dom";
 import { FiHome } from "react-icons/fi";
+import "jspdf-autotable";
+import { generatePatientPDF } from "../services/generatePatientPDF";
 
 const PatientHistoryPage = ({ token }) => {
     const [history, setHistory] = useState([]);
@@ -10,7 +12,7 @@ const PatientHistoryPage = ({ token }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { idPaciente } = useParams();
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
     const role = localStorage.getItem('role');
 
     useEffect(() => {
@@ -22,12 +24,12 @@ const PatientHistoryPage = ({ token }) => {
                     fetchPatientHistory(idPaciente, token),
                     fetchPatientHistoryRecords(idPaciente),
                 ]);
-    
+
                 // Manejar respuesta de información del paciente
                 if (patientDataResponse.status === "fulfilled") {
                     setPatientInfo(patientDataResponse.value || null);
                 }
-    
+
                 // Manejar respuesta del historial del paciente
                 if (historyResponse.status === "fulfilled") {
                     setHistory(historyResponse.value?.data || []); // Vacío si no hay datos
@@ -36,7 +38,7 @@ const PatientHistoryPage = ({ token }) => {
                 } else {
                     throw new Error("Error al obtener el historial del paciente");
                 }
-    
+
                 // Manejar respuesta del historial de signos vitales
                 if (vitalSignsResponse.status === "fulfilled") {
                     setPatientHistory(vitalSignsResponse.value || []); // Vacío si no hay datos
@@ -52,10 +54,10 @@ const PatientHistoryPage = ({ token }) => {
                 setLoading(false);
             }
         };
-    
+
         loadPatientData();
     }, [idPaciente, token]);
-    
+
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -88,145 +90,162 @@ const PatientHistoryPage = ({ token }) => {
     };
 
     const getChangedClass = (field, currentRecord, prevRecord) => {
-        return prevRecord && currentRecord[field] !== prevRecord[field] ? "bg-green-300" : ""; // Cambiar color si hay diferencia
+        if (prevRecord && currentRecord.id_registro === prevRecord.id_registro) {
+            return currentRecord[field] !== prevRecord[field] ? "bg-green-300" : "";
+        }
+        return ""; // No marcar como cambiado si no son del mismo ID
     };
+
 
     const isPediatric = patientInfo && patientInfo.age_group !== "Adulto";
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div className="text-red-500">{error}</div>;
 
+    const exportPDF = () => {
+        generatePatientPDF(history, patientHistory, isPediatric);
+    };
+
     return (
         <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6 overflow-auto">
             <h1 className="text-2xl font-bold mb-6">Historial del Paciente y Signos Vitales</h1>
+            {/* Contenedor para capturar en PDF */}
+            <div id="pdf-content">
+                {/* Historial del Paciente */}
+                <div className="bg-white p-6 rounded shadow-lg w-full max-w-7xl mb-6 overflow-x-auto">
+                    <h2 className="text-lg font-bold mb-4">Historial del Paciente</h2>
+                    {history.length > 0 ? (
 
-            {/* Historial del Paciente */}
-            <div className="bg-white p-6 rounded shadow-lg w-full max-w-7xl mb-6 overflow-x-auto">
-                <h2 className="text-lg font-bold mb-4">Historial del Paciente</h2>
-                {history.length > 0 ? (
+                        <table className="w-full border-collapse table-auto text-sm">
+                            <thead>
+                                <tr className="bg-blue-100 text-left">
+                                    <th className="p-3 border-b-2">Fecha de Registro</th>
+                                    <th className="p-3 border-b-2">Hora de Registro</th>
+                                    <th className="p-3 border-b-2">Responsable</th>
+                                    <th className="p-3 border-b-2">Primer Nombre</th>
+                                    <th className="p-3 border-b-2">Segundo Nombre</th>
+                                    <th className="p-3 border-b-2">Primer Apellido</th>
+                                    <th className="p-3 border-b-2">Segundo Apellido</th>
+                                    <th className="p-3 border-b-2">Tipo de Identificación</th>
+                                    <th className="p-3 border-b-2">Número de Identificación</th>
+                                    <th className="p-3 border-b-2">Ubicación</th>
+                                    <th className="p-3 border-b-2">Fecha de Nacimiento</th>
+                                    <th className="p-3 border-b-2">Estado</th>
+                                    <th className="p-3 border-b-2">Grupo de Edad</th>                        </tr>
+                            </thead>
+                            <tbody>
 
-                    <table className="w-full border-collapse table-auto text-sm">
-                        <thead>
-                            <tr className="bg-blue-100 text-left">
-                                <th className="p-3 border-b-2">Fecha de Registro</th>
-                                <th className="p-3 border-b-2">Hora de Registro</th>
-                                <th className="p-3 border-b-2">Responsable</th>
-                                <th className="p-3 border-b-2">Primer Nombre</th>
-                                <th className="p-3 border-b-2">Segundo Nombre</th>
-                                <th className="p-3 border-b-2">Primer Apellido</th>
-                                <th className="p-3 border-b-2">Segundo Apellido</th>
-                                <th className="p-3 border-b-2">Tipo de Identificación</th>
-                                <th className="p-3 border-b-2">Número de Identificación</th>
-                                <th className="p-3 border-b-2">Ubicación</th>
-                                <th className="p-3 border-b-2">Fecha de Nacimiento</th>
-                                <th className="p-3 border-b-2">Estado</th>
-                                <th className="p-3 border-b-2">Grupo de Edad</th>                        </tr>
-                        </thead>
-                        <tbody>
+                                {history.map((record, index) => {
+                                    const { date, time } = formatDateTime(record.created_at);
+                                    const nextRecord = history[index + 1] || {};
+                                    return (
+                                        <tr key={index} className={`text-center ${index % 2 === 0 ? "bg-gray-50" : "bg-white"}`}>
+                                            <td className="p-3 border">{date}</td>
+                                            <td className="p-3 border">{time}</td>
+                                            <td className={`p-3 border ${isModified(record.responsable_registro, nextRecord.responsable_registro) ? "bg-green-300" : ""}`}>{record.responsable_registro}</td>
 
-                            {history.map((record, index) => {
-                                const { date, time } = formatDateTime(record.created_at);
-                                const nextRecord = history[index + 1] || {};
-                                return (
-                                    <tr key={index} className={`text-center ${index % 2 === 0 ? "bg-gray-50" : "bg-white"}`}>
-                                        <td className="p-3 border">{date}</td>
-                                        <td className="p-3 border">{time}</td>
-                                        <td className={`p-3 border ${isModified(record.responsable_registro, nextRecord.responsable_registro) ? "bg-green-300" : ""}`}>{record.responsable_registro}</td>
+                                            <td className={`p-3 border ${isModified(record.primer_nombre, nextRecord.primer_nombre) ? "bg-green-300" : ""}`}>{record.primer_nombre}</td>
 
-                                        <td className={`p-3 border ${isModified(record.primer_nombre, nextRecord.primer_nombre) ? "bg-green-300" : ""}`}>{record.primer_nombre}</td>
+                                            <td className={`p-3 border ${isModified(record.segundo_nombre, nextRecord.segundo_nombre) ? "bg-green-300" : ""}`}>{record.segundo_nombre}</td>
+                                            <td className={`p-3 border ${isModified(record.primer_apellido, nextRecord.primer_apellido) ? "bg-green-300" : ""}`}>{record.primer_apellido}</td>
+                                            <td className={`p-3 border ${isModified(record.segundo_apellido, nextRecord.segundo_apellido) ? "bg-green-300" : ""}`}>{record.segundo_apellido}</td>
+                                            <td className={`p-3 border ${isModified(record.tipo_identificacion, nextRecord.tipo_identificacion) ? "bg-green-300" : ""}`}>{record.tipo_identificacion}</td>
+                                            <td className={`p-3 border ${isModified(record.numero_identificacion, nextRecord.numero_identificacion) ? "bg-green-300" : ""}`}>{record.numero_identificacion}</td>
+                                            <td className={`p-3 border ${isModified(record.ubicacion, nextRecord.ubicacion) ? "bg-green-300" : ""}`}>{record.ubicacion}</td>
+                                            <td className={`p-3 border ${isModified(record.fecha_nacimiento, nextRecord.fecha_nacimiento) ? "bg-green-300" : ""}`}>{formatDate(record.fecha_nacimiento)}</td>
+                                            <td className={`p-3 border font-bold ${record.status === "activo" ? "text-green-500" : "text-red-500"}`}>{record.status}</td>
+                                            <td className={`p-3 border${isModified(record.age_group, nextRecord.age_group) ? "bg-green-300" : ""}`}>{record.age_group}</td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
 
-                                        <td className={`p-3 border ${isModified(record.segundo_nombre, nextRecord.segundo_nombre) ? "bg-green-300" : ""}`}>{record.segundo_nombre}</td>
-                                        <td className={`p-3 border ${isModified(record.primer_apellido, nextRecord.primer_apellido) ? "bg-green-300" : ""}`}>{record.primer_apellido}</td>
-                                        <td className={`p-3 border ${isModified(record.segundo_apellido, nextRecord.segundo_apellido) ? "bg-green-300" : ""}`}>{record.segundo_apellido}</td>
-                                        <td className={`p-3 border ${isModified(record.tipo_identificacion, nextRecord.tipo_identificacion) ? "bg-green-300" : ""}`}>{record.tipo_identificacion}</td>
-                                        <td className={`p-3 border ${isModified(record.numero_identificacion, nextRecord.numero_identificacion) ? "bg-green-300" : ""}`}>{record.numero_identificacion}</td>
-                                        <td className={`p-3 border ${isModified(record.ubicacion, nextRecord.ubicacion) ? "bg-green-300" : ""}`}>{record.ubicacion}</td>
-                                        <td className={`p-3 border ${isModified(record.fecha_nacimiento, nextRecord.fecha_nacimiento) ? "bg-green-300" : ""}`}>{formatDate(record.fecha_nacimiento)}</td>
-                                        <td className={`p-3 border font-bold ${record.status === "activo" ? "text-green-500" : "text-red-500"}`}>{record.status}</td>
-                                        <td className="p-3 border">{record.age_group}</td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                        
-                    </table>
-                ) : (
-                    <div className="text-center text-gray-500">No hay registros en el historial del paciente.</div>
-                )}
+                        </table>
+                    ) : (
+                        <div className="text-center text-gray-500">No hay registros en el historial del paciente.</div>
+                    )}
 
+                </div>
+
+                {/* Signos Vitales */}
+                <div className="bg-white p-6 rounded shadow-lg w-full max-w-7xl mb-6 overflow-x-auto">
+                    <h2 className="text-lg font-bold mb-4">Historial de Signos Vitales</h2>
+                    {patientHistory.length > 0 ? (
+
+                        <table className="w-full border-collapse table-auto text-sm">
+                            <thead>
+                                <tr className="bg-blue-100 text-left">
+                                    <th className="p-3 border-b-2">ID Registro</th>
+                                    <th className="p-3 border-b-2">Fecha</th>
+                                    <th className="p-3 border-b-2">Hora</th>
+                                    <th className="p-3 border-b-2">Pulso</th>
+                                    <th className="p-3 border-b-2">Temperatura</th>
+                                    <th className="p-3 border-b-2">Frecuencia Respiratoria</th>
+                                    <th className="p-3 border-b-2">Presión Sistólica</th>
+                                    <th className="p-3 border-b-2">Presión Diastólica</th>
+                                    <th className="p-3 border-b-2">Presión Media</th>
+                                    <th className="p-3 border-b-2">Saturación de Oxígeno</th>
+                                    {isPediatric ? (
+                                        <th className="p-3 border-b-2">Peso Pediátrico</th>
+                                    ) : (
+                                        <th className="p-3 border-b-2">Peso Adulto</th>
+                                    )}
+                                    <th className="p-3 border-b-2">Talla</th>
+                                    <th className="p-3 border-b-2">Observaciones</th>
+                                    <th className="p-3 border-b-2">Responsable</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                {patientHistory.map((currentRecord, index) => {
+                                    const prevRecord = index > 0 ? patientHistory[index - 1] : null;
+                                    return (
+                                        <tr key={currentRecord.id_registro} className="text-center">
+                                            <td className="p-3 border">{currentRecord.id_registro}</td>
+                                            <td className="p-3 border">{formatDate(currentRecord.record_date)}</td>
+                                            <td className="p-3 border">{currentRecord.record_time}</td>
+                                            <td className={`p-3 border ${getChangedClass("pulso", currentRecord, prevRecord)}`}>{currentRecord.pulso}</td>
+                                            <td className={`p-3 border ${getChangedClass('temperatura', currentRecord, prevRecord)}`}>{currentRecord.temperatura}</td>
+                                            <td className={`p-3 border ${getChangedClass('frecuencia_respiratoria', currentRecord, prevRecord)}`}>{currentRecord.frecuencia_respiratoria}</td>
+                                            <td className={`p-3 border ${getChangedClass('presion_sistolica', currentRecord, prevRecord)}`}>{currentRecord.presion_sistolica}</td>
+                                            <td className={`p-3 border ${getChangedClass('presion_diastolica', currentRecord, prevRecord)}`}>{currentRecord.presion_diastolica}</td>
+                                            <td className={`p-3 border ${getChangedClass('presion_media', currentRecord, prevRecord)}`}>{currentRecord.presion_media}</td>
+                                            <td className={`p-3 border ${getChangedClass('saturacion_oxigeno', currentRecord, prevRecord)}`}>{currentRecord.saturacion_oxigeno}</td>
+                                            {isPediatric ? (
+                                                <td className={`p-3 border ${getChangedClass('peso_pediatrico', currentRecord, prevRecord)}`}>{currentRecord.peso_pediatrico}</td>
+                                            ) : (
+                                                <td className={`p-3 border ${getChangedClass('peso_adulto', currentRecord, prevRecord)}`}>{currentRecord.peso_adulto}</td>
+                                            )}
+                                            <td className={`p-3 border ${getChangedClass('talla', currentRecord, prevRecord)}`}>{currentRecord.talla}</td>
+                                            <td className={`p-3 border ${getChangedClass('observaciones', currentRecord, prevRecord)}`}>{currentRecord.observaciones}</td>
+                                            <td className={`p-3 border ${getChangedClass('responsable_signos', currentRecord, prevRecord)}`}>{currentRecord.responsable_signos}</td>
+                                        </tr>
+                                    );
+                                })}
+
+                            </tbody>
+                        </table>
+                    ) : (
+                        <div className="text-center text-gray-500">No hay registros en el historial de signos vitales.</div>
+
+                    )}
+                </div>
+
+                {/* Botones de acción */}
+                <button
+                    onClick={handleGoBack}
+                    className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
+                >
+                    <FiHome className="mr-2" /> Regresar
+                </button>
+                <button
+                    onClick={exportPDF}
+                    className="flex items-center px-4 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition"
+                >
+                    Exportar PDF
+                </button>
             </div>
-
-            {/* Signos Vitales */}
-            <div className="bg-white p-6 rounded shadow-lg w-full max-w-7xl mb-6 overflow-x-auto">
-                <h2 className="text-lg font-bold mb-4">Historial de Signos Vitales</h2>
-                {patientHistory.length > 0 ? (
-
-                    <table className="w-full border-collapse table-auto text-sm">
-                        <thead>
-                            <tr className="bg-blue-100 text-left">
-                                <th className="p-3 border-b-2">ID Registro</th>
-                                <th className="p-3 border-b-2">Fecha</th>
-                                <th className="p-3 border-b-2">Hora</th>
-                                <th className="p-3 border-b-2">Pulso</th>
-                                <th className="p-3 border-b-2">Temperatura</th>
-                                <th className="p-3 border-b-2">Frecuencia Respiratoria</th>
-                                <th className="p-3 border-b-2">Presión Sistólica</th>
-                                <th className="p-3 border-b-2">Presión Diastólica</th>
-                                <th className="p-3 border-b-2">Presión Media</th>
-                                <th className="p-3 border-b-2">Saturación de Oxígeno</th>
-                                {isPediatric ? (
-                                    <th className="p-3 border-b-2">Peso Pediátrico</th>
-                                ) : (
-                                    <th className="p-3 border-b-2">Peso Adulto</th>
-                                )}
-                                <th className="p-3 border-b-2">Talla</th>
-                                <th className="p-3 border-b-2">Observaciones</th>
-                                <th className="p-3 border-b-2">Responsable</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                            {patientHistory.map((currentRecord, index) => {
-                                const prevRecord = index > 0 ? patientHistory[index - 1] : null;
-                                return (
-                                    <tr key={currentRecord.id_registro} className="text-center">
-                                        <td className="p-3 border">{currentRecord.id_registro}</td>
-                                        <td className="p-3 border">{formatDate(currentRecord.record_date)}</td>
-                                        <td className="p-3 border">{currentRecord.record_time}</td>
-                                        <td className={`p-3 border ${getChangedClass("pulso", currentRecord, prevRecord)}`}>{currentRecord.pulso}</td>
-                                        <td className={`p-3 border ${getChangedClass('temperatura', currentRecord, prevRecord)}`}>{currentRecord.temperatura}</td>
-                                        <td className={`p-3 border ${getChangedClass('frecuencia_respiratoria', currentRecord, prevRecord)}`}>{currentRecord.frecuencia_respiratoria}</td>
-                                        <td className={`p-3 border ${getChangedClass('presion_sistolica', currentRecord, prevRecord)}`}>{currentRecord.presion_sistolica}</td>
-                                        <td className={`p-3 border ${getChangedClass('presion_diastolica', currentRecord, prevRecord)}`}>{currentRecord.presion_diastolica}</td>
-                                        <td className={`p-3 border ${getChangedClass('presion_media', currentRecord, prevRecord)}`}>{currentRecord.presion_media}</td>
-                                        <td className={`p-3 border ${getChangedClass('saturacion_oxigeno', currentRecord, prevRecord)}`}>{currentRecord.saturacion_oxigeno}</td>
-                                        {isPediatric ? (
-                                            <td className={`p-3 border ${getChangedClass('peso_pediatrico', currentRecord, prevRecord)}`}>{currentRecord.peso_pediatrico}</td>
-                                        ) : (
-                                            <td className={`p-3 border ${getChangedClass('peso_adulto', currentRecord, prevRecord)}`}>{currentRecord.peso_adulto}</td>
-                                        )}
-                                        <td className={`p-3 border ${getChangedClass('talla', currentRecord, prevRecord)}`}>{currentRecord.talla}</td>
-                                        <td className={`p-3 border ${getChangedClass('observaciones', currentRecord, prevRecord)}`}>{currentRecord.observaciones}</td>
-                                        <td className={`p-3 border ${getChangedClass('responsable_signos', currentRecord, prevRecord)}`}>{currentRecord.responsable_signos}</td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                ) : (
-                    <div className="text-center text-gray-500">No hay registros en el historial de signos vitales.</div>
-
-                )}
-            </div>
-
-            {/* Botones de acción */}
-            <button
-                onClick={handleGoBack}
-                className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
-            >
-                <FiHome className="mr-2" /> Regresar
-            </button>
-        </div >
+        </div>
     );
 };
 
