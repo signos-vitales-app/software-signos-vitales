@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-export const generatePatientPDF = (history, patientHistory, patientInfo, isPediatric) => {
+export const generatePatientPDF = (history, patientHistory, patientInfo, isPediatric,filteredHistory,filteredPatientHistory) => {
     const doc = new jsPDF("l");
     console.log(patientInfo);  // Asegúrate de que `patientInfo` tenga los datos correctos.
 
@@ -16,12 +16,12 @@ export const generatePatientPDF = (history, patientHistory, patientInfo, isPedia
     };
   
     // Tabla: Historial del Paciente
-    if (history.length > 0) {
+    if (filteredHistory.length > 0) {
       doc.setFontSize(12);
       doc.text('Historial cambios del Paciente', 14, 30);
   
-      const historyTableData = history.map((record, index) => {
-        const nextRecord = history[index + 1] || {};
+      const historyTableData = filteredHistory.map((record, index) => {
+        const nextRecord = filteredHistory[index + 1] || {};
         return [
           formatDate(record.created_at.split('T')[0]), // Fecha
           record.created_at.split('T')[1].slice(0, 5), // Hora
@@ -48,12 +48,12 @@ export const generatePatientPDF = (history, patientHistory, patientInfo, isPedia
     }
   
     // Tabla: Historial de Signos Vitales
-    if (patientHistory.length > 0) {
+    if (filteredPatientHistory.length > 0) {
       const startY = doc.lastAutoTable.finalY + 10; // Ajustar el inicio de la siguiente tabla
       doc.text('Historial cambios de Signos Vitales', 14, startY);
   
-      const patientHistoryTableData = patientHistory.map((currentRecord, index) => {
-        const prevRecord = index > 0 ? patientHistory[index - 1] : null;
+      const patientHistoryTableData = filteredPatientHistory.map((currentRecord, index) => {
+        const prevRecord = index > 0 ? filteredPatientHistory[index - 1] : null;
         return [
           currentRecord.id_registro,
           formatDate(currentRecord.record_date.split('T')[0]), // Fecha

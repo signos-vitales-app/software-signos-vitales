@@ -10,8 +10,7 @@ const PatientHistoryPage = ({ token }) => {
     const [filteredHistory, setFilteredHistory] = useState([]); // Estado para el historial filtrado
     const [patientInfo, setPatientInfo] = useState(null);
     const [patientHistory, setPatientHistory] = useState([]);
-    const [filteredVitalSigns, setFilteredVitalSigns] = useState([]);
-
+    const [filteredPatientHistory, setFilteredPatientHistory] = useState([]); // Nuevo estado para tabla filtrada
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { idPaciente } = useParams();
@@ -51,9 +50,9 @@ const PatientHistoryPage = ({ token }) => {
 
                 // Manejar respuesta del historial de signos vitales
                 if (vitalSignsResponse.status === "fulfilled") {
-                    setPatientHistory(vitalSignsResponse.value || []); // Vacío si no hay datos
-                    setFilteredVitalSigns(vitalSignsResponse.value || []);
-
+                    const vitalSignsData = vitalSignsResponse.value || [];
+                    setPatientHistory(vitalSignsData);
+                    setFilteredPatientHistory(vitalSignsData); // Inicializa el estado de la tabla
                 } else if (vitalSignsResponse.reason?.response?.status === 404) {
                     setPatientHistory([]); // Sin signos vitales (404 no es error crítico)
                 } else {
@@ -95,21 +94,16 @@ const PatientHistoryPage = ({ token }) => {
         setFilteredHistory(filtered);
     };
 
-    const handleFilterVitalSigns = () => {
-        if (searchId.trim() === "") {
-            setFilteredVitalSigns(patientHistory);
-        } else {
-            const filtered = patientHistory.filter(record =>
-                record.id_registro.toString().includes(searchId.trim())
-            );
-            setFilteredVitalSigns(filtered);
-        }
-    };
-
     const handleSearchIdChange = (e) => {
-        setSearchId(e.target.value);
-        if (e.target.value.trim() === "") {
-            setFilteredVitalSigns(patientHistory);
+        const value = e.target.value.trim();
+        setSearchId(value);
+
+        if (value) {
+            // Filtra por ID cuando se ingresa un valor
+            setFilteredPatientHistory(patientHistory.filter(record => record.id_registro.toString() === value));
+        } else {
+            // Muestra todos los registros si se borra el valor
+            setFilteredPatientHistory(patientHistory);
         }
     };
 
@@ -224,24 +218,21 @@ const PatientHistoryPage = ({ token }) => {
                     ) : (
                         <div className="text-center text-gray-500">No hay registros en el historial del paciente.</div>
                     )}
-
                 </div>
-                <div className="mb-4">
-                    <input
-                        type="text"
-                        placeholder="Buscar por ID de Registro"
-                        value={searchId}
-                        onChange={handleSearchIdChange}
-                        className="mr-2 p-2 border rounded"
-                    />
-                    <button onClick={handleFilterVitalSigns} className="p-2 bg-blue-500 text-white rounded">
-                        Filtrar por ID
-                    </button>
-                </div>
+                {/* Filtro por ID */}
+            <div className="mb-4">
+                <input
+                    type="text"
+                    value={searchId}
+                    onChange={handleSearchIdChange}
+                    placeholder="Buscar por ID de Registro"
+                    className="p-2 border rounded w-full max-w-md"
+                />
+            </div>
                 {/* Signos Vitales */}
                 <div className="bg-white p-6 rounded shadow-lg w-full max-w-7xl mb-6 overflow-x-auto">
                     <h2 className="text-lg font-bold mb-4">Historial cambios de Signos Vitales</h2>
-                    {filteredVitalSigns.length > 0 ? (
+                    {filteredPatientHistory.length > 0 ? (
 
                         <table className="w-full border-collapse table-auto text-sm">
                             <thead>
@@ -268,8 +259,8 @@ const PatientHistoryPage = ({ token }) => {
                             </thead>
                             <tbody>
 
-                            {filteredVitalSigns.map((currentRecord, index) => {
-                                    const prevRecord = index > 0 ? filteredVitalSigns[index - 1] : null;
+                            {filteredPatientHistory.map((currentRecord, index) => {
+                                    const prevRecord = index > 0 ? filteredPatientHistory[index - 1] : null;
                                     return (
 
                                         <tr key={currentRecord.id_registro} className="text-center">
@@ -311,7 +302,7 @@ const PatientHistoryPage = ({ token }) => {
                     <FiHome className="mr-2" /> Regresar
                 </button>
                 <button
-                    onClick={() => generatePatientPDF(history, patientHistory, patientInfo, isPediatric)}
+                    onClick={() => generatePatientPDF(history, patientHistory, patientInfo, isPediatric,filteredHistory,filteredPatientHistory)}
                     className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                 >
                     Exportar a PDF
