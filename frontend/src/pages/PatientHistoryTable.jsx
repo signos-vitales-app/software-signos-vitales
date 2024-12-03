@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { fetchPatientHistory, fetchPatientInfo, fetchPatientHistoryRecords } from "../services/patientService";
 import { useParams, useNavigate } from "react-router-dom";
-import { FiHome } from "react-icons/fi";
+import { FiPlusCircle, FiHome, FiFilter, FiDownload, FiEdit } from "react-icons/fi";
 import "jspdf-autotable";
 import { generatePatientPDF } from "../services/generatePatientPDF";
 
@@ -13,6 +13,8 @@ const PatientHistoryPage = ({ token }) => {
     const [filteredPatientHistory, setFilteredPatientHistory] = useState([]); // Nuevo estado para tabla filtrada
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedIds, setSelectedIds] = useState(new Set()); // Estado para almacenar IDs seleccionados
+
     const { idPaciente } = useParams();
     const navigate = useNavigate();
     const role = localStorage.getItem('role');
@@ -107,6 +109,30 @@ const PatientHistoryPage = ({ token }) => {
         }
     };
 
+    const handleSelectRecord = (id) => {
+        setSelectedIds(prevState => {
+            const newSelectedIds = new Set(prevState);
+            if (newSelectedIds.has(id)) {
+                newSelectedIds.delete(id); // Deselecciona
+            } else {
+                newSelectedIds.add(id); // Selecciona
+            }
+            return newSelectedIds;
+        });
+    };
+
+    const handleSelectAllWithId = (id) => {
+        setSelectedIds(prevState => {
+            const newSelectedIds = new Set(prevState);
+            filteredPatientHistory.forEach(record => {
+                if (record.id_registro === id) {
+                    newSelectedIds.add(id);
+                }
+            });
+            return newSelectedIds;
+        });
+    };
+
     const handleGoBack = () => {
         navigate(-1); // Redirige a la página de búsqueda
     };
@@ -131,15 +157,14 @@ const PatientHistoryPage = ({ token }) => {
         return ""; // No marcar como cambiado si no son del mismo ID
     };
 
-
+    const exportPDF = () => {
+        const selectedRecords = filteredPatientHistory.filter(record => selectedIds.has(record.id_registro));
+        generatePatientPDF(patientInfo, selectedRecords,filteredHistory,filteredPatientHistory,selectedIds); // Generar PDF solo con los seleccionados
+    };
     const isPediatric = patientInfo && patientInfo.age_group !== "Adulto";
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div className="text-red-500">{error}</div>;
-
-    const exportPDF = () => {
-        generatePatientPDF(history, patientHistory, isPediatric);
-    };
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6 overflow-auto">
@@ -181,7 +206,7 @@ const PatientHistoryPage = ({ token }) => {
                                     <th className="p-3 border-b-2">Ubicación</th>
                                     <th className="p-3 border-b-2">Fecha de Nacimiento</th>
                                     <th className="p-3 border-b-2">Estado</th>
-                                    <th className="p-3 border-b-2">Grupo de Edad</th>
+                                    <th className="p-3 border-b-2">Tipo de paciente</th>
                                     <th className="p-3 border-b-2">Responsable</th>
 
                                 </tr>
@@ -220,15 +245,15 @@ const PatientHistoryPage = ({ token }) => {
                     )}
                 </div>
                 {/* Filtro por ID */}
-            <div className="mb-4">
-                <input
-                    type="text"
-                    value={searchId}
-                    onChange={handleSearchIdChange}
-                    placeholder="Buscar por ID de Registro"
-                    className="p-2 border rounded w-full max-w-md"
-                />
-            </div>
+                <div className="mb-4">
+                    <input
+                        type="text"
+                        value={searchId}
+                        onChange={handleSearchIdChange}
+                        placeholder="Buscar por ID de Registro"
+                        className="p-2 border rounded w-full max-w-md"
+                    />
+                </div>
                 {/* Signos Vitales */}
                 <div className="bg-white p-6 rounded shadow-lg w-full max-w-7xl mb-6 overflow-x-auto">
                     <h2 className="text-lg font-bold mb-4">Historial cambios de Signos Vitales</h2>
@@ -237,16 +262,17 @@ const PatientHistoryPage = ({ token }) => {
                         <table className="w-full border-collapse table-auto text-sm">
                             <thead>
                                 <tr className="bg-blue-100 text-left">
-                                    <th className="p-3 border-b-2">ID Registro</th>
+                                    <th className="p-3 border-b-2">Seleccionar</th>
+                                    <th className="p-3 border-b-2">Id del registro</th>
                                     <th className="p-3 border-b-2">Fecha</th>
                                     <th className="p-3 border-b-2">Hora</th>
                                     <th className="p-3 border-b-2">Pulso</th>
                                     <th className="p-3 border-b-2">Temperatura</th>
-                                    <th className="p-3 border-b-2">Frecuencia Respiratoria</th>
-                                    <th className="p-3 border-b-2">Presión Sistólica</th>
-                                    <th className="p-3 border-b-2">Presión Diastólica</th>
-                                    <th className="p-3 border-b-2">Presión Media</th>
-                                    <th className="p-3 border-b-2">Saturación de Oxígeno</th>
+                                    <th className="p-3 border-b-2">FR</th>
+                                    <th className="p-3 border-b-2">TAS</th>
+                                    <th className="p-3 border-b-2">TAD</th>
+                                    <th className="p-3 border-b-2">TAM</th>
+                                    <th className="p-3 border-b-2">SatO2</th>
                                     {isPediatric ? (
                                         <th className="p-3 border-b-2">Peso Pediátrico</th>
                                     ) : (
@@ -259,11 +285,18 @@ const PatientHistoryPage = ({ token }) => {
                             </thead>
                             <tbody>
 
-                            {filteredPatientHistory.map((currentRecord, index) => {
+                                {filteredPatientHistory.map((currentRecord, index) => {
                                     const prevRecord = index > 0 ? filteredPatientHistory[index - 1] : null;
                                     return (
 
                                         <tr key={currentRecord.id_registro} className="text-center">
+                                            <td className="p-3 border">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={selectedIds.has(currentRecord.id_registro)} 
+                                                onChange={() => handleSelectRecord(currentRecord.id_registro)} 
+                                            />
+                                        </td>
                                             <td className="p-3 border">{currentRecord.id_registro}</td>
                                             <td className="p-3 border">{formatDate(currentRecord.record_date)}</td>
                                             <td className="p-3 border">{currentRecord.record_time}</td>
@@ -293,20 +326,21 @@ const PatientHistoryPage = ({ token }) => {
 
                     )}
                 </div>
-
-                {/* Botones de acción */}
-                <button
-                    onClick={handleGoBack}
-                    className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
-                >
-                    <FiHome className="mr-2" /> Regresar
-                </button>
-                <button
-                    onClick={() => generatePatientPDF(history, patientHistory, patientInfo, isPediatric,filteredHistory,filteredPatientHistory)}
-                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                >
-                    Exportar a PDF
-                </button>
+{/* Botones de acción */}
+<div className="flex justify-center w-full max-w-7xl mt-4 space-x-2">
+  <button
+    onClick={handleGoBack}
+    className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
+  >
+    <FiHome className="mr-2" /> Regresar
+  </button>
+  <button
+    onClick={exportPDF}
+    className="flex items-center px-4 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition"
+  >
+    <FiDownload className="mr-2" /> Exportar PDF
+  </button>
+</div>
 
             </div>
         </div>

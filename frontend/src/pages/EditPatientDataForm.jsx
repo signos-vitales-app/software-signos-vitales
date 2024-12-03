@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchPatientRecord, updatePatientRecord, fetchPatientInfo } from "../services/patientService";
-import { FiSave } from "react-icons/fi";
+import { FaSave } from "react-icons/fa";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FiHome } from 'react-icons/fi';
 
 const EditPatientDataForm = () => {
     const { idRegistro,idPaciente } = useParams();
@@ -103,7 +104,9 @@ const EditPatientDataForm = () => {
             toast.error("Error al actualizar el registro.");
         }
     };
-
+    const handleGoBack = () => {
+        navigate(-1);
+    };
     return (
         <div className="flex flex-col items-center min-h-screen bg-gray-100 p-4 overflow-auto">
             <h1 className="text-2xl font-bold mb-6">Editar Registro del Paciente</h1>
@@ -267,14 +270,21 @@ const EditPatientDataForm = () => {
                         className="w-full p-2 border rounded"
                     />
                 </div>
-
-                <button
-                    type="submit"
-                    className="flex items-center justify-center py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                    <FiSave className="mr-2" />
-                    Guardar Cambios
-                </button>
+                <div className="flex justify-center gap-6 mt-4">
+                    <button
+                        type="button"
+                        onClick={handleGoBack}
+                        className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
+                    >
+                        <FiHome size={20} className="mr-2" /> Regresar
+                    </button>
+                    <button
+                        type="submit"
+                        className="flex items-center px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
+                    >
+                        <FaSave size={18} className="mr-2" /> Guardar Cambios
+                    </button>
+                </div>
             </form>
         </div>
     );
